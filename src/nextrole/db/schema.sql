@@ -45,3 +45,35 @@ CREATE TABLE IF NOT EXISTS matches (
     match_json TEXT NOT NULL,
     PRIMARY KEY (user_id, job_id)
 );
+
+-- Milestone e. One outreach record per (user, job); regenerating replaces it.
+-- There is no 'sent' status anywhere: the app only prepares drafts.
+CREATE TABLE IF NOT EXISTS outreach (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    status TEXT NOT NULL DEFAULT 'draft',
+    draft_json TEXT NOT NULL,
+    critic_json TEXT,
+    facts_json TEXT NOT NULL,
+    warnings_json TEXT NOT NULL DEFAULT '[]',
+    recipient_email TEXT NOT NULL DEFAULT '',
+    attempts INTEGER NOT NULL DEFAULT 1,
+    approved_at TEXT,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, job_id)
+);
+
+-- Company research cache (shared across users; contains only public information).
+CREATE TABLE IF NOT EXISTS research_cache (
+    company_key TEXT PRIMARY KEY,
+    research_json TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+);
+
+-- Generic HTTP cache for tool calls (Wikipedia, HN, fetched pages).
+CREATE TABLE IF NOT EXISTS http_cache (
+    key TEXT PRIMARY KEY,
+    body TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+);

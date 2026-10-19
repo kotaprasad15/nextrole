@@ -98,3 +98,27 @@ button:disabled { opacity: .6; cursor: progress; }
 .btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .empty { color: var(--muted); text-align: center; }
 main { max-width: 820px; }
+
+/* ---- outreach ---- */
+.badge { display: inline-block; font-size: .75rem; font-weight: 600; padding: 2px 10px; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--muted); }
+.badge.critic_passed { color: #2e9e5b; border-color: #2e9e5b; }
+.badge.user_approved { background: #2e9e5b; color: #fff; border-color: #2e9e5b; }
+.badge.draft { color: #b7791f; border-color: #d9a21b; }
+.actions { align-items: center; }
+.actions.tight { margin: 0; }
+.card.warn { border-color: #d9a21b; background: color-mix(in srgb, #d9a21b 10%, var(--surface)); }
+.card.warn p { margin: 4px 0; font-size: .9rem; }
+.card.note { color: var(--muted); font-size: .9rem; }
+.card.ready { border-color: #2e9e5b; }
+.critic-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.bars { display: grid; gap: 6px; }
+.bar { display: grid; grid-template-columns: 78px 1fr 28px; gap: 10px; align-items: center; font-size: .82rem; color: var(--muted); }
+.track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.fill { height: 100%; background: var(--accent); }
+.draft-body { min-height: 260px; line-height: 1.55; }
+.danger-link { color: var(--danger); }
+.facts { padding-left: 18px; margin: 10px 0 0; font-size: .88rem; }
+.facts li { margin-bottom: 6px; }
+details summary { cursor: pointer; font-weight: 600; }
+.page-head + .card, .page-head + .card.warn { margin-top: 8px; }

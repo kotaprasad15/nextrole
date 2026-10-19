@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # Empty = official Anthropic API. Set to use another Anthropic-compatible provider, e.g.
     # DeepSeek: https://api.deepseek.com/anthropic (then also set MODEL_FAST / MODEL_STRONG).
     llm_base_url: str = ""
+    # Send thinking={"type": "disabled"}. Reasoning models (e.g. DeepSeek) otherwise spend the
+    # whole max_tokens budget on hidden reasoning and return empty text. Off by default.
+    llm_disable_thinking: bool = False
     model_fast: str = "claude-haiku-5-5"
     model_strong: str = "claude-sonnet-5-5"
 
@@ -31,6 +34,13 @@ class Settings(BaseSettings):
     per_company_cap: int = 5  # keeps one huge board (e.g. 700 jobs) from crowding out the rest
     startup_max_employees: int = 200
     mid_max_employees: int = 5000
+
+    # Outreach (Researcher / Writer / Critic)
+    research_max_steps: int = 4  # hard cap on the researcher's tool-use loop
+    research_cache_ttl_hours: int = 24
+    fetch_timeout_s: float = 10.0
+    critic_threshold: int = 75  # overall score needed to pass
+    critic_max_retries: int = 3  # rewrites after the first draft (so up to 4 drafts total)
 
     llm_timeout_s: float = 60.0
     llm_max_retries: int = 3

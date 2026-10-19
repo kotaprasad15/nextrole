@@ -3,11 +3,12 @@ import sqlite3
 from collections.abc import Callable
 from pathlib import Path
 
+import httpx
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from nextrole.api.routers import auth, profile, recommendations
+from nextrole.api.routers import auth, outreach, profile, recommendations
 from nextrole.config import Settings, get_settings
 from nextrole.db.connection import connect
 from nextrole.llm.budget import Budget
@@ -24,6 +25,7 @@ def create_app(
     conn: sqlite3.Connection | None = None,
     llm_factory: Callable[[], LLMClient] | None = None,
     discover: Callable | None = None,
+    http_factory: Callable[[], httpx.AsyncClient] | None = None,
 ) -> FastAPI:
     """Factory so tests can inject an in-memory DB and a mocked LLM."""
     settings = settings or get_settings()
@@ -35,9 +37,13 @@ def create_app(
         lambda: LLMClient(settings, Budget.from_settings(settings), Tracer(settings.trace_dir))
     )
     app.state.discover = discover or discover_jobs  # injectable so tests never hit the network
+    # HTTP client for researcher tools; injectable so tests never touch the network.
+    app.state.http_factory = http_factory or (lambda: httpx.AsyncClient(
+        headers={"User-Agent": "NextRole/0.1 (portfolio project)"}, timeout=settings.fetch_timeout_s))
     app.include_router(auth.router)
     app.include_router(profile.router)
     app.include_router(recommendations.router)
+    app.include_router(outreach.router)
 
     @app.get("/health")
     def health() -> dict:

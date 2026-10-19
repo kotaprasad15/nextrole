@@ -112,3 +112,19 @@ def test_base_url_setting_routes_to_other_provider(tmp_path):
     assert "api.anthropic.com" in str(default._client.base_url)
     ds = _llm(tmp_path, None, anthropic_api_key="k", llm_base_url="https://api.deepseek.com/anthropic")
     assert "api.deepseek.com/anthropic" in str(ds._client.base_url)
+
+
+async def test_disable_thinking_flag_is_sent_only_when_enabled(tmp_path):
+    sent = []
+
+    class Spy(FakeAnthropic):
+        async def _create(self, **kw):
+            sent.append(kw)
+            return await super()._create(**kw)
+
+    for flag in (False, True):
+        sent.clear()
+        llm = _llm(tmp_path, Spy(_resp("ok")), llm_disable_thinking=flag)
+        await llm.complete(agent="t", model="m", system="s", user="u")
+        assert ("thinking" in sent[0]) is flag
+        assert not flag or sent[0]["thinking"] == {"type": "disabled"}
