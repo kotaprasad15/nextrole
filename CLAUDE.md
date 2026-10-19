@@ -11,7 +11,7 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 
 - Live job discovery (no key needed): `uv run python -m nextrole.jobs_demo "software engineer" "remote"`
 
-- API: `uv run uvicorn nextrole.api.main:app --reload` then UI: `uv run streamlit run ui/streamlit_app.py` (set `RESUME_ENCRYPTION_KEY` in `.env` first)
+- App (API + UI): `uv run uvicorn nextrole.api.main:app --reload`, open http://localhost:8000 (set `RESUME_ENCRYPTION_KEY` in `.env` first)
 
 ## Architecture (current: milestone c)
 - `config.py`: all tunables from `.env` (model names, budgets, prices). Never hardcode a model.
@@ -24,8 +24,8 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 - `auth/`: Argon2 password hashes; opaque server-side sessions (only SHA-256 of the token stored; HttpOnly SameSite=Lax cookie). Not yet: login throttling.
 - `resume/`: `extract_text` (magic-byte type check + size cap, PDF/DOCX) and `ResumeStore` (Fernet-encrypted at rest, needs `RESUME_ENCRYPTION_KEY`).
 - `agents/intake.py`: resume text -> `Profile` via `ExtractedProfile` schema; resume is untrusted data (injection guard in prompt, schema-constrained output).
-- `api/`: `create_app(settings, conn, llm_factory)` factory (injectable for tests). Routes: `/auth/signup|login|logout`, `DELETE /me`, `POST /onboarding` (multipart), `GET|PUT /profile`. Run: `uv run uvicorn nextrole.api.main:app --reload`.
-- `ui/streamlit_app.py`: thin HTTP client for login, onboarding, profile review/edit. Run: `uv run streamlit run ui/streamlit_app.py`.
+- `api/`: `create_app(settings, conn, llm_factory)` factory (injectable for tests). Routes: `/auth/signup|login|logout`, `DELETE /me`, `POST /onboarding` (multipart), `GET /me`, `GET|PUT /profile`. Run: `uv run uvicorn nextrole.api.main:app --reload`.
+- `web/`: framework-free frontend (index.html, app.css, app.js), served same-origin by FastAPI at `/` and `/static` (no CORS, no build step). `h()` helper builds DOM; user/LLM text is only set via textContent/value, never innerHTML. Views: auth, onboarding, profile editor (more views per milestone).
 - `agents/baseline.py`: single-agent baseline (control for the eval).
 
 ## Conventions

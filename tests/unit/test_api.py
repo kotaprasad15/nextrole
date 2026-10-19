@@ -145,3 +145,14 @@ def test_resubmitting_onboarding_replaces_old_resume_file(ctx):
     for _ in range(2):
         c.post("/onboarding", data=FORM, files={"resume": ("cv.docx", RESUME)})
     assert len(list(ctx.settings.upload_dir.iterdir())) == 1
+
+
+def test_me_and_frontend_served(ctx):
+    c = ctx.client
+    assert c.get("/me").status_code == 401
+    signup(c, email="Me@B.co")
+    assert c.get("/me").json() == {"email": "me@b.co"}
+    page = c.get("/")
+    assert page.status_code == 200 and "NextRole" in page.text
+    assert c.get("/static/app.js").status_code == 200
+    assert c.get("/static/app.css").status_code == 200

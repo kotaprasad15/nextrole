@@ -65,6 +65,14 @@ def logout(request: Request, resp: Response, conn: sqlite3.Connection = Depends(
     resp.delete_cookie(COOKIE)
 
 
+@router.get("/me")
+def me(
+    user_id: int = Depends(current_user_id), conn: sqlite3.Connection = Depends(get_conn)
+) -> dict:
+    row = conn.execute("SELECT email FROM users WHERE id = ?", (user_id,)).fetchone()
+    return {"email": row["email"]}
+
+
 @router.delete("/me", status_code=204)
 def delete_account(
     resp: Response,
