@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from nextrole.agents.factsheet import render
 from nextrole.config import Settings
 from nextrole.llm.client import LLMClient
+from nextrole.memory import StyleMemory, render_memory
 from nextrole.models.job import Job
 from nextrole.models.outreach import Channel, Claim, CriticReport, OutreachDraft
 from nextrole.models.research import Fact
@@ -52,6 +53,7 @@ class WriterAgent:
     async def write(
         self, *, facts: list[Fact], job: Job, channel: Channel, recipient_name: str = "",
         previous: tuple[OutreachDraft, CriticReport] | None = None,
+        memory: StyleMemory | None = None,
     ) -> OutreachDraft:
         lo, hi = WORD_RANGE[channel]
         system = SYSTEM.format(
@@ -61,6 +63,8 @@ class WriterAgent:
                           if channel == "email" else "7. Leave `subject` empty.\n"),
         )
         user = f"ROLE: {job.title} at {job.company}\n\nFACT SHEET:\n{render(facts)}"
+        if memory:
+            user += render_memory(memory)
         if previous:
             draft, report = previous
             user += (

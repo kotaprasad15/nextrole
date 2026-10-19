@@ -11,7 +11,6 @@ Design decisions:
   facts, never executed or followed as instructions.
 """
 import json
-import re
 import sqlite3
 import time
 from dataclasses import dataclass
@@ -21,13 +20,11 @@ import httpx
 
 from nextrole.config import Settings
 from nextrole.models.company import normalize_company
-from nextrole.text import html_to_text
 from nextrole.tools.cache import HostRateLimiter, HttpCache
-from nextrole.tools.netguard import Resolver, UnsafeURL, check_public_https, system_resolver
+from nextrole.tools.fetch import fetch_page_text
+from nextrole.tools.netguard import Resolver, UnsafeURL, system_resolver
 
-MAX_PAGE_BYTES = 1_500_000
 MAX_SOURCE_CHARS = 2000
-_NOISE = re.compile(r"<(script|style|noscript)[^>]*>.*?</\1>", re.DOTALL | re.IGNORECASE)
 
 TOOL_DEFS = [
     {
@@ -66,13 +63,13 @@ class Source:
 class ResearchTools:
     def __init__(
         self, client: httpx.AsyncClient, conn: sqlite3.Connection, settings: Settings,
-        job_url: str, resolver: Resolver = system_resolver,
+        job_url: str | None, resolver: Resolver = system_resolver,
     ) -> None:
         self.client, self.settings, self.resolver = client, settings, resolver
         self.cache = HttpCache(conn)
         self.limiter = HostRateLimiter()
         self.sources: dict[str, Source] = {}
-        self.allowed_hosts: set[str] = {urlparse(job_url).hostname or ""}
+        self.allowed_hosts: set[str] = {urlparse(job_url or "").hostname or ""}
 
     async def call(self, name: str, args: dict) -> str:
         """Run a tool and return a compact text result for the model (sources listed by id)."""
@@ -151,27 +148,7 @@ class ResearchTools:
         return out
 
     async def _fetch(self, url: str) -> list[Source]:
-        current = url
-        for _ in range(4):  # follow at most 3 redirects, re-validating every hop
-            await check_public_https(current, self.resolver)
-            host = urlparse(current).hostname or ""
-            if host not in self.allowed_hosts:
-                raise UnsafeURL(f"host {host} is not allowed; only hosts seen in earlier results")
-            await self.limiter.wait(host)
-            async with self.client.stream("GET", current, timeout=self.settings.fetch_timeout_s,
-                                          follow_redirects=False) as resp:
-                if resp.is_redirect and (loc := resp.headers.get("location")):
-                    current = str(httpx.URL(current).join(loc))
-                    continue
-                resp.raise_for_status()
-                ctype = resp.headers.get("content-type", "")
-                if "html" not in ctype and "text/plain" not in ctype:
-                    raise ValueError("unsupported content type")
-                body = b""
-                async for chunk in resp.aiter_bytes():
-                    body += chunk
-                    if len(body) > MAX_PAGE_BYTES:
-                        break
-            text = html_to_text(_NOISE.sub(" ", body.decode("utf-8", errors="replace")))
-            return [self._add("page", host, current, "", text)]
-        raise ValueError("too many redirects")
+        final_url, text = await fetch_page_text(
+            self.client, url, timeout=self.settings.fetch_timeout_s, resolver=self.resolver,
+            limiter=self.limiter, allow_host=lambda h: h in self.allowed_hosts)
+        return [self._add("page", urlparse(final_url).hostname or "", final_url, "", text)]

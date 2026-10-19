@@ -75,12 +75,14 @@ def me(
 
 @router.delete("/me", status_code=204)
 def delete_account(
+    request: Request,
     resp: Response,
     user_id: int = Depends(current_user_id),
     conn: sqlite3.Connection = Depends(get_conn),
     store: ResumeStore = Depends(get_store),
 ) -> None:
     """User-initiated deletion: encrypted resume file, then the user row (cascades the rest)."""
+    request.app.state.run_manager.cancel_user(user_id)
     store.delete(repos.get_resume_path(conn, user_id))
     repos.delete_user(conn, user_id)
     resp.delete_cookie(COOKIE)

@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS matches (
     job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
     score INTEGER NOT NULL,
     match_json TEXT NOT NULL,
+    pinned INTEGER NOT NULL DEFAULT 0,  -- 1 = user-pasted job; survives recommendation refreshes
     PRIMARY KEY (user_id, job_id)
 );
 
@@ -76,4 +77,30 @@ CREATE TABLE IF NOT EXISTS http_cache (
     key TEXT PRIMARY KEY,
     body TEXT NOT NULL,
     expires_at TEXT NOT NULL
+);
+
+-- Milestone f. Run history: one row per orchestrated run (events kept for replay and demos).
+CREATE TABLE IF NOT EXISTS runs (
+    id TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    mode TEXT NOT NULL,
+    status TEXT NOT NULL,
+    job_id TEXT,
+    tokens INTEGER NOT NULL DEFAULT 0,
+    cost_usd REAL NOT NULL DEFAULT 0,
+    error TEXT,
+    events_json TEXT NOT NULL DEFAULT '[]',
+    result_json TEXT NOT NULL DEFAULT '{}',
+    started_at TEXT NOT NULL DEFAULT (datetime('now')),
+    finished_at TEXT
+);
+
+-- Memory: the user's verdict on each draft. Notes feed the Writer as style preferences.
+CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    outreach_id INTEGER NOT NULL UNIQUE REFERENCES outreach(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL,  -- 1 = good, -1 = bad
+    note TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

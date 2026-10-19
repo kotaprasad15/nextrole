@@ -263,6 +263,68 @@ function profileView(email, profile) {
 }
 
 
+// ---------- Live runs (SSE) ----------
+
+const STEP_LABEL = {
+  discover: "Searching job boards", tier: "Classifying companies", select: "Choosing candidates",
+  match: "Scoring fit against your profile", save: "Saving", ingest: "Reading the posting",
+  pin: "Adding it to your dashboard", research: "Researching the company",
+  facts: "Building the fact sheet", write: "Writing the draft", critic: "Reviewing the draft",
+};
+
+/**
+ * Live step feed for a run. Subscribes to the run's Server-Sent Events and renders each
+ * orchestrator step as it starts and finishes, with running token/cost totals.
+ * Events carry a sequence number, so a reconnect (which replays history) never duplicates rows.
+ */
+function runPanel(runId, onFinished) {
+  const list = h("ol", { class: "steps" });
+  const totals = h("p", { class: "hint totals" });
+  const rows = new Map();
+  const seen = new Set();
+  const source = new EventSource(`/runs/${encodeURIComponent(runId)}/events`);
+
+  function row(ev) {
+    const attempt = ev.data && ev.data.attempt;
+    const key = `${ev.step}:${attempt || 0}`;
+    if (!rows.has(key)) {
+      const li = h("li", { class: "running" },
+        h("span", { class: "dot" }),
+        h("span", { class: "label" }, (STEP_LABEL[ev.step] || ev.step) + (attempt > 1 ? ` (attempt ${attempt})` : "")),
+        h("span", { class: "detail" }), h("span", { class: "time" }));
+      rows.set(key, li);
+      list.append(li);
+    }
+    return rows.get(key);
+  }
+
+  source.onmessage = (m) => {
+    const ev = JSON.parse(m.data);
+    if (seen.has(ev.seq)) return;
+    seen.add(ev.seq);
+    if (ev.tokens) totals.textContent = `${ev.tokens.toLocaleString()} tokens · $${ev.cost_usd.toFixed(4)}`;
+    if (ev.type === "step_started") row(ev);
+    else if (ev.type === "step_finished" || ev.type === "step_failed") {
+      const li = row(ev);
+      li.className = ev.type === "step_failed" ? "failed" : "done";
+      li.querySelector(".detail").textContent = ev.detail;
+      li.querySelector(".time").textContent = `${(ev.latency_ms / 1000).toFixed(1)}s`;
+    } else if (ev.type === "run_finished") {
+      source.close();
+      onFinished(ev.data);
+    }
+  };
+  // EventSource reconnects by itself on network blips; nothing to do on error.
+  const el = h("div", { class: "card live", role: "status" }, list, totals);
+  return { el, close: () => source.close() };
+}
+
+/** Start a run; returns {run_id} or {error}. */
+async function startRun(body) {
+  const r = await api("POST", "/runs", body);
+  return r.ok ? r.data : { error: r.error };
+}
+
 // ---------- Dashboard ----------
 
 const TIER_SECTIONS = [
@@ -290,7 +352,8 @@ function jobCard(c, draftStatus) {
       h("div", {},
         h("h3", {}, c.title),
         h("p", { class: "meta" }, [c.company, c.location].filter(Boolean).join(" · "),
-          c.remote ? h("span", { class: "tag" }, "Remote") : null)),
+          c.remote ? h("span", { class: "tag" }, "Remote") : null,
+          c.pasted ? h("span", { class: "tag" }, "Pasted by you") : null)),
       h("div", { class: `score ${scoreBand(c.score)}`, title: "Match score" },
         h("strong", {}, String(c.score)), h("span", {}, "match"))),
     h("p", { class: "why" }, c.rationale),
@@ -333,24 +396,56 @@ async function dashboardView(email) {
     return draw(r.data);
   }
 
-  async function run() {
+  const live = h("div");
+
+  /** Start a run, show its live steps in `live`, and call `done(data)` when it finishes. */
+  async function follow(body, button, busyText, idleText, done) {
     err.textContent = "";
-    setBusy(refresh, true, "Searching and scoring (~30s)");
-    status.textContent = "Searching job boards, then scoring the best candidates against your profile...";
-    const r = await api("POST", "/recommendations/refresh");
-    setBusy(refresh, false, "Refresh matches");
-    if (!r.ok) { err.textContent = r.error; status.textContent = ""; return; }
-    const d = r.data, failed = Object.keys(d.source_errors).length;
-    status.textContent = `Scored ${d.matched} of ${d.discovered} openings found` +
-      (failed ? ` (${failed} job board${failed > 1 ? "s" : ""} unavailable)` : "") +
-      ` · ${d.tokens.toLocaleString()} tokens · $${d.cost_usd.toFixed(4)}`;
-    await load();
+    setBusy(button, true, busyText);
+    const started = await startRun(body);
+    if (started.error) { setBusy(button, false, idleText); err.textContent = started.error; return; }
+    const panel = runPanel(started.run_id, async (data) => {
+      setBusy(button, false, idleText);
+      await done(data);
+    });
+    live.replaceChildren(panel.el);
   }
+
+  const run = () => follow({ mode: "recommend" }, refresh, "Searching and scoring", "Refresh matches",
+    async (data) => {
+      const failed = Object.keys(data.result.source_errors || {}).length;
+      if (data.status === "completed") {
+        status.textContent = `Scored ${data.result.matched} of ${data.result.discovered} openings found` +
+          (failed ? ` (${failed} job board${failed > 1 ? "s" : ""} unavailable)` : "");
+      } else err.textContent = data.error || "The run failed.";
+      await load();
+    });
   refresh.addEventListener("click", run);
+
+  // Paste any posting: run the full pipeline (read, match, research, draft, review) on it.
+  const pasteUrl = h("input", { type: "text", placeholder: "https://company.com/careers/backend-engineer" });
+  const pasteText = h("textarea", { placeholder: "...or paste the posting text (include the company name). Needed for LinkedIn, Indeed and Naukri, which NextRole does not read." });
+  const pasteName = h("input", { type: "text", placeholder: "Recipient's first name (optional)" });
+  const pasteGo = h("button", { class: "primary", type: "submit" }, "Check fit and draft outreach");
+  const paste = h("details", { class: "card" },
+    h("summary", {}, "Paste a job posting"),
+    h("form", { onsubmit: (e) => {
+      e.preventDefault();
+      follow({ mode: "single_job", url: pasteUrl.value, text: pasteText.value, recipient_name: pasteName.value },
+        pasteGo, "Working on it", "Check fit and draft outreach", async (data) => {
+          const jobId = data.result && data.result.job_id;
+          if (data.status === "completed" && jobId) { location.hash = `#/outreach/${encodeURIComponent(jobId)}`; return; }
+          err.textContent = data.error || "The run failed.";
+          await load();  // a failed draft may still have added the job to the dashboard
+        });
+    } },
+      field("Posting link", pasteUrl, "Optional if you paste the text. Used as the Apply link."),
+      field("Posting text", pasteText), field("Recipient", pasteName),
+      h("div", { class: "actions" }, pasteGo)));
 
   app.replaceChildren(
     h("div", { class: "page-head" }, h("div", {}, h("h1", {}, "Your matches"), status), refresh),
-    err, results,
+    err, paste, live, results,
   );
   const total = await load();
   if (total === 0 && !autoRefreshTried) { autoRefreshTried = true; run(); }
@@ -400,25 +495,44 @@ async function outreachView(email, jobId) {
   if (existing.ok) draftView(head, card, existing.data); else generateView(head, card);
 }
 
+/**
+ * Run the outreach pipeline for a job with a live step feed, then show the draft.
+ * `busyBtn` (optional) is disabled while it runs; `err` receives any error text.
+ */
+async function runOutreach(head, card, { channel, recipient, err, live, busyBtn, idleText }) {
+  err.textContent = "";
+  if (busyBtn) setBusy(busyBtn, true, "Working on it");
+  const started = await startRun({ mode: "outreach", job_id: card.job_id, channel, recipient_name: recipient || "" });
+  if (started.error) {
+    if (busyBtn) setBusy(busyBtn, false, idleText);
+    err.textContent = started.error;
+    return;
+  }
+  const panel = runPanel(started.run_id, async (data) => {
+    if (busyBtn) setBusy(busyBtn, false, idleText);
+    if (data.status !== "completed") { err.textContent = data.error || "The run failed."; return; }
+    const d = await api("GET", `/outreach/by-job/${encodeURIComponent(card.job_id)}`);
+    if (d.ok) draftView(head, card, d.data); else err.textContent = d.error;
+  });
+  live.replaceChildren(panel.el);
+}
+
 function generateView(head, card) {
   const err = h("p", { class: "error" });
+  const live = h("div");
   const channel = h("select", {}, h("option", { value: "email" }, "Email"),
     h("option", { value: "message" }, "Short message (e.g. LinkedIn DM)"));
   const name = h("input", { type: "text", placeholder: "Jane (optional)" });
   const go = h("button", { class: "primary", type: "submit" }, "Generate draft");
-  const form = h("form", { class: "card", onsubmit: async (e) => {
+  const form = h("form", { class: "card", onsubmit: (e) => {
     e.preventDefault();
-    setBusy(go, true, "Researching the company and writing (~15-60s)");
-    const r = await api("POST", "/outreach", { job_id: card.job_id, channel: channel.value, recipient_name: name.value });
-    if (r.ok) return draftView(head, card, r.data);
-    setBusy(go, false, "Generate draft");
-    err.textContent = r.error;
+    runOutreach(head, card, { channel: channel.value, recipient: name.value, err, live, busyBtn: go, idleText: "Generate draft" });
   } },
     h("p", { class: "sub" }, "We research the company from public sources, write a draft using only facts from your profile, the posting and that research, and have a reviewer check it. Nothing is ever sent for you."),
     field("Format", channel),
     field("Recipient's first name", name, "Only used for the greeting. You add the email address later."),
     err, h("div", { class: "actions" }, go));
-  mount(...head, form);
+  mount(...head, form, live);
 }
 
 function draftView(head, card, d) {
@@ -464,10 +578,10 @@ function draftView(head, card, d) {
     if (r.ok) { toast("Marked ready to send"); draftView(head, card, r.data); } else err.textContent = r.error;
   } }, "Approve as ready to send");
 
-  const regen = h("button", { class: "link", onclick: async () => {
+  const live = h("div");
+  const regen = h("button", { class: "link", onclick: () => {
     if (!confirm("Generate a new draft? Your edits and approval will be replaced.")) return;
-    const r = await api("POST", "/outreach", { job_id: d.job_id, channel: d.channel });
-    if (r.ok) draftView(head, card, r.data); else err.textContent = r.error;
+    runOutreach(head, card, { channel: d.channel, recipient: "", err, live, busyBtn: regen, idleText: "Regenerate" });
   } }, "Regenerate");
 
   const del = h("button", { class: "link danger-link", onclick: async () => {
@@ -501,6 +615,7 @@ function draftView(head, card, d) {
 
   mount(...head,
     h("div", { class: "page-head" }, status, h("div", { class: "actions tight" }, regen, del)),
+    live,
     d.warnings.length ? h("div", { class: "card warn" }, d.warnings.map((w) => h("p", {}, w))) : null,
     criticPanel(d.critic),
     h("div", { class: "card" },
@@ -508,7 +623,31 @@ function draftView(head, card, d) {
       d.channel === "email" ? field("Subject", subject) : null,
       field("Message", body), count, err,
       h("div", { class: "actions" }, saveBtn, copyBtn, approveBtn)),
-    sendPanel, facts);
+    sendPanel, feedbackCard(d), facts);
+}
+
+/** Thumbs + optional note. Notes become style memory for future drafts (never facts). */
+function feedbackCard(d) {
+  let rating = d.feedback ? d.feedback.rating : 0;
+  const note = h("input", { type: "text", maxlength: "500", value: d.feedback ? d.feedback.note : "",
+    placeholder: "What should change? e.g. shorter, less formal, lead with my project" });
+  const up = h("button", { class: "small", "aria-label": "Good draft", onclick: () => pick(1) }, "👍 Good");
+  const down = h("button", { class: "small", "aria-label": "Needs work", onclick: () => pick(-1) }, "👎 Needs work");
+  const save = h("button", { class: "small", onclick: async () => {
+    if (!rating) { toast("Pick 👍 or 👎 first"); return; }
+    const r = await api("POST", `/outreach/${d.id}/feedback`, { rating, note: note.value });
+    toast(r.ok ? "Thanks, future drafts will use this" : r.error);
+  } }, "Save feedback");
+  function pick(v) {
+    rating = v;
+    up.classList.toggle("active", v === 1);
+    down.classList.toggle("active", v === -1);
+  }
+  pick(rating);
+  return h("div", { class: "card" },
+    h("strong", {}, "How was this draft?"),
+    h("p", { class: "hint" }, "Your notes shape the tone of future drafts. They never add facts."),
+    h("div", { class: "actions tight" }, up, down), note, h("div", { class: "actions" }, save));
 }
 
 async function boot() {

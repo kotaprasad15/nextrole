@@ -8,11 +8,13 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from nextrole.api.routers import auth, outreach, profile, recommendations
+from nextrole.api.routers import auth, outreach, profile, recommendations, runs
 from nextrole.config import Settings, get_settings
+from nextrole.db import repos
 from nextrole.db.connection import connect
 from nextrole.llm.budget import Budget
 from nextrole.llm.client import LLMClient
+from nextrole.orchestrator.manager import RunManager
 from nextrole.resume.storage import ResumeStore
 from nextrole.sources.registry import discover as discover_jobs
 from nextrole.tracing.tracer import Tracer
@@ -40,10 +42,15 @@ def create_app(
     # HTTP client for researcher tools; injectable so tests never touch the network.
     app.state.http_factory = http_factory or (lambda: httpx.AsyncClient(
         headers={"User-Agent": "NextRole/0.1 (portfolio project)"}, timeout=settings.fetch_timeout_s))
+    repos.fail_stale_runs(app.state.conn)  # a restart orphans 'running' rows
+    app.state.run_manager = RunManager(
+        app.state.conn, settings, app.state.llm_factory, app.state.http_factory,
+        app.state.discover)
     app.include_router(auth.router)
     app.include_router(profile.router)
     app.include_router(recommendations.router)
     app.include_router(outreach.router)
+    app.include_router(runs.router)
 
     @app.get("/health")
     def health() -> dict:

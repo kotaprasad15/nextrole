@@ -71,7 +71,8 @@ class ResearcherAgent:
 
     async def _gather(self, job: Job, tools: ResearchTools) -> None:
         messages: list[dict] = [{"role": "user", "content": (
-            f"Company: {job.company}\nRole: {job.title}\nJob posting URL: {job.apply_url}")}]
+            f"Company: {job.company}\nRole: {job.title}\n"
+            f"Job posting URL: {job.apply_url or '(none)'}")}]
         for _ in range(self.settings.research_max_steps):
             res = await self.llm.chat(
                 agent="researcher", model=self.settings.model_fast, system=LOOP_SYSTEM,

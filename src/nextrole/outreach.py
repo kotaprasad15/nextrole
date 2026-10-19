@@ -18,10 +18,7 @@ from datetime import UTC, datetime, timedelta
 
 import httpx
 
-from nextrole.agents.critic import CriticAgent
-from nextrole.agents.factsheet import build_fact_sheet
 from nextrole.agents.researcher import ResearcherAgent
-from nextrole.agents.writer import WriterAgent
 from nextrole.config import Settings
 from nextrole.llm.budget import BudgetExceeded
 from nextrole.llm.client import LLMClient
@@ -42,7 +39,7 @@ class OutreachResult:
     warnings: list[str] = field(default_factory=list)
 
 
-def _rank(report: CriticReport) -> tuple[int, int, int]:
+def rank_report(report: CriticReport) -> tuple[int, int, int]:
     """Higher is better: pass first, then fewer problems, then higher score."""
     return (report.verdict == "pass", -(len(report.unsupported_claims) + len(report.violations)),
             report.overall)
@@ -86,48 +83,23 @@ async def research_company(
 async def generate_outreach(
     *, llm: LLMClient, settings: Settings, conn: sqlite3.Connection, http: httpx.AsyncClient,
     profile: Profile, job: Job, channel: Channel = "email", recipient_name: str = "",
+    user_id: int | None = None,
 ) -> OutreachResult:
-    warnings: list[str] = []
-    try:
-        research: CompanyResearch | None = await research_company(
-            llm=llm, settings=settings, conn=conn, http=http, job=job)
-    except (BudgetExceeded, httpx.HTTPError, ValueError) as exc:
-        # Research is an enhancement: fall back to profile + job facts rather than failing.
-        research = None
-        warnings.append(f"Company research unavailable ({type(exc).__name__}); used the job posting only.")
-    facts = build_fact_sheet(profile, job, research)
-    if research is not None and not research.facts:
-        warnings.append("No reliable public information found about the company.")
+    """Run research -> fact sheet -> write<->critic through the orchestrator graph and return
+    the best draft. Persistence is left to the caller (`persist=False`); pass `user_id` to
+    include that user's style memory."""
+    from nextrole.orchestrator.graph import run_graph  # local import: nodes import this module
+    from nextrole.orchestrator.state import Deps
 
-    writer, critic = WriterAgent(llm, settings), CriticAgent(llm, settings)
-    best: tuple[OutreachDraft, CriticReport] | None = None
-    previous: tuple[OutreachDraft, CriticReport] | None = None
-    attempts = 0
-    for _ in range(1 + settings.critic_max_retries):
-        try:
-            draft = await writer.write(facts=facts, job=job, channel=channel,
-                                       recipient_name=recipient_name, previous=previous)
-            report = await critic.review(draft, facts)
-        except (BudgetExceeded, ValueError) as exc:
-            if best is None:
-                raise
-            warnings.append(f"Stopped early ({type(exc).__name__}); showing the best draft so far.")
-            break
-        attempts += 1
-        previous = (draft, report)
-        if best is None or _rank(report) > _rank(best[1]):
-            best = (draft, report)
-        if report.verdict == "pass":
-            break
+    async def _no_discovery(*_a, **_k):  # outreach never discovers jobs
+        raise RuntimeError("discovery is not part of the outreach pipeline")
 
-    assert best is not None  # the loop runs at least once or raised
-    draft, report = best
-    if report.verdict == "pass":
-        draft.status = "critic_passed"
-    else:
-        problems = report.unsupported_claims + report.violations
-        warnings.append(f"The reviewer was not fully satisfied after {attempts} attempt(s)"
-                        + (f": {'; '.join(problems[:3])}" if problems else
-                           f" (score {report.overall}/{settings.critic_threshold})")
-                        + ". Please review carefully before approving.")
-    return OutreachResult(draft, report, facts, attempts, warnings)
+    deps = Deps(llm=llm, settings=settings, conn=conn, http=http, discover=_no_discovery)
+    final = await run_graph("outreach", deps, {
+        "user_id": user_id or 0, "profile": profile, "job": job, "channel": channel,
+        "recipient_name": recipient_name, "persist": False})
+    if final.get("abort"):
+        raise (BudgetExceeded if final.get("error_kind") == "budget" else ValueError)(
+            final.get("error", "run failed"))
+    draft, report = final["best"]
+    return OutreachResult(draft, report, final["facts"], final["attempts"], final["warnings"])

@@ -6,6 +6,7 @@ UI then offers mailto:/Gmail-compose links the user opens themselves.
 import json
 import re
 import sqlite3
+from typing import Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -36,6 +37,11 @@ class EditRequest(BaseModel):
     recipient_email: str = Field(default="", max_length=254)
 
 
+class FeedbackRequest(BaseModel):
+    rating: Literal[1, -1]
+    note: str = Field(default="", max_length=500)
+
+
 class OutreachOut(BaseModel):
     id: int
     job_id: str
@@ -51,6 +57,7 @@ class OutreachOut(BaseModel):
     attempts: int
     facts_used: list[Fact]
     approved_at: str | None
+    feedback: dict | None = None
 
 
 def _out(conn: sqlite3.Connection, user_id: int, row: sqlite3.Row) -> OutreachOut:
@@ -65,6 +72,7 @@ def _out(conn: sqlite3.Connection, user_id: int, row: sqlite3.Row) -> OutreachOu
         critic=CriticReport.model_validate_json(row["critic_json"]) if row["critic_json"] else None,
         warnings=json.loads(row["warnings_json"]), attempts=row["attempts"],
         facts_used=list({f.id: f for f in cited}.values()), approved_at=row["approved_at"],
+        feedback=dict(fb) if (fb := repos.get_feedback(conn, user_id, row["id"])) else None,
     )
 
 
@@ -93,7 +101,7 @@ async def generate(
         async with request.app.state.http_factory() as http:
             result = await generate_outreach(
                 llm=llm, settings=settings, conn=conn, http=http, profile=profile, job=job,
-                channel=body.channel, recipient_name=body.recipient_name)
+                channel=body.channel, recipient_name=body.recipient_name, user_id=user_id)
     except BudgetExceeded as exc:
         raise HTTPException(429, str(exc)) from exc
     except (ValueError, httpx.HTTPError) as exc:
@@ -143,6 +151,17 @@ def approve(
     """Human approval gate: the only code path that sets 'user_approved'."""
     _get_or_404(conn, user_id, outreach_id)
     repos.approve_outreach(conn, user_id, outreach_id)
+    return _out(conn, user_id, _get_or_404(conn, user_id, outreach_id))
+
+
+@router.post("/outreach/{outreach_id}/feedback", response_model=OutreachOut)
+def feedback(
+    outreach_id: int, body: FeedbackRequest, user_id: int = Depends(current_user_id),
+    conn: sqlite3.Connection = Depends(get_conn),
+) -> OutreachOut:
+    """Memory: your verdict on a draft. Notes shape the tone of future drafts (never facts)."""
+    _get_or_404(conn, user_id, outreach_id)
+    repos.save_feedback(conn, user_id, outreach_id, body.rating, body.note.strip())
     return _out(conn, user_id, _get_or_404(conn, user_id, outreach_id))
 
 

@@ -42,6 +42,11 @@ class Settings(BaseSettings):
     critic_threshold: int = 75  # overall score needed to pass
     critic_max_retries: int = 3  # rewrites after the first draft (so up to 4 drafts total)
 
+    # Orchestrator hard caps
+    run_max_steps: int = 30  # total graph steps per run (also bounds LangGraph's recursion)
+    style_memory_notes: int = 5  # past feedback notes given to the Writer
+    style_memory_examples: int = 2  # past approved drafts given to the Writer as tone examples
+
     llm_timeout_s: float = 60.0
     llm_max_retries: int = 3
     trace_dir: Path = Path("traces")

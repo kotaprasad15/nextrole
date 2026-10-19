@@ -24,7 +24,8 @@ class JobCard(BaseModel):
     rationale: str
     strengths: list[str]
     gaps: list[str]
-    apply_url: str  # copied from source data via the Job model; never LLM-generated
+    apply_url: str | None  # from source data (or user-supplied for pasted jobs); never LLM-made
+    pasted: bool = False
 
 
 class Recommendations(BaseModel):
@@ -40,6 +41,7 @@ def _grouped(conn: sqlite3.Connection, user_id: int) -> Recommendations:
             job_id=job.id, title=job.title, company=job.company, location=job.location,
             remote=job.remote, score=match.score, rationale=match.rationale,
             strengths=match.strengths, gaps=match.gaps, apply_url=job.apply_url,
+            pasted=job.source == "pasted",
         ))
     return Recommendations(**groups)
 

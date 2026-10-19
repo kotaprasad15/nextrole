@@ -15,9 +15,13 @@ class Budget:
     tokens_used: int = 0
     cost_usd: float = 0.0
 
+    @property
+    def exhausted(self) -> bool:
+        return self.tokens_used >= self.max_tokens or self.cost_usd >= self.max_cost_usd
+
     def check(self) -> None:
         """Fail fast before spending more. Called ahead of each LLM request."""
-        if self.tokens_used >= self.max_tokens or self.cost_usd >= self.max_cost_usd:
+        if self.exhausted:
             raise BudgetExceeded(
                 f"budget exhausted: {self.tokens_used} tokens, ${self.cost_usd:.4f}"
             )

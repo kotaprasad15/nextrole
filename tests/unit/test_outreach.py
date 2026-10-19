@@ -276,7 +276,16 @@ async def test_loop_returns_best_when_budget_runs_out():
     llm, s = make(fake, run_max_tokens=1000)  # ~150 tokens per call: runs dry mid-loop
     res = await generate_outreach(
         llm=llm, settings=s, conn=connect(":memory:"), http=http_client(), profile=PROFILE, job=job())
-    assert res.attempts >= 1 and any("Stopped early" in w for w in res.warnings)
+    # The orchestrator checks the budget between steps and saves what it has.
+    assert res.attempts >= 1 and any("budget reached" in w for w in res.warnings)
+
+
+async def test_loop_keeps_best_draft_when_a_rewrite_fails():
+    fake = ScriptedLLM([draft(), {"not": "a valid writer reply"}],
+                       [verdict(60, unsupported=["x"], instructions="fix it")])
+    res = await run_loop(fake)
+    assert res.attempts == 1 and res.draft.body.startswith("word")
+    assert any("Stopped early" in w for w in res.warnings)
 
 
 async def test_research_failure_degrades_to_job_only():

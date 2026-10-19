@@ -118,13 +118,25 @@ def save_tiers(conn: sqlite3.Connection, tiers: list[CompanyTier]) -> None:
 
 
 def replace_matches(conn: sqlite3.Connection, user_id: int, matches: list[MatchResult]) -> None:
-    """A refresh replaces the user's previous recommendations atomically."""
+    """A refresh replaces the user's recommendations atomically, but never touches pinned
+    (user-pasted) jobs; OR IGNORE keeps a pinned row if a refresh also re-discovers it."""
     with conn:
-        conn.execute("DELETE FROM matches WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM matches WHERE user_id = ? AND pinned = 0", (user_id,))
         conn.executemany(
-            "INSERT INTO matches (user_id, job_id, score, match_json) VALUES (?, ?, ?, ?)",
+            "INSERT OR IGNORE INTO matches (user_id, job_id, score, match_json) VALUES (?, ?, ?, ?)",
             [(user_id, m.job_id, m.score, m.model_dump_json()) for m in matches],
         )
+
+
+def add_pinned_match(conn: sqlite3.Connection, user_id: int, match: MatchResult) -> None:
+    """Store a user-pasted job's match so it appears on the dashboard and can be drafted for."""
+    conn.execute(
+        """INSERT INTO matches (user_id, job_id, score, match_json, pinned) VALUES (?, ?, ?, ?, 1)
+           ON CONFLICT(user_id, job_id) DO UPDATE SET score = excluded.score,
+             match_json = excluded.match_json, pinned = 1""",
+        (user_id, match.job_id, match.score, match.model_dump_json()),
+    )
+    conn.commit()
 
 
 def list_matches(conn: sqlite3.Connection, user_id: int) -> list[tuple[Job, MatchResult, str]]:
@@ -231,3 +243,78 @@ def delete_outreach(conn: sqlite3.Connection, user_id: int, outreach_id: int) ->
     cur = conn.execute("DELETE FROM outreach WHERE id = ? AND user_id = ?", (outreach_id, user_id))
     conn.commit()
     return cur.rowcount > 0
+
+
+# ---- runs (milestone f) ----
+
+def create_run(conn: sqlite3.Connection, run_id: str, user_id: int, mode: str) -> None:
+    conn.execute("INSERT INTO runs (id, user_id, mode, status) VALUES (?, ?, ?, 'running')",
+                 (run_id, user_id, mode))
+    conn.commit()
+
+
+def finish_run(
+    conn: sqlite3.Connection, run_id: str, *, status: str, job_id: str | None, tokens: int,
+    cost_usd: float, error: str | None, events: list[dict], result: dict,
+) -> None:
+    conn.execute(
+        """UPDATE runs SET status = ?, job_id = ?, tokens = ?, cost_usd = ?, error = ?,
+           events_json = ?, result_json = ?, finished_at = ? WHERE id = ?""",
+        (status, job_id, tokens, cost_usd, error, json.dumps(events), json.dumps(result),
+         _now(), run_id))
+    conn.commit()
+
+
+def get_run(conn: sqlite3.Connection, user_id: int, run_id: str) -> sqlite3.Row | None:
+    return conn.execute("SELECT * FROM runs WHERE id = ? AND user_id = ?",
+                        (run_id, user_id)).fetchone()
+
+
+def list_runs(conn: sqlite3.Connection, user_id: int, limit: int = 20) -> list[sqlite3.Row]:
+    return conn.execute(
+        """SELECT id, mode, status, job_id, tokens, cost_usd, error, started_at, finished_at
+           FROM runs WHERE user_id = ? ORDER BY started_at DESC, rowid DESC LIMIT ?""",
+        (user_id, limit)).fetchall()
+
+
+def fail_stale_runs(conn: sqlite3.Connection) -> None:
+    """A server restart orphans 'running' rows (their task died); mark them failed on startup."""
+    conn.execute("UPDATE runs SET status = 'failed', error = 'server restarted', finished_at = ? "
+                 "WHERE status = 'running'", (_now(),))
+    conn.commit()
+
+
+# ---- feedback / memory (milestone f) ----
+
+def save_feedback(
+    conn: sqlite3.Connection, user_id: int, outreach_id: int, rating: int, note: str
+) -> None:
+    conn.execute(
+        """INSERT INTO feedback (user_id, outreach_id, rating, note) VALUES (?, ?, ?, ?)
+           ON CONFLICT(outreach_id) DO UPDATE SET rating = excluded.rating, note = excluded.note,
+             created_at = datetime('now')""",
+        (user_id, outreach_id, rating, note))
+    conn.commit()
+
+
+def get_feedback(conn: sqlite3.Connection, user_id: int, outreach_id: int) -> sqlite3.Row | None:
+    return conn.execute("SELECT rating, note FROM feedback WHERE outreach_id = ? AND user_id = ?",
+                        (outreach_id, user_id)).fetchone()
+
+
+def recent_feedback(conn: sqlite3.Connection, user_id: int, limit: int) -> list[sqlite3.Row]:
+    """Latest feedback that carries a note (ratings alone give the Writer nothing to act on)."""
+    return conn.execute(
+        """SELECT rating, note FROM feedback WHERE user_id = ? AND note != ''
+           ORDER BY created_at DESC, id DESC LIMIT ?""", (user_id, limit)).fetchall()
+
+
+def approved_drafts(
+    conn: sqlite3.Connection, user_id: int, limit: int, exclude_job_id: str | None = None
+) -> list[OutreachDraft]:
+    """The user's most recent approved drafts, used as tone examples (never as facts)."""
+    rows = conn.execute(
+        """SELECT draft_json FROM outreach WHERE user_id = ? AND status = 'user_approved'
+           AND job_id != ? ORDER BY approved_at DESC, id DESC LIMIT ?""",
+        (user_id, exclude_job_id or "", limit)).fetchall()
+    return [OutreachDraft.model_validate_json(r["draft_json"]) for r in rows]
