@@ -11,13 +11,21 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 
 - Live job discovery (no key needed): `uv run python -m nextrole.jobs_demo "software engineer" "remote"`
 
-## Architecture (current: milestone b)
+- API: `uv run uvicorn nextrole.api.main:app --reload` then UI: `uv run streamlit run ui/streamlit_app.py` (set `RESUME_ENCRYPTION_KEY` in `.env` first)
+
+## Architecture (current: milestone c)
 - `config.py`: all tunables from `.env` (model names, budgets, prices). Never hardcode a model.
 - `llm/client.py`: the only gateway to Anthropic. Retries (transient only), timeout, budget check, tracing, JSON output validated by Pydantic with one repair retry.
 - `llm/budget.py`: per-run token/cost cap (`BudgetExceeded`).
 - `tracing/`: JSONL trace per run in `traces/`, always passed through `redact()` (no resume text).
 - `models/`: Pydantic types. `HttpsUrl` enforces https; `Job.apply_url` is set only by source connectors.
 - `sources/`: `BoardSource` connectors (Greenhouse, Lever) normalize public ATS payloads into `Job`; `registry.discover()` fans out in parallel with timeouts/retries, records per-board errors instead of failing, filters by `Preferences`, and dedupes. Boards are curated in `data/boards.json`. Apply URLs are copied verbatim from the API; non-https rows are skipped.
+- `db/`: sqlite3 + `schema.sql` + `repos.py` functions (no ORM). Cascade deletes: deleting a user removes sessions/profile; the encrypted resume file is deleted by the caller (`DELETE /me`). One shared connection (`check_same_thread=False`) is fine for the demo; use per-request connections before real deployment.
+- `auth/`: Argon2 password hashes; opaque server-side sessions (only SHA-256 of the token stored; HttpOnly SameSite=Lax cookie). Not yet: login throttling.
+- `resume/`: `extract_text` (magic-byte type check + size cap, PDF/DOCX) and `ResumeStore` (Fernet-encrypted at rest, needs `RESUME_ENCRYPTION_KEY`).
+- `agents/intake.py`: resume text -> `Profile` via `ExtractedProfile` schema; resume is untrusted data (injection guard in prompt, schema-constrained output).
+- `api/`: `create_app(settings, conn, llm_factory)` factory (injectable for tests). Routes: `/auth/signup|login|logout`, `DELETE /me`, `POST /onboarding` (multipart), `GET|PUT /profile`. Run: `uv run uvicorn nextrole.api.main:app --reload`.
+- `ui/streamlit_app.py`: thin HTTP client for login, onboarding, profile review/edit. Run: `uv run streamlit run ui/streamlit_app.py`.
 - `agents/baseline.py`: single-agent baseline (control for the eval).
 
 ## Conventions

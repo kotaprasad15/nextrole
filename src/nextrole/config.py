@@ -25,6 +25,15 @@ class Settings(BaseSettings):
     llm_max_retries: int = 3
     trace_dir: Path = Path("traces")
 
+    db_path: Path = Path("data/nextrole.db")
+    upload_dir: Path = Path("data/uploads")
+    # Fernet key for encrypting stored resumes. Generate:
+    #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    resume_encryption_key: str = ""
+    session_ttl_hours: int = 24 * 7
+    cookie_secure: bool = False  # set True behind HTTPS
+    max_upload_mb: int = 5
+
 
 @lru_cache
 def get_settings() -> Settings:
