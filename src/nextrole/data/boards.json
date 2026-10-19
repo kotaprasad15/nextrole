@@ -1,15 +1,202 @@
 [
-  {"company": "Stripe", "source": "greenhouse", "slug": "stripe"},
-  {"company": "Airbnb", "source": "greenhouse", "slug": "airbnb"},
-  {"company": "Databricks", "source": "greenhouse", "slug": "databricks"},
-  {"company": "Cloudflare", "source": "greenhouse", "slug": "cloudflare"},
-  {"company": "Figma", "source": "greenhouse", "slug": "figma"},
-  {"company": "Discord", "source": "greenhouse", "slug": "discord"},
-  {"company": "Coinbase", "source": "greenhouse", "slug": "coinbase"},
-  {"company": "Anthropic", "source": "greenhouse", "slug": "anthropic"},
-  {"company": "Robinhood", "source": "greenhouse", "slug": "robinhood"},
-  {"company": "Datadog", "source": "greenhouse", "slug": "datadog"},
-  {"company": "Reddit", "source": "greenhouse", "slug": "reddit"},
-  {"company": "Spotify", "source": "lever", "slug": "spotify"},
-  {"company": "Palantir", "source": "lever", "slug": "palantir"}
+  {
+    "company": "Stripe",
+    "source": "greenhouse",
+    "slug": "stripe"
+  },
+  {
+    "company": "Airbnb",
+    "source": "greenhouse",
+    "slug": "airbnb"
+  },
+  {
+    "company": "Databricks",
+    "source": "greenhouse",
+    "slug": "databricks"
+  },
+  {
+    "company": "Cloudflare",
+    "source": "greenhouse",
+    "slug": "cloudflare"
+  },
+  {
+    "company": "Figma",
+    "source": "greenhouse",
+    "slug": "figma"
+  },
+  {
+    "company": "Discord",
+    "source": "greenhouse",
+    "slug": "discord"
+  },
+  {
+    "company": "Coinbase",
+    "source": "greenhouse",
+    "slug": "coinbase"
+  },
+  {
+    "company": "Anthropic",
+    "source": "greenhouse",
+    "slug": "anthropic"
+  },
+  {
+    "company": "Robinhood",
+    "source": "greenhouse",
+    "slug": "robinhood"
+  },
+  {
+    "company": "Datadog",
+    "source": "greenhouse",
+    "slug": "datadog"
+  },
+  {
+    "company": "Reddit",
+    "source": "greenhouse",
+    "slug": "reddit"
+  },
+  {
+    "company": "Spotify",
+    "source": "lever",
+    "slug": "spotify"
+  },
+  {
+    "company": "Palantir",
+    "source": "lever",
+    "slug": "palantir"
+  },
+  {
+    "company": "Vercel",
+    "source": "greenhouse",
+    "slug": "vercel"
+  },
+  {
+    "company": "Mercury",
+    "source": "greenhouse",
+    "slug": "mercury"
+  },
+  {
+    "company": "Tailscale",
+    "source": "greenhouse",
+    "slug": "tailscale"
+  },
+  {
+    "company": "Lattice",
+    "source": "greenhouse",
+    "slug": "lattice"
+  },
+  {
+    "company": "Cockroach Labs",
+    "source": "greenhouse",
+    "slug": "cockroachlabs"
+  },
+  {
+    "company": "Duolingo",
+    "source": "greenhouse",
+    "slug": "duolingo"
+  },
+  {
+    "company": "Grafana Labs",
+    "source": "greenhouse",
+    "slug": "grafanalabs"
+  },
+  {
+    "company": "Scale AI",
+    "source": "greenhouse",
+    "slug": "scaleai"
+  },
+  {
+    "company": "Brex",
+    "source": "greenhouse",
+    "slug": "brex"
+  },
+  {
+    "company": "Fivetran",
+    "source": "greenhouse",
+    "slug": "fivetran"
+  },
+  {
+    "company": "Gusto",
+    "source": "greenhouse",
+    "slug": "gusto"
+  },
+  {
+    "company": "Asana",
+    "source": "greenhouse",
+    "slug": "asana"
+  },
+  {
+    "company": "Lyft",
+    "source": "greenhouse",
+    "slug": "lyft"
+  },
+  {
+    "company": "Pinterest",
+    "source": "greenhouse",
+    "slug": "pinterest"
+  },
+  {
+    "company": "Twilio",
+    "source": "greenhouse",
+    "slug": "twilio"
+  },
+  {
+    "company": "Okta",
+    "source": "greenhouse",
+    "slug": "okta"
+  },
+  {
+    "company": "Rover",
+    "source": "lever",
+    "slug": "rover"
+  },
+  {
+    "company": "Zoox",
+    "source": "lever",
+    "slug": "zoox"
+  },
+  {
+    "company": "Linear",
+    "source": "ashby",
+    "slug": "linear"
+  },
+  {
+    "company": "Supabase",
+    "source": "ashby",
+    "slug": "supabase"
+  },
+  {
+    "company": "PostHog",
+    "source": "ashby",
+    "slug": "posthog"
+  },
+  {
+    "company": "Modal",
+    "source": "ashby",
+    "slug": "modal"
+  },
+  {
+    "company": "Replit",
+    "source": "ashby",
+    "slug": "replit"
+  },
+  {
+    "company": "Lovable",
+    "source": "ashby",
+    "slug": "lovable"
+  },
+  {
+    "company": "Baseten",
+    "source": "ashby",
+    "slug": "baseten"
+  },
+  {
+    "company": "Cursor",
+    "source": "ashby",
+    "slug": "cursor"
+  },
+  {
+    "company": "Decagon",
+    "source": "ashby",
+    "slug": "decagon"
+  }
 ]

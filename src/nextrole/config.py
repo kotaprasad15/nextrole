@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     run_max_cost_usd: float = 0.50
     run_max_tokens: int = 200_000
 
+    # Recommendation pipeline knobs
+    match_candidates: int = 40  # jobs sent to the LLM matcher after the cheap prefilter
+    match_concurrency: int = 5
+    per_company_cap: int = 5  # keeps one huge board (e.g. 700 jobs) from crowding out the rest
+    startup_max_employees: int = 200
+    mid_max_employees: int = 5000
+
     llm_timeout_s: float = 60.0
     llm_max_retries: int = 3
     trace_dir: Path = Path("traces")

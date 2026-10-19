@@ -20,3 +20,28 @@ CREATE TABLE IF NOT EXISTS profiles (
     resume_path TEXT,
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Milestone d. Jobs are persisted so apply URLs are always resolved from source data by id.
+CREATE TABLE IF NOT EXISTS jobs (
+    id TEXT PRIMARY KEY,
+    company_key TEXT NOT NULL,
+    job_json TEXT NOT NULL,
+    fetched_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Cache of every tiering decision (seed / metadata / LLM), shared across users.
+CREATE TABLE IF NOT EXISTS company_tiers (
+    company_key TEXT PRIMARY KEY,
+    tier TEXT NOT NULL,
+    method TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS matches (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    score INTEGER NOT NULL,
+    match_json TEXT NOT NULL,
+    PRIMARY KEY (user_id, job_id)
+);

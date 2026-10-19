@@ -67,13 +67,15 @@ const csv = (s) => s.split(",").map((x) => x.trim()).filter(Boolean);
 
 // ---------- Views ----------
 
-function renderNav(email) {
+function renderNav(email, active) {
   nav.replaceChildren();
   if (!email) return;
-  nav.append(
-    email,
-    h("button", { class: "link", onclick: logout }, "Log out"),
-  );
+  if (active) {
+    for (const [route, label] of [["dashboard", "Dashboard"], ["profile", "Profile"]]) {
+      nav.append(h("a", { href: `#/${route}`, class: route === active ? "navlink active" : "navlink" }, label));
+    }
+  }
+  nav.append(email, h("button", { class: "link", onclick: logout }, "Log out"));
 }
 
 async function logout() {
@@ -187,7 +189,7 @@ function bound(obj, key, props = {}) {
 }
 
 function profileView(email, profile) {
-  renderNav(email);
+  renderNav(email, "profile");
   const p = structuredClone(profile);
   const prefs = p.preferences;
   const err = h("p", { class: "error" });
@@ -255,14 +257,102 @@ function profileView(email, profile) {
   );
 }
 
+
+// ---------- Dashboard ----------
+
+const TIER_SECTIONS = [
+  ["startup", "Startups"],
+  ["mid", "Mid-size companies"],
+  ["mnc", "MNCs"],
+];
+let autoRefreshTried = false;
+
+function scoreBand(score) {
+  return score >= 80 ? "high" : score >= 60 ? "mid" : "low";
+}
+
+function chips(items, cls) {
+  return h("ul", { class: `chips ${cls}` }, items.map((t) => h("li", {}, t)));
+}
+
+function jobCard(c) {
+  // The URL comes from the source API via the backend; still refuse anything but https.
+  const safe = typeof c.apply_url === "string" && c.apply_url.startsWith("https://");
+  return h("article", { class: "card job" },
+    h("div", { class: "job-head" },
+      h("div", {},
+        h("h3", {}, c.title),
+        h("p", { class: "meta" }, [c.company, c.location].filter(Boolean).join(" · "),
+          c.remote ? h("span", { class: "tag" }, "Remote") : null)),
+      h("div", { class: `score ${scoreBand(c.score)}`, title: "Match score" },
+        h("strong", {}, String(c.score)), h("span", {}, "match"))),
+    h("p", { class: "why" }, c.rationale),
+    c.strengths.length ? chips(c.strengths, "good") : null,
+    c.gaps.length ? chips(c.gaps, "gap") : null,
+    h("div", { class: "actions" },
+      safe
+        ? h("a", { class: "btn primary", href: c.apply_url, target: "_blank", rel: "noopener noreferrer" }, "Apply")
+        : h("button", { disabled: true }, "No apply link")),
+  );
+}
+
+async function dashboardView(email) {
+  renderNav(email, "dashboard");
+  const status = h("p", { class: "sub" });
+  const err = h("p", { class: "error" });
+  const results = h("div");
+  const refresh = h("button", { class: "primary" }, "Refresh matches");
+
+  function draw(rec) {
+    const total = TIER_SECTIONS.reduce((n, [k]) => n + rec[k].length, 0);
+    results.replaceChildren(...(total === 0
+      ? [h("div", { class: "card empty" }, "No matches yet. Click Refresh to search job boards and score them against your profile.")]
+      : TIER_SECTIONS.map(([k, label]) => h("section", {},
+          h("h2", {}, `${label} `, h("span", { class: "count" }, String(rec[k].length))),
+          rec[k].length ? rec[k].map(jobCard) : h("p", { class: "hint" }, "Nothing in this group right now.")))));
+    return total;
+  }
+
+  async function load() {
+    const r = await api("GET", "/recommendations");
+    if (!r.ok) { err.textContent = r.error; return 0; }
+    return draw(r.data);
+  }
+
+  async function run() {
+    err.textContent = "";
+    setBusy(refresh, true, "Searching and scoring (~30s)");
+    status.textContent = "Searching job boards, then scoring the best candidates against your profile...";
+    const r = await api("POST", "/recommendations/refresh");
+    setBusy(refresh, false, "Refresh matches");
+    if (!r.ok) { err.textContent = r.error; status.textContent = ""; return; }
+    const d = r.data, failed = Object.keys(d.source_errors).length;
+    status.textContent = `Scored ${d.matched} of ${d.discovered} openings found` +
+      (failed ? ` (${failed} job board${failed > 1 ? "s" : ""} unavailable)` : "") +
+      ` · ${d.tokens.toLocaleString()} tokens · $${d.cost_usd.toFixed(4)}`;
+    await load();
+  }
+  refresh.addEventListener("click", run);
+
+  app.replaceChildren(
+    h("div", { class: "page-head" }, h("div", {}, h("h1", {}, "Your matches"), status), refresh),
+    err, results,
+  );
+  const total = await load();
+  if (total === 0 && !autoRefreshTried) { autoRefreshTried = true; run(); }
+}
+
 async function boot() {
   const who = await api("GET", "/me");
   if (!who.ok) return authView();
   const email = who.data.email;
   const r = await api("GET", "/profile");
   if (r.status === 404) return onboardingView(email);
-  if (r.ok) return profileView(email, r.data);
+  if (r.ok) {
+    return location.hash === "#/profile" ? profileView(email, r.data) : dashboardView(email);
+  }
   app.replaceChildren(h("p", { class: "error" }, r.error));
 }
 
+window.addEventListener("hashchange", boot);
 boot();

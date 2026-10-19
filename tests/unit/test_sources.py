@@ -68,3 +68,18 @@ async def test_transient_5xx_is_retried():
     async with httpx.AsyncClient() as client:
         jobs = await GreenhouseSource().fetch(client, GH)
     assert route.call_count == 2 and len(jobs) == 1
+
+
+def test_ashby_parse_filters_unlisted_and_marks_remote():
+    from nextrole.sources.ashby import AshbySource
+
+    board = Board(company="Linear", source="ashby", slug="linear")
+    payload = {"jobs": [
+        {"id": "a", "title": "Eng", "location": "Europe", "isRemote": True, "isListed": True,
+         "descriptionPlain": "Build", "jobUrl": "https://jobs.ashbyhq.com/linear/a"},
+        {"id": "b", "title": "Closed", "isListed": False,
+         "jobUrl": "https://jobs.ashbyhq.com/linear/b"},
+    ]}
+    (job,) = AshbySource().parse(board, payload)
+    assert job.source_id == "a" and job.remote and job.company == "Linear"
+    assert job.apply_url == "https://jobs.ashbyhq.com/linear/a"

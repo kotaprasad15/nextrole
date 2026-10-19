@@ -7,12 +7,13 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from nextrole.api.routers import auth, profile
+from nextrole.api.routers import auth, profile, recommendations
 from nextrole.config import Settings, get_settings
 from nextrole.db.connection import connect
 from nextrole.llm.budget import Budget
 from nextrole.llm.client import LLMClient
 from nextrole.resume.storage import ResumeStore
+from nextrole.sources.registry import discover as discover_jobs
 from nextrole.tracing.tracer import Tracer
 
 WEB_DIR = Path(__file__).parent.parent / "web"
@@ -22,6 +23,7 @@ def create_app(
     settings: Settings | None = None,
     conn: sqlite3.Connection | None = None,
     llm_factory: Callable[[], LLMClient] | None = None,
+    discover: Callable | None = None,
 ) -> FastAPI:
     """Factory so tests can inject an in-memory DB and a mocked LLM."""
     settings = settings or get_settings()
@@ -32,8 +34,10 @@ def create_app(
     app.state.llm_factory = llm_factory or (
         lambda: LLMClient(settings, Budget.from_settings(settings), Tracer(settings.trace_dir))
     )
+    app.state.discover = discover or discover_jobs  # injectable so tests never hit the network
     app.include_router(auth.router)
     app.include_router(profile.router)
+    app.include_router(recommendations.router)
 
     @app.get("/health")
     def health() -> dict:

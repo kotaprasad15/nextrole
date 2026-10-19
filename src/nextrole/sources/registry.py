@@ -15,12 +15,13 @@ import httpx
 
 from nextrole.models.job import Job
 from nextrole.models.profile import Preferences
+from nextrole.sources.ashby import AshbySource
 from nextrole.sources.base import Board, BoardSource
 from nextrole.sources.dedupe import dedupe
 from nextrole.sources.greenhouse import GreenhouseSource
 from nextrole.sources.lever import LeverSource
 
-SOURCES: dict[str, BoardSource] = {s.name: s for s in (GreenhouseSource(), LeverSource())}
+SOURCES: dict[str, BoardSource] = {s.name: s for s in (GreenhouseSource(), LeverSource(), AshbySource())}
 BOARDS_FILE = Path(__file__).parent.parent / "data" / "boards.json"
 
 
