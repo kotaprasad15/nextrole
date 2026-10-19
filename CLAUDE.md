@@ -14,6 +14,17 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 
 - App (API + UI): `uv run uvicorn nextrole.api.main:app --reload`, open http://localhost:8000 (set `RESUME_ENCRYPTION_KEY` in `.env` first)
 
+## Frontend redesign (`frontend/`, in progress; the backend is NOT changed by it)
+Next.js 16 (App Router, React 19, TypeScript strict) + Tailwind v4 + Radix, "Paper & Ink" light theme. The old vanilla UI in `src/nextrole/web/` keeps running at FastAPI `/` until parity.
+- Commands (run in `frontend/`): `npm run dev` (use `-p 3100`), `npm test` (Vitest), `npm run typecheck`, `npm run lint`, `npm run build`. Design system lives at `/design` (living style guide).
+- **Read `frontend/node_modules/next/dist/docs/` before using a Next API**: this Next version has breaking changes (e.g. `middleware.ts` is now `proxy.ts`; `cacheComponents` is on, so keep data fetching client-side or in Suspense).
+- **Tokens are the single source of truth**: CSS variables in `frontend/src/app/globals.css` (`@theme`). Never hard-code hex values in components. `src/lib/tokens.contrast.test.ts` parses that file and enforces WCAG AA. Coral/teal/warning/success are too light for text on white: use fills/rings/glows with the brand colour and the matching `-ink` shade for text; text on coral/teal fills is `ink`, not white.
+- Tier colours/labels come from `src/lib/tier.ts` only (`TIER_META`); use `TierBadge`, never re-style tiers ad hoc.
+- Components in `src/components/ui/` follow shadcn conventions (Radix primitives, `cva`, `cn`) but are hand-written and restyled; no shadcn CLI. Motion tokens/hooks are in `src/lib/motion/` (`tokens.ts`, `hooks.ts`, `magnetic.tsx`); never put animation numbers or pointer logic inline in pages. Animate transform/opacity only.
+- Hydration rule: anything that reads browser state (reduced motion, pointer type) must come from the hooks in `lib/motion/hooks.ts` (matchMedia via `useSyncExternalStore` with a fixed server snapshot). Do not call framer's `useReducedMotion` directly (its server and first-client values differ and caused a hydration mismatch). Components that animate in (e.g. `ScoreRing`) must render the same initial state on server and client.
+- Rich effects (custom cursor, tilt, magnetic) only when `useRichMotion()` is true (fine pointer and motion allowed); touch gets tap feedback.
+- No backend changes and no LLM calls while building the UI: development and screenshots use mock mode (planned `NEXT_PUBLIC_API_MODE=mock`); tracker, saved jobs and draft history are client-side (localStorage); ATS Check is in-browser.
+
 ## Architecture (current: milestone g)
 - `config.py`: all tunables from `.env` (model names, budgets, prices). Never hardcode a model.
 - `llm/client.py`: the only gateway to Anthropic. Retries (transient only), timeout, budget check, tracing, JSON output validated by Pydantic with one repair retry.
