@@ -59,6 +59,7 @@ class LLMClient:
         self._retry_wait = retry_wait or wait_exponential(multiplier=1, max=10)
         self._client = client or AsyncAnthropic(
             api_key=settings.anthropic_api_key,
+            base_url=settings.llm_base_url or None,  # None -> official Anthropic endpoint
             timeout=settings.llm_timeout_s,
             max_retries=0,  # retries are handled by tenacity below so they are visible/tested
         )

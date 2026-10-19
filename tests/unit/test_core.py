@@ -105,3 +105,10 @@ async def test_baseline_traces_and_budget_without_leaking_resume(tmp_path):
     assert llm.budget.tokens_used == 1200 and llm.budget.cost_usd > 0
     line = json.loads(llm.tracer.path.read_text().splitlines()[0])
     assert line["agent"] == "baseline" and line["input_tokens"] == 1000
+
+
+def test_base_url_setting_routes_to_other_provider(tmp_path):
+    default = _llm(tmp_path, None, anthropic_api_key="k")
+    assert "api.anthropic.com" in str(default._client.base_url)
+    ds = _llm(tmp_path, None, anthropic_api_key="k", llm_base_url="https://api.deepseek.com/anthropic")
+    assert "api.deepseek.com/anthropic" in str(ds._client.base_url)

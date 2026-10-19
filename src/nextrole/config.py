@@ -12,7 +12,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    # Holds the key for whichever Anthropic-compatible endpoint is used (Anthropic by default).
     anthropic_api_key: str = ""
+    # Empty = official Anthropic API. Set to use another Anthropic-compatible provider, e.g.
+    # DeepSeek: https://api.deepseek.com/anthropic (then also set MODEL_FAST / MODEL_STRONG).
+    llm_base_url: str = ""
     model_fast: str = "claude-haiku-5-5"
     model_strong: str = "claude-sonnet-5-5"
 

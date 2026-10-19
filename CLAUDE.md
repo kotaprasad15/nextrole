@@ -16,6 +16,7 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 ## Architecture (current: milestone c)
 - `config.py`: all tunables from `.env` (model names, budgets, prices). Never hardcode a model.
 - `llm/client.py`: the only gateway to Anthropic. Retries (transient only), timeout, budget check, tracing, JSON output validated by Pydantic with one repair retry.
+- Provider: `LLM_BASE_URL` (empty = Anthropic) points the same SDK at any Anthropic-compatible endpoint, e.g. DeepSeek `https://api.deepseek.com/anthropic` with `MODEL_FAST=deepseek-flash`, `MODEL_STRONG=deepseek-v4-pro`. Set `PRICE_*` to that provider's rates. PII caveat: DeepSeek hosted API is for sample resumes only.
 - `llm/budget.py`: per-run token/cost cap (`BudgetExceeded`).
 - `tracing/`: JSONL trace per run in `traces/`, always passed through `redact()` (no resume text).
 - `models/`: Pydantic types. `HttpsUrl` enforces https; `Job.apply_url` is set only by source connectors.
