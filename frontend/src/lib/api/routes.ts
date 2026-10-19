@@ -1,0 +1,22 @@
+/** Every backend route the frontend calls. Plain data on purpose: `scripts/check-api.mjs` imports it. */
+export const ENDPOINTS = [
+  { method: "POST", path: "/auth/signup" },
+  { method: "POST", path: "/auth/login" },
+  { method: "POST", path: "/auth/logout" },
+  { method: "GET", path: "/me" },
+  { method: "DELETE", path: "/me" },
+  { method: "POST", path: "/onboarding" },
+  { method: "GET", path: "/profile" },
+  { method: "PUT", path: "/profile" },
+  { method: "GET", path: "/recommendations" },
+  { method: "POST", path: "/runs" },
+  { method: "GET", path: "/runs" },
+  { method: "GET", path: "/runs/{run_id}" },
+  { method: "GET", path: "/runs/{run_id}/events" },
+  { method: "GET", path: "/outreach" },
+  { method: "GET", path: "/outreach/by-job/{job_id}" },
+  { method: "PUT", path: "/outreach/{outreach_id}" },
+  { method: "POST", path: "/outreach/{outreach_id}/approve" },
+  { method: "POST", path: "/outreach/{outreach_id}/feedback" },
+  { method: "DELETE", path: "/outreach/{outreach_id}" },
+] as const;
