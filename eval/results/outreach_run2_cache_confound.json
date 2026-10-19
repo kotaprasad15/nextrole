@@ -1,0 +1,2095 @@
+{
+  "rows": [
+    {
+      "id": "01c251ee8f6d",
+      "profile_id": "p5_fullstack_senior",
+      "company": "Discord",
+      "title": "Senior Full-Stack Software Engineer, Ads",
+      "error": null,
+      "baseline": {
+        "tokens": 158,
+        "cost_usd": 0.002202,
+        "calls": 1,
+        "latency_s": 2.22,
+        "body": "Hi Claire, I came across your background and thought of Discord's Ads team. We're building new ads products from backend to frontend, and your experience leading a team of four on a scheduling product used by 200 clinics, plus your work designing a GraphQL API layer and cutting p95 latency by 40%, aligns well. The role is full-stack with TypeScript and React, and we're looking for someone with 4+ years of experience. We're based in the San Francisco Bay Area and relocation assistance may be available. Would you be open to a quick chat about the role?",
+        "subject": "Senior full-stack engineer for Discord's Ads team",
+        "words": 97,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Claire's experience aligns well with the role."
+        ],
+        "rule_violations": [],
+        "critic_overall": 86,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 87,
+          "grounding": 90,
+          "no_fluff": 88,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 8046,
+        "cost_usd": 0.062034,
+        "calls": 12,
+        "latency_s": 29.81,
+        "body": "Hi there,\n\nMy name is Claire Dubois. Before my current role at Lumen Health, I worked on ad analytics at Pixelwave, where I built React dashboards and Node.js services. The Ads team is building Quests and a platform that lets advertisers and operations teams manage their ad campaigns, and my Pixelwave work was on the frontend and backend for ad analytics.\n\nAt Lumen Health, I led a team of four on a product used by 200 clinics and designed a GraphQL API layer over three legacy services. I also cut p95 API latency by 40 percent through query and caching changes.\n\nDiscord's gaming-focused community and Quests as an ad format are why I'm reaching out. Could we set up a 20-minute call next week to discuss the team's roadmap and whether my profile fits the role?\n\nClaire Dubois",
+        "subject": "Senior Full-Stack Engineer for Discord Ads",
+        "words": 138,
+        "claims_total": 12,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 91,
+        "critic_scores": {
+          "specificity": 88,
+          "tone": 86,
+          "grounding": 94,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 4,
+        "passed": false,
+        "warnings": [
+          "The reviewer was not fully satisfied after 4 attempt(s): My Pixelwave work was on the frontend and backend for ad analytics.. Please review carefully before approving."
+        ],
+        "research_facts": 7,
+        "first_critic_overall": 82
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A directly ties Claire's Pixelwave ad analytics work to Discord's Ads team needs and avoids unverified claims. Draft B incorrectly frames the candidate as the recipient and adds claims like relocation assistance not backed by the posting.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.022722
+    },
+    {
+      "id": "06c3d487df7d",
+      "profile_id": "p4_platform_mid",
+      "company": "Okta",
+      "title": "Senior Site Reliability Engineer",
+      "error": null,
+      "baseline": {
+        "tokens": 187,
+        "cost_usd": 0.002409,
+        "calls": 1,
+        "latency_s": 2.14,
+        "body": "Hi Ravi,\n\nI came across your background as a Platform Engineer at ShipFast and thought of Okta's Senior Site Reliability Engineer opening in Bengaluru. Your experience running Kubernetes workloads on AWS and migrating 30 services to Kubernetes with Terraform-managed AWS infrastructure aligns with our container platform migration and infrastructure-as-code work.\n\nYou also built a Go CLI for service onboarding and cut deploy time from 25 to 7 minutes with a new CI/CD pipeline, which maps well to our focus on automation and modern CI/CD practices.\n\nWould you be open to a quick chat about the role?\n\nBest,\n[Your Name]",
+        "subject": "Platform engineer for Okta SRE role",
+        "words": 99,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "The candidate's Kubernetes and Terraform migration experience aligns with Okta's container platform migration and infrastructure-as-code work",
+          "The candidate's Go CLI and deploy time reduction maps well to Okta's focus on automation and modern CI/CD practices"
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 82,
+        "critic_scores": {
+          "specificity": 55,
+          "tone": 75,
+          "grounding": 100,
+          "no_fluff": 85,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 2055,
+        "cost_usd": 0.016761,
+        "calls": 5,
+        "latency_s": 9.67,
+        "body": "Hi there,\n\nI'm writing about the Senior Site Reliability Engineer role in Bengaluru. The posting mentions container platform migrations like ECS to EKS and microservice enablement. At ShipFast, I migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure. I also reduced deploy time from 25 to 7 minutes by building a new CI/CD pipeline.\n\nThe job calls for technical authority in Kubernetes and AWS, which matches the five years I've spent running Kubernetes workloads on AWS. I currently work with Go for tooling, including a CLI that automated service onboarding at ShipFast.\n\nWould you be open to a short call about how this experience could apply to Okta's reliability work, or could you point me to the right person to speak with?\n\nRavi Menon",
+        "subject": "SRE background in Kubernetes migrations on AWS",
+        "words": 124,
+        "claims_total": 7,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "I currently work with Go for tooling."
+        ],
+        "rule_violations": [],
+        "critic_overall": 95,
+        "critic_scores": {
+          "specificity": 88,
+          "tone": 92,
+          "grounding": 100,
+          "no_fluff": 95,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 5,
+        "first_critic_overall": 91
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft A is written from the recruiter\u2019s perspective, is more concise, and highlights the candidate's relevant experience without overclaiming. Draft B is written as if from the candidate, making it less appropriate for a hiring contact to respond to, and it misstates the perspective.",
+        "multi_was_A": false
+      },
+      "judge_cost_usd": 0.019701
+    },
+    {
+      "id": "09d1b4eb43f4",
+      "profile_id": "p4_platform_mid",
+      "company": "Fivetran ",
+      "title": "Senior Site Reliability Engineer",
+      "error": null,
+      "baseline": {
+        "tokens": 254,
+        "cost_usd": 0.003174,
+        "calls": 1,
+        "latency_s": 2.29,
+        "body": "Hi Ravi,\n\nI came across your background in platform engineering and thought of a Senior Site Reliability Engineer opening at Fivetran in Dublin.\n\nYou have five years running Kubernetes on AWS, plus hands-on work with Terraform, CI/CD, and Prometheus. That maps closely to what our SRE team uses daily \u2014 including EKS, Terraform, Go, and ArgoCD for continuous delivery.\n\nAt ShipFast, you cut deploy time from 25 to 7 minutes and built a Go CLI to automate service onboarding. We're looking for engineers who can improve platform reliability in exactly that kind of measurable way.\n\nThe role is hybrid in Dublin with two days in-office each week.\n\nWould you be open to a quick chat about the team and the work?\n\nBest,\nFivetran SRE Recruiting",
+        "subject": "SRE role at Fivetran \u2014 your Kubernetes & AWS experience",
+        "words": 125,
+        "claims_total": 9,
+        "claims_unsupported": 1,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "We're looking for engineers who can improve platform reliability in exactly that kind of measurable way"
+        ],
+        "overreach_texts": [
+          "That maps closely to what our SRE team uses daily \u2014 including EKS, Terraform, Go, and ArgoCD for continuous delivery"
+        ],
+        "rule_violations": [],
+        "critic_overall": 75,
+        "critic_scores": {
+          "specificity": 62,
+          "tone": 78,
+          "grounding": 68,
+          "no_fluff": 85,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 2737,
+        "cost_usd": 0.017415,
+        "calls": 6,
+        "latency_s": 11.44,
+        "body": "Hi there,\n\nI'm a platform engineer with five years of experience running Kubernetes workloads on AWS, currently at ShipFast. I'm reaching out about the Senior Site Reliability Engineer role in Dublin because my recent work overlaps with the operational focus in the posting: I migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure and cut deploy time from 25 to 7 minutes with a new CI/CD pipeline. I also built a Go CLI to automate service onboarding.\n\nFivetran's framing of making access to data as simple and reliable as electricity stood out, and the required hands-on SRE work maps closely to what I do day to day. Would you have time for a short call next week, or could you point me to the right person on the team to ask a couple of questions?\n\nThanks,\nRavi Menon",
+        "subject": "Question about the Senior SRE role in Dublin",
+        "words": 138,
+        "claims_total": 9,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "the required hands-on SRE work maps closely to what I do day to day"
+        ],
+        "rule_violations": [],
+        "critic_overall": 93,
+        "critic_scores": {
+          "specificity": 92,
+          "tone": 90,
+          "grounding": 95,
+          "no_fluff": 88,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [
+          "No reliable public information found about the company."
+        ],
+        "research_facts": 0,
+        "first_critic_overall": 92
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "B is addressed to the candidate and connects his specific skills and measurable achievements to the role's tooling, making it feel like targeted outreach. A is written from the candidate's perspective, which is less natural for recruiter outreach.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.023412000000000002
+    },
+    {
+      "id": "0a10ae3337ec",
+      "profile_id": "p1_backend_newgrad",
+      "company": "Figma",
+      "title": "Software Engineer Intern (London, United Kingdom) (Summer 2027) ",
+      "error": null,
+      "baseline": {
+        "tokens": 195,
+        "cost_usd": 0.002229,
+        "calls": 1,
+        "latency_s": 2.31,
+        "body": "Hi Aisha,\n\nI came across your background in backend engineering at Finlytics and your projects like the Splitwise clone, and thought you might be a great fit for Figma's Software Engineer Intern role in London for Summer 2027.\n\nYour experience building REST endpoints with FastAPI, writing PostgreSQL queries, and using Docker aligns well with the backend and platform work our interns do. The role is open to flexible interests and focuses on shipping real features with a supportive mentor.\n\nWould you be open to a quick chat about the role?",
+        "subject": "Figma Software Engineer Intern application \u2013 Aisha Rahman",
+        "words": 90,
+        "claims_total": 10,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Aisha might be a great fit for Figma's Software Engineer Intern role in London for Summer 2027",
+          "Aisha's experience aligns well with the backend and platform work Figma's interns do"
+        ],
+        "rule_violations": [],
+        "critic_overall": 73,
+        "critic_scores": {
+          "specificity": 20,
+          "tone": 75,
+          "grounding": 100,
+          "no_fluff": 85,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 5240,
+        "cost_usd": 0.037968,
+        "calls": 8,
+        "latency_s": 17.49,
+        "body": "Hi there,\n\nI\u2019m applying for the Software Engineer Intern role in London. I\u2019m a BSc Computer Science student at University of Leeds, with backend and database experience. At Finlytics, I built REST endpoints in FastAPI for an invoicing service and wrote PostgreSQL queries and migrations for reporting tables. In a side project, I used FastAPI and PostgreSQL to build an expense-sharing app with authentication and settlement logic; another project used Python, Redis, and Docker for a rate-limited URL shortener. Your posting says interns are paired with teams that align with their skills and interests, and Figma\u2019s platform helps teams translate designs into code. I\u2019d like to apply that FastAPI and Docker experience to backend work on real-time collaboration features. Could I ask you a couple of questions about how intern teams are matched in London?\n\nAisha Rahman",
+        "subject": "Backend intern with FastAPI and PostgreSQL experience",
+        "words": 137,
+        "claims_total": 10,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "I\u2019d like to apply that FastAPI and Docker experience to backend work on real-time collaboration features."
+        ],
+        "rule_violations": [],
+        "critic_overall": 88,
+        "critic_scores": {
+          "specificity": 84,
+          "tone": 88,
+          "grounding": 89,
+          "no_fluff": 85,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 4,
+        "first_critic_overall": 86
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is written from the candidate's perspective and is specific to the role and posting, mentions relevant skills, and asks a natural question. Draft B is incorrectly addressed to the candidate rather than the hiring contact and uses generic framing.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.022245
+    },
+    {
+      "id": "0cb197c62462",
+      "profile_id": "p1_backend_newgrad",
+      "company": "Lyft",
+      "title": "PhD Machine Learning Software Engineer Intern (Summer 2027)",
+      "error": null,
+      "baseline": {
+        "tokens": 150,
+        "cost_usd": 0.00219,
+        "calls": 1,
+        "latency_s": 2.06,
+        "body": "Hi Aisha,\n\nI came across your profile and noticed your backend engineering experience with FastAPI and PostgreSQL at Finlytics, along with your projects like the Splitwise clone. While this role at Lyft is for PhD students pursuing ML research, I wanted to reach out in case you are planning to continue your studies.\n\nThis intern position focuses on applied AI research, reinforcement learning, and writing production-quality Python code to turn prototypes into working pipelines.\n\nWould you be open to a brief chat about your future academic plans?\n\nBest regards",
+        "subject": "Re: PhD Machine Learning Software Engineer Intern (Summer 2027) at Lyft",
+        "words": 89,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 40,
+        "critic_scores": {
+          "specificity": 15,
+          "tone": 80,
+          "grounding": 5,
+          "no_fluff": 65,
+          "length": 97
+        }
+      },
+      "multi": {
+        "tokens": 4489,
+        "cost_usd": 0.033087,
+        "calls": 8,
+        "latency_s": 20.62,
+        "body": "Hi there,\n\nI'm Aisha Rahman, a recent BSc Computer Science graduate from the University of Leeds. During my backend internship at Finlytics, I built REST endpoints in FastAPI for an invoicing service, wrote PostgreSQL queries and migrations for reporting tables, and added pytest coverage for payment webhooks. My Splitwise clone uses FastAPI, PostgreSQL, and React with auth and settlement logic.\n\nThe Applied AI team internship involves scoping an open research problem and developing methods on real data, with the goal of a paper submission to a top ML venue. I want to apply my backend and PostgreSQL experience to that real-data setting, especially given Lyft's work with petabyte-scale data. Could I ask you a short question about who on the team would be best to speak with about the intern project?\n\nAisha Rahman",
+        "subject": "Backend and data experience for Lyft ML internship",
+        "words": 133,
+        "claims_total": 11,
+        "claims_unsupported": 1,
+        "claims_overreach": 0,
+        "unsupported_texts": [
+          "recent BSc Computer Science graduate from the University of Leeds"
+        ],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 91,
+        "critic_scores": {
+          "specificity": 78,
+          "tone": 88,
+          "grounding": 100,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 7,
+        "first_critic_overall": 85
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft A is written from the recruiter's perspective and correctly addresses the candidate, whereas Draft B is written from the candidate's perspective, misidentifying who is speaking. Draft A also clearly notes the PhD/ML mismatch and asks a relevant follow-up.",
+        "multi_was_A": false
+      },
+      "judge_cost_usd": 0.019836000000000003
+    },
+    {
+      "id": "1909e4056b8a",
+      "profile_id": "p2_ml_intern",
+      "company": "Anthropic",
+      "title": "Staff+ Software Engineer, Account Abuse (Machine Learning)",
+      "error": null,
+      "baseline": {
+        "tokens": 200,
+        "cost_usd": 0.00282,
+        "calls": 1,
+        "latency_s": 2.64,
+        "body": "Hi team, I'm Mateo Alvarez, a final-year Statistics and Computer Science student at University of Toronto. I saw your Account Abuse ML role and wanted to reach out.\n\nI have experience training ML models in PyTorch and scikit-learn, building data pipelines in pandas and Spark, and working with SQL. As a Research Assistant at University Vision Lab, I trained image classification models, built cleaning pipelines, and co-authored a workshop paper. My projects include a churn predictor with gradient boosting and a fine-tuned transformer for sentiment.\n\nI'm graduating in 2026, open to remote work, and targeting intern/new grad ML and data engineering roles. I care about robust production systems and measurement, matching the precision and safe rollout focus in your description. I'd be glad to discuss my background.",
+        "subject": "ML engineer candidate for Account Abuse role",
+        "words": 127,
+        "claims_total": 14,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Mateo Alvarez has experience training ML models in scikit-learn."
+        ],
+        "rule_violations": [],
+        "critic_overall": 62,
+        "critic_scores": {
+          "specificity": 25,
+          "tone": 75,
+          "grounding": 60,
+          "no_fluff": 80,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 4607,
+        "cost_usd": 0.029348999999999997,
+        "calls": 7,
+        "latency_s": 13.47,
+        "body": "Hi there,\n\nI saw the Staff+ Software Engineer opening on the Account Abuse team. The posting mentions classical ML on structured and behavioral data, which matches my project work. I built a customer churn model using gradient boosting with a feature pipeline in scikit-learn, pandas, and SQL, and I also trained image classification models in PyTorch on a lab dataset.\n\nAt the University Vision Lab, I built data cleaning pipelines in pandas and co-authored a workshop paper on data augmentation. Those data pipeline skills seem directly relevant to detecting and stopping abuse at scale, where behavioral data quality matters.\n\nI would be glad to have a short call to learn more about how the team evaluates models and where a final-year machine learning and data engineering student could contribute. If there is someone better to speak with on the team, I would appreciate the pointer.\n\nMateo Alvarez",
+        "subject": "Account Abuse ML role - classical ML and data pipelines background",
+        "words": 147,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Those data pipeline skills seem directly relevant to detecting and stopping abuse at scale"
+        ],
+        "rule_violations": [],
+        "critic_overall": 88,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 82,
+          "grounding": 100,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 7,
+        "first_critic_overall": 90
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "B is more concise, direct, and naturally ties relevant ML and data engineering experience to the posting's emphasis on precision and robust systems. A is more formal and longer without adding substantive fit.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.025737
+    },
+    {
+      "id": "399e29400bfe",
+      "profile_id": "p3_frontend_junior",
+      "company": "Cloudflare",
+      "title": "Software Engineer Intern (2027)",
+      "error": null,
+      "baseline": {
+        "tokens": 136,
+        "cost_usd": 0.001944,
+        "calls": 1,
+        "latency_s": 2.14,
+        "body": "Hi Hannah,\n\nGiven your React, TypeScript, and accessibility work at Bright Agency, you might be a fit for Cloudflare's Software Engineer Intern (2027) role in London. The team builds UI and control planes using TypeScript, and values proactive builders who ship fast.\n\nYour experience creating a component library and improving performance scores aligns with the work Cloudflare does at scale. The internship offers a chance to push code affecting millions of web properties.\n\nIs this something you'd like to discuss?",
+        "subject": "Cloudflare Software Engineer Intern (2027) opportunity",
+        "words": 80,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Cloudflare values proactive builders who ship fast.",
+          "Hannah's experience aligns with the work Cloudflare does at scale."
+        ],
+        "rule_violations": [],
+        "critic_overall": 60,
+        "critic_scores": {
+          "specificity": 45,
+          "tone": 70,
+          "grounding": 55,
+          "no_fluff": 75,
+          "length": 70
+        }
+      },
+      "multi": {
+        "tokens": 7720,
+        "cost_usd": 0.05878799999999999,
+        "calls": 11,
+        "latency_s": 28.19,
+        "body": "Hi there,\n\nI'm Hannah Becker, a junior frontend engineer with two years of product experience. At Bright Agency, I built a React and TypeScript component library used by four client projects. I also raised a retail site's Lighthouse performance score from 62 to 91. On that same site, I added accessibility fixes for keyboard navigation and screen readers.\n\nCloudflare's job posting says the company is looking for builders who spot normalized problems and use AI-native curiosity to create solutions. That matches how I approach frontend work: diagnose a concrete issue, ship a focused fix, then apply the pattern to other surfaces.\n\nMy BSc in Informatics is from TU Munich. Would you be open to a short call about the Software Engineer Intern (2027) role?\n\nHannah Becker",
+        "subject": "Frontend engineer with Lighthouse and accessibility results for Cloudflare intern role",
+        "words": 126,
+        "claims_total": 7,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "On that same site, Hannah added accessibility fixes for keyboard navigation and screen readers.",
+          "That matches how I approach frontend work: diagnose a concrete issue, ship a focused fix, then apply the pattern to other surfaces."
+        ],
+        "rule_violations": [],
+        "critic_overall": 89,
+        "critic_scores": {
+          "specificity": 70,
+          "tone": 90,
+          "grounding": 100,
+          "no_fluff": 88,
+          "length": 100
+        },
+        "attempts": 4,
+        "passed": false,
+        "warnings": [
+          "The reviewer was not fully satisfied after 4 attempt(s): That matches how I approach frontend work: diagnose a concrete issue, ship a focused fix, then apply the pattern to other surfaces.. Please review carefully before approving."
+        ],
+        "research_facts": 6,
+        "first_critic_overall": 82
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is specific to the role and company, references the posting accurately, and connects the candidate's concrete experience to Cloudflare's stated values without flattery. Draft B is generic, uses vague claims, and addresses the wrong recipient.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.020619
+    },
+    {
+      "id": "40063c4caf1f",
+      "profile_id": "p2_ml_intern",
+      "company": "Asana",
+      "title": "Data Engineer ",
+      "error": null,
+      "baseline": {
+        "tokens": 136,
+        "cost_usd": 0.001836,
+        "calls": 1,
+        "latency_s": 2.24,
+        "body": "Hi Mateo, I found your profile and thought of Asana's Data Engineer opening in Warsaw. Your pandas pipelines and SQL work in the churn predictor project align with building data artifacts for the marketing domain. Your PyTorch and Spark skills also fit our Databricks and AI tooling focus. I know the role asks for 3+ years and you're a new grad, but your lab and project experience seemed relevant. Would you be open to a quick chat about the team?",
+        "subject": "Data Engineer opportunity at Asana Warsaw",
+        "words": 80,
+        "claims_total": 5,
+        "claims_unsupported": 0,
+        "claims_overreach": 3,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Your pandas pipelines and SQL work in the churn predictor project align with building data artifacts for the marketing domain.",
+          "Your PyTorch and Spark skills also fit our Databricks and AI tooling focus.",
+          "your lab and project experience seemed relevant"
+        ],
+        "rule_violations": [],
+        "critic_overall": 76,
+        "critic_scores": {
+          "specificity": 58,
+          "tone": 72,
+          "grounding": 95,
+          "no_fluff": 75,
+          "length": 70
+        }
+      },
+      "multi": {
+        "tokens": 3049,
+        "cost_usd": 0.021399,
+        "calls": 5,
+        "latency_s": 12.09,
+        "body": "Hi there,\n\nI\u2019m finishing my BSc in Statistics and Computer Science at the University of Toronto in 2026, with a focus on machine learning and data engineering. For the Data Engineer role in Warsaw, my lab work may be relevant: I trained image classification models in PyTorch and built data cleaning pipelines in pandas. I also built a customer churn model with a feature pipeline using scikit-learn, pandas, and SQL.\n\nThe posting mentions building data artifacts for marketing stakeholders and creating frameworks used by data and analytics engineering teams. My churn project\u2019s SQL-based feature pipeline and the cleaning pipelines I built in pandas seem close to that work. If it would be useful, could I ask a brief question about who the Data Engineering team works with most in Warsaw? A short call would also work if that\u2019s easier.\n\nMateo Alvarez",
+        "subject": "Data Engineering at Asana",
+        "words": 141,
+        "claims_total": 9,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "seem close to that work"
+        ],
+        "rule_violations": [],
+        "critic_overall": 73,
+        "critic_scores": {
+          "specificity": 55,
+          "tone": 70,
+          "grounding": 80,
+          "no_fluff": 75,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 91
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is correctly addressed from candidate to hiring contact, ties specific projects to the posting, and asks a relevant question. Draft B is written from the wrong perspective and flatters the candidate.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.020402999999999998
+    },
+    {
+      "id": "4222ed879d8a",
+      "profile_id": "p5_fullstack_senior",
+      "company": "Lattice",
+      "title": "Senior Software Engineer, Infrastructure Platform",
+      "error": null,
+      "baseline": {
+        "tokens": 262,
+        "cost_usd": 0.00273,
+        "calls": 1,
+        "latency_s": 2.33,
+        "body": "Hi Claire,\n\nI came across your profile and was impressed by your experience leading teams and owning products end to end at Lumen Health. Your work designing a GraphQL API layer and improving latency shows the kind of systems thinking we need on Lattice's Infrastructure Platform team.\n\nWe're building internal platforms on AWS, Kubernetes, and CI/CD to help product engineers deploy, operate, and troubleshoot their services. Your TypeScript, Node.js, PostgreSQL, and AWS skills seem like a strong match for this work.\n\nWould you be open to a brief chat about the role? It is remote within Canada.\n\nBest,\nLattice Engineering",
+        "subject": "Claire, your full-stack and AWS background fits our Infrastructure Platform team",
+        "words": 100,
+        "claims_total": 15,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Claire's work shows systems thinking.",
+          "Claire's skills seem like a strong match for this work."
+        ],
+        "rule_violations": [],
+        "critic_overall": 90,
+        "critic_scores": {
+          "specificity": 78,
+          "tone": 86,
+          "grounding": 100,
+          "no_fluff": 88,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 5242,
+        "cost_usd": 0.033030000000000004,
+        "calls": 9,
+        "latency_s": 17.87,
+        "body": "Hi there,\n\nI'm writing about the Senior Software Engineer, Infrastructure Platform role at Lattice. At Lumen Health, I led a team of four building a patient scheduling product used by 200 clinics. I designed a GraphQL API layer over three legacy services and cut p95 API latency by 40 percent through query and caching changes. My technical background includes AWS and system design, which aligns with the Infrastructure Platform team's work on AWS infrastructure, Kubernetes, and distributed systems.\n\nWould a short call be possible to identify the right person to speak with on your team?\n\nClaire Dubois",
+        "subject": "Senior full-stack engineer for Lattice Infrastructure Platform",
+        "words": 97,
+        "claims_total": 5,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "AWS and system design aligns with the Infrastructure Platform team's work on AWS infrastructure, Kubernetes, and distributed systems."
+        ],
+        "rule_violations": [],
+        "critic_overall": 81,
+        "critic_scores": {
+          "specificity": 70,
+          "tone": 75,
+          "grounding": 85,
+          "no_fluff": 85,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 82
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft B speaks to the candidate directly, ties her specific experience to the role, and is natural and actionable. Draft A is written from the candidate's perspective to the company and asks who to contact, which is not a recruiter outreach.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.022539000000000003
+    },
+    {
+      "id": "5061d2aaecef",
+      "profile_id": "p1_backend_newgrad",
+      "company": "Palantir",
+      "title": "Forward Deployed Software Engineer, Internship",
+      "error": null,
+      "baseline": {
+        "tokens": 204,
+        "cost_usd": 0.002664,
+        "calls": 1,
+        "latency_s": 2.08,
+        "body": "Hi Aisha,\n\nI came across your profile and noticed your backend engineering internship at Finlytics, where you built REST endpoints with FastAPI and PostgreSQL. Your Splitwise clone and Docker-deployed URL shortener also show relevant hands-on experience.\n\nPalantir is hiring Forward Deployed Software Engineer interns in Paris. In this role, you would work directly with clients on high-stakes projects, design and implement data-driven solutions, and take end-to-end ownership in small teams.\n\nGiven your Python, FastAPI, PostgreSQL, Docker, and REST API skills, I thought this could be a strong fit. Would you be open to a quick chat about the internship?\n\nBest,\nAisha",
+        "subject": "Internship opportunity in Paris for backend-focused new grad",
+        "words": 101,
+        "claims_total": 10,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "this could be a strong fit"
+        ],
+        "rule_violations": [],
+        "critic_overall": 83,
+        "critic_scores": {
+          "specificity": 60,
+          "tone": 82,
+          "grounding": 100,
+          "no_fluff": 80,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 5751,
+        "cost_usd": 0.038253,
+        "calls": 8,
+        "latency_s": 17.42,
+        "body": "Hi there,\n\nI\u2019m a new grad software engineer with backend and database experience, and I\u2019m writing about the Forward Deployed Software Engineer internship in Paris. The posting describes working in small teams on end-to-end execution of high-stakes projects and using data to solve client problems. At Finlytics, I built REST endpoints in FastAPI for an invoicing service and wrote PostgreSQL queries and migrations for reporting tables. I also added test coverage for payment webhooks. Separately, I built an expense-sharing web app with auth and settlement logic using FastAPI, PostgreSQL, and React.\n\nCould you point me to the right person to speak with about the Paris FDSE internship, or would you be open to a short call?\n\nAisha Rahman",
+        "subject": "Backend experience for Palantir Paris FDSE internship",
+        "words": 118,
+        "claims_total": 7,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 91,
+        "critic_scores": {
+          "specificity": 78,
+          "tone": 88,
+          "grounding": 100,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 73
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft A is written from the recruiter's perspective, is specific to the role and candidate, and asks a clear, direct question. Draft B reads as a candidate message to a recruiter, uses a generic greeting, and is less likely to prompt a hiring contact to engage.",
+        "multi_was_A": false
+      },
+      "judge_cost_usd": 0.021254999999999996
+    },
+    {
+      "id": "51f8929e20db",
+      "profile_id": "p5_fullstack_senior",
+      "company": "Twilio",
+      "title": "Senior Software Engineer",
+      "error": null,
+      "baseline": {
+        "tokens": 144,
+        "cost_usd": 0.002076,
+        "calls": 1,
+        "latency_s": 1.77,
+        "body": "Hi Claire, I came across your profile and thought you might be a great fit for a Senior Software Engineer role on Twilio's Commerce Platform Team, remote in Ireland. Your experience leading a team at Lumen Health and designing a GraphQL API layer over legacy services aligns well with our work building and integrating core billing platform services. The role involves designing and operating scalable services using AWS and APIs. Given your background in TypeScript, Node.js, PostgreSQL, and AWS, plus your focus on system design, this could be a strong match. Would you be open to a quick chat?",
+        "subject": "Senior Software Engineer opportunity at Twilio",
+        "words": 99,
+        "claims_total": 15,
+        "claims_unsupported": 0,
+        "claims_overreach": 4,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "You might be a great fit for the role.",
+          "Your experience leading a team at Lumen Health aligns well with our work building and integrating core billing platform services.",
+          "Your experience designing a GraphQL API layer over legacy services aligns well with our work building and integrating core billing platform services.",
+          "This could be a strong match."
+        ],
+        "rule_violations": [],
+        "critic_overall": 72,
+        "critic_scores": {
+          "specificity": 55,
+          "tone": 65,
+          "grounding": 90,
+          "no_fluff": 60,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3192,
+        "cost_usd": 0.020352,
+        "calls": 5,
+        "latency_s": 10.14,
+        "body": "Hi there,\n\nI saw the Senior Software Engineer opening on your Commerce Platform Team. At Lumen Health, I led a team of four building a patient scheduling product used by 200 clinics, and I designed a GraphQL API layer over three legacy services. That work included cutting p95 API latency by 40 percent through query and caching changes. Before that, I built React dashboards and Node.js services for ad analytics at Pixelwave and introduced code review and testing standards for a team of eight. My stack is TypeScript, React, Node.js, PostgreSQL, GraphQL and AWS.\n\nYour posting mentions the Commerce Platform manages billing and payments at massive scale. I am most interested in how the team sequences reliability and latency improvements for that surface. Is there a short call where I could hear more about that? Thanks.\n\nClaire Dubois",
+        "subject": "Senior Software Engineer with platform and latency optimization background",
+        "words": 138,
+        "claims_total": 7,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 94,
+        "critic_scores": {
+          "specificity": 85,
+          "tone": 90,
+          "grounding": 100,
+          "no_fluff": 95,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 93
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is written from the candidate's perspective and is specific about her relevant experience and a genuine question about Twilio's Commerce Platform. Draft B is written as if the recruiter is addressing themselves ('Hi Claire'), which is an error, and uses generic, less personal phrasing.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.021366
+    },
+    {
+      "id": "60d625fd1204",
+      "profile_id": "p3_frontend_junior",
+      "company": "Datadog",
+      "title": "Software Engineering Intern",
+      "error": null,
+      "baseline": {
+        "tokens": 215,
+        "cost_usd": 0.002421,
+        "calls": 1,
+        "latency_s": 2.21,
+        "body": "Hi Hannah,\n\nI came across your profile and noticed your frontend experience with React and TypeScript, including building a component library and improving performance and accessibility. Datadog is looking for Software Engineering Interns in Madrid to help build and scale our observability and security platform.\n\nThis internship involves contributing to production systems and working on meaningful projects with mentorship. Your background in frontend development and computer science fundamentals could be a good fit, though I understand the official start date is February 2027.\n\nIf you're interested in learning more, I'd be happy to share details.\n\nBest regards",
+        "subject": "Frontend engineering background for Datadog internship",
+        "words": 97,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Hannah has a background in computer science fundamentals"
+        ],
+        "rule_violations": [],
+        "critic_overall": 85,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 78,
+          "grounding": 96,
+          "no_fluff": 82,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 5956,
+        "cost_usd": 0.04038,
+        "calls": 9,
+        "latency_s": 18.86,
+        "body": "Hi there,\n\nI\u2019m a junior frontend engineer with two years of product experience, and I saw the Software Engineering Intern posting for the Madrid office. The posting says interns contribute directly to real-world engineering challenges alongside experienced engineers and mentors. That matches how I\u2019ve been working: at Bright Agency I built a React and TypeScript component library used by four client projects, improved a retail site\u2019s Lighthouse performance score from 62 to 91, and added accessibility fixes for keyboard navigation and screen readers.\n\nDatadog provides an observability service for cloud-scale applications, monitoring servers, databases, tools, and services via a SaaS data analytics platform. May I have a short call with someone on your team to learn which frontend or developer tooling projects Madrid interns would join?\n\nHannah Becker",
+        "subject": "Frontend intern application for Madrid",
+        "words": 128,
+        "claims_total": 7,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 88,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 85,
+          "grounding": 95,
+          "no_fluff": 92,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 86
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is specific to both the candidate and role, uses real candidate details, avoids clich\u00e9s, and asks a clear next step. Draft B is more generic, oddly addresses the candidate as if the sender is Hannah, and introduces an unverified 2027 start date.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.019116
+    },
+    {
+      "id": "675bfc8ad20e",
+      "profile_id": "p2_ml_intern",
+      "company": "Coinbase",
+      "title": "Data Engineer Intern",
+      "error": null,
+      "baseline": {
+        "tokens": 164,
+        "cost_usd": 0.002436,
+        "calls": 1,
+        "latency_s": 2.24,
+        "body": "Hi Mateo,\n\nI came across your profile and thought of Coinbase's Data Engineer Intern opening in San Francisco. Your experience building data cleaning pipelines in pandas and your churn predictor project with a feature pipeline in SQL and pandas align well with our need to build and maintain data pipelines for analytics and machine learning workloads.\n\nThis is a 12-week summer 2027 internship where you would support scalable data infrastructure using Python, integrate data from multiple sources, and learn data engineering best practices. Your Python, SQL, Spark, and pandas skills seem like a strong fit.\n\nWould you be open to a quick chat about the role?\n\nBest,\n[Your Name]",
+        "subject": "Data Engineer Intern application - Mateo Alvarez",
+        "words": 109,
+        "claims_total": 11,
+        "claims_unsupported": 1,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "I came across your profile"
+        ],
+        "overreach_texts": [
+          "Your Python, SQL, Spark, and pandas skills seem like a strong fit"
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 69,
+        "critic_scores": {
+          "specificity": 45,
+          "tone": 55,
+          "grounding": 85,
+          "no_fluff": 70,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 4059,
+        "cost_usd": 0.027249000000000002,
+        "calls": 7,
+        "latency_s": 14.17,
+        "body": "Hi there,\n\nI'm a final-year Statistics and Computer Science student at the University of Toronto, focused on machine learning and data engineering. The Platform product group posting mentions building data pipelines that support machine learning use cases, which matches the work I've done at the University Vision Lab building pandas data cleaning pipelines and training PyTorch image classification models.\n\nI've also built a churn predictor with a feature pipeline using scikit-learn, pandas, and SQL, and worked with Spark in coursework. A 12-week summer 2027 internship with quarterly surges fits my timeline before I graduate in 2026.\n\nWould you be open to a short call about the intern hiring process for the Platform group, or could you point me to the right person?\n\nMateo Alvarez",
+        "subject": "Data Engineer Intern application - Mateo Alvarez",
+        "words": 124,
+        "claims_total": 8,
+        "claims_unsupported": 2,
+        "claims_overreach": 0,
+        "unsupported_texts": [
+          "and worked with Spark in coursework",
+          "A 12-week summer 2027 internship with quarterly surges fits my timeline before I graduate in 2026"
+        ],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 87,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 82,
+          "grounding": 100,
+          "no_fluff": 85,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 7,
+        "first_critic_overall": 85
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "A is addressed to the hiring contact, ties the candidate\u2019s experience directly to the Platform posting, avoids clich\u00e9s, and makes a specific ask. B is written as if to the candidate, makes a generic fit claim, and lacks a specific hook or clear direction.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.021321
+    },
+    {
+      "id": "6c39f9918ff1",
+      "profile_id": "p4_platform_mid",
+      "company": "Supabase",
+      "title": "Platform Engineer - Compute Capacity",
+      "error": null,
+      "baseline": {
+        "tokens": 195,
+        "cost_usd": 0.002697,
+        "calls": 1,
+        "latency_s": 2.64,
+        "body": "Hi Ravi,\n\nI came across your background in platform engineering and thought of the Compute Capacity team at Supabase. We run millions of Postgres databases on AWS and need engineers who can automate capacity planning, fleet reconciliation, and drift detection.\n\nYour five years running Kubernetes on AWS, plus your Go CLI work to automate service onboarding at ShipFast, seem directly relevant. We are looking for someone comfortable owning production services, extending infrastructure as code with Terraform, and instrumenting capacity with Prometheus-style metrics.\n\nThis is a fully remote, global role on a team that keeps compute supply ahead of demand. If that sounds interesting, I would be glad to share more details.\n\nBest,\n[Your Name]",
+        "subject": "Platform Engineer role at Supabase - Kubernetes + AWS + Go fit",
+        "words": 114,
+        "claims_total": 10,
+        "claims_unsupported": 1,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "Supabase runs millions of Postgres databases on AWS"
+        ],
+        "overreach_texts": [
+          "Ravi's Go CLI work seems directly relevant"
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 82,
+        "critic_scores": {
+          "specificity": 55,
+          "tone": 85,
+          "grounding": 92,
+          "no_fluff": 90,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3655,
+        "cost_usd": 0.025053000000000002,
+        "calls": 6,
+        "latency_s": 15.29,
+        "body": "Hi there,\n\nI'm Ravi Menon, a platform engineer with five years of experience running Kubernetes workloads on AWS. At ShipFast, I migrated 30 services to Kubernetes using Terraform-managed AWS infrastructure and wrote a Go CLI that automated service onboarding.\n\nThe Compute Capacity role needs someone comfortable with Go and Terraform, and someone who can build automation that keeps committed capacity in sync with what's running. That maps closely to the migration and onboarding work I've done. I also set up Prometheus and Grafana monitoring for 15 services at DataHaus, which is relevant to the metrics and alerting work described for surfacing capacity problems early.\n\nWould you have 15 minutes to talk about the team's current provisioning systems?\n\nRavi Menon",
+        "subject": "Platform engineer with Kubernetes and Terraform experience",
+        "words": 119,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "That maps closely to the migration and onboarding work I've done.",
+          "the metrics and alerting work described for surfacing capacity problems early is relevant to that DataHaus monitoring experience"
+        ],
+        "rule_violations": [],
+        "critic_overall": 92,
+        "critic_scores": {
+          "specificity": 82,
+          "tone": 92,
+          "grounding": 95,
+          "no_fluff": 97,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 5,
+        "first_critic_overall": 94
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "B is written from the hiring contact's perspective, directly connects Ravi's specific skills to the role's responsibilities (capacity planning, fleet reconciliation, Terraform, Prometheus), and maintains a concise, natural tone without generic filler.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.02493
+    },
+    {
+      "id": "6eb224072938",
+      "profile_id": "p1_backend_newgrad",
+      "company": "Pinterest",
+      "title": "Software Engineering Intern 2027 (Dublin)",
+      "error": null,
+      "baseline": {
+        "tokens": 286,
+        "cost_usd": 0.00285,
+        "calls": 1,
+        "latency_s": 2.43,
+        "body": "Hi Aisha,\n\nI'm reaching out because your backend work at Finlytics and your projects with FastAPI and PostgreSQL align well with our Software Engineering Intern 2027 role in Dublin. You built REST endpoints, wrote PostgreSQL queries and migrations, and added pytest coverage for payment webhooks. Your Splitwise clone also shows relevant auth and settlement logic experience.\n\nThis internship offers real projects, mentors, and work on large-scale systems. You are pursuing a BSc Computer Science at the University of Leeds, graduating in 2026, which fits our requirement for a Bachelor's by June 2028.\n\nWould you be open to a brief chat about this opportunity?",
+        "subject": "Backend intern applicant for Software Engineering Intern 2027 (Dublin)",
+        "words": 103,
+        "claims_total": 11,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "align well with our Software Engineering Intern 2027 role in Dublin",
+          "Your Splitwise clone also shows relevant auth and settlement logic experience"
+        ],
+        "rule_violations": [],
+        "critic_overall": 85,
+        "critic_scores": {
+          "specificity": 70,
+          "tone": 80,
+          "grounding": 95,
+          "no_fluff": 85,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 7400,
+        "cost_usd": 0.05468400000000001,
+        "calls": 11,
+        "latency_s": 27.08,
+        "body": "Hi there,\n\nI'm Aisha Rahman, a 2026 BSc Computer Science graduate from the University of Leeds with backend and database experience. At Finlytics, I built REST endpoints in FastAPI for an invoicing service, wrote PostgreSQL queries and migrations for reporting tables, and added pytest coverage for payment webhooks.\n\nThe Dublin internship posting says interns will learn how large-scale systems operate and help build new technologies, features, and tools. My FastAPI and PostgreSQL experience from Finlytics and my Splitwise clone map directly to that backend work, and I containerized a rate-limited URL shortener with Docker using Python and Redis. Your posting notes AI as a partner that augments creativity and amplifies impact.\n\nWould you be open to a short call about the Dublin intern hiring process, or can you point me to the right person?\n\nAisha Rahman",
+        "subject": "Software Engineering Intern 2027 (Dublin) application",
+        "words": 136,
+        "claims_total": 11,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "a 2026 BSc Computer Science graduate from the University of Leeds",
+          "My FastAPI and PostgreSQL experience from Finlytics and my Splitwise clone map directly to that backend work"
+        ],
+        "rule_violations": [],
+        "critic_overall": 82,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 78,
+          "grounding": 83,
+          "no_fluff": 85,
+          "length": 100
+        },
+        "attempts": 3,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 87
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft A correctly addresses the candidate as a recruiter contacting Aisha, referencing their relevant backend experience and education in a natural, concise way. Draft B is written from the candidate's perspective, which is inconsistent with comparing outreach drafts from a hiring contact.",
+        "multi_was_A": false
+      },
+      "judge_cost_usd": 0.022122
+    },
+    {
+      "id": "7c532997b506",
+      "profile_id": "p2_ml_intern",
+      "company": "Stripe",
+      "title": "PhD Data Scientist, Intern",
+      "error": null,
+      "baseline": {
+        "tokens": 205,
+        "cost_usd": 0.002895,
+        "calls": 1,
+        "latency_s": 2.34,
+        "body": "Hi team,\n\nI'm Mateo Alvarez, a final-year Statistics and Computer Science student at the University of Toronto, and I'm writing to express my interest in the PhD Data Scientist, Intern role at Stripe.\n\nMy background aligns well with this position. As a Research Assistant at the University Vision Lab, I trained image classification models in PyTorch and built data cleaning pipelines in pandas. I've also developed machine learning projects including a gradient boosting churn predictor using scikit-learn and SQL, and a fine-tuned transformer for sentiment classification with PyTorch.\n\nI am particularly drawn to Stripe's Fraud, Losses, and Financial Crime Data Science team because of its focus on building models that protect users and ensure financial integrity.\n\nThank you for your consideration.\n\nMateo Alvarez",
+        "subject": "PhD Data Scientist, Intern application - Mateo Alvarez",
+        "words": 123,
+        "claims_total": 9,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 72,
+        "critic_scores": {
+          "specificity": 40,
+          "tone": 85,
+          "grounding": 70,
+          "no_fluff": 90,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 8621,
+        "cost_usd": 0.065439,
+        "calls": 12,
+        "latency_s": 31.52,
+        "body": "Hi there,\n\nI am writing about the PhD Data Scientist, Intern role in Toronto. As a final-year student focused on machine learning and data engineering, I have been working with Python, PyTorch, pandas, scikit-learn, SQL, Spark and Jupyter. At the University Vision Lab, I trained image classification models in PyTorch and built data cleaning pipelines in pandas. I also built a churn predictor with a scikit-learn, pandas and SQL feature pipeline, and fine-tuned a small transformer for sentiment classification using PyTorch and Hugging Face. Stripe makes upgrades to its products every single day to deliver compounding gains to customers, including projects like the Knowledge AI Platform. That pace is interesting to me because a daily-upgrade environment would put my PyTorch and Spark work on real data systems rather than lab-scale experiments. If it would be useful, I can share more detail on how I approached these projects in a short call.\n\nMateo Alvarez",
+        "subject": "PhD Data Scientist Intern application from Mateo Alvarez",
+        "words": 153,
+        "claims_total": 9,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "A daily-upgrade environment would put my PyTorch and Spark work on real data systems rather than lab-scale experiments."
+        ],
+        "rule_violations": [],
+        "critic_overall": 83,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 78,
+          "grounding": 96,
+          "no_fluff": 72,
+          "length": 100
+        },
+        "attempts": 4,
+        "passed": false,
+        "warnings": [
+          "The reviewer was not fully satisfied after 4 attempt(s): That pace is interesting to me because a daily-upgrade environment would put my PyTorch and Spark work on real data systems rather than lab-scale experiments.. Please review carefully before approving."
+        ],
+        "research_facts": 8,
+        "first_critic_overall": 85
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is more specific to the posting by referencing Stripe's daily-upgrade product culture and connecting it to the candidate's PyTorch/Spark work, making it feel more tailored. Draft B invents a specific team focus not clearly supported by the posting and has a more generic tone.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.022965
+    },
+    {
+      "id": "85167a633313",
+      "profile_id": "p3_frontend_junior",
+      "company": "Rover",
+      "title": "Entry Level Software Engineer, Recommendations",
+      "error": null,
+      "baseline": {
+        "tokens": 153,
+        "cost_usd": 0.002259,
+        "calls": 1,
+        "latency_s": 2.86,
+        "body": "Hi Hannah,\n\nI came across your profile and thought you might be a great fit for our Entry Level Software Engineer role on the Recommendations team at Rover in Seattle.\n\nYour experience building a React and TypeScript component library and improving Lighthouse performance aligns well with the personalized experiences we build for pet parents. Your focus on accessibility also stands out, given Rover's commitment to inclusive, accessible products.\n\nThis is a hybrid role based in our Downtown Seattle office two days per week. If you're open to relocating to Seattle and interested in learning more, I'd love to connect.\n\nBest,\n[Your name]",
+        "subject": "Frontend role on Rover's Recommendations team",
+        "words": 102,
+        "claims_total": 10,
+        "claims_unsupported": 1,
+        "claims_overreach": 2,
+        "unsupported_texts": [
+          "candidate would need to be open to relocating to Seattle"
+        ],
+        "overreach_texts": [
+          "candidate might be a great fit for the Entry Level Software Engineer role",
+          "component library and Lighthouse performance experience aligns well with the personalized experiences Rover builds for pet parents"
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 83,
+        "critic_scores": {
+          "specificity": 65,
+          "tone": 82,
+          "grounding": 90,
+          "no_fluff": 88,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3234,
+        "cost_usd": 0.021773999999999998,
+        "calls": 6,
+        "latency_s": 11.74,
+        "body": "Hi there,\n\nI'm Hannah, a junior frontend engineer in Seattle applying for the Entry Level Software Engineer, Recommendations role. At Bright Agency I built a React and TypeScript component library used across four client projects, and I improved a retail site's Lighthouse performance score from 62 to 91. I've also done accessibility work on keyboard navigation and screen readers. Rover's focus on accessible, personalized experiences for pet parents aligns with that background, and I'd like to learn how the Recommendations team approaches those interfaces. Would you be open to a short chat, or could you point me to the right person on the team?\n\nHannah Becker",
+        "subject": "Frontend engineer with React component library experience",
+        "words": 106,
+        "claims_total": 9,
+        "claims_unsupported": 1,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "in Seattle"
+        ],
+        "overreach_texts": [
+          "aligns with that background"
+        ],
+        "rule_violations": [],
+        "critic_overall": 92,
+        "critic_scores": {
+          "specificity": 82,
+          "tone": 90,
+          "grounding": 95,
+          "no_fluff": 98,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 91
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is specific, truthful, and tailored to the role and company. Draft B misaddresses the candidate, invents relocation and hybrid details, and uses generic flattery.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.021335999999999997
+    },
+    {
+      "id": "912cb2c09511",
+      "profile_id": "p3_frontend_junior",
+      "company": "Vercel",
+      "title": "Software Engineering Intern - Summer '27",
+      "error": null,
+      "baseline": {
+        "tokens": 285,
+        "cost_usd": 0.002835,
+        "calls": 1,
+        "latency_s": 2.25,
+        "body": "Hi Hannah,\n\nI came across your profile and noticed your experience with React, TypeScript, and Next.js, plus your work improving Lighthouse performance and accessibility at Bright Agency. Your background building a component library and a drag-and-drop planner with IndexedDB aligns well with our Software Engineering Intern role for Summer 2027.\n\nThis hybrid San Francisco internship lets you own an end-to-end project, ship production code, and debug live systems with mentorship from Vercel engineers. We look for candidates who have shipped projects in JavaScript or TypeScript, which your experience demonstrates.\n\nWould you be open to a quick chat about the role?\n\nBest,\n[Your Name]",
+        "subject": "Hannah Becker for Software Engineering Intern - Summer '27",
+        "words": 103,
+        "claims_total": 12,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "The candidate's background aligns well with the Software Engineering Intern role for Summer 2027.",
+          "The candidate's experience demonstrates having shipped projects in JavaScript or TypeScript."
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 93,
+        "critic_scores": {
+          "specificity": 85,
+          "tone": 90,
+          "grounding": 100,
+          "no_fluff": 90,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 5705,
+        "cost_usd": 0.039351000000000004,
+        "calls": 8,
+        "latency_s": 18.11,
+        "body": "Hi there,\n\nI'm Hannah Becker, a junior frontend engineer with two years of product experience. I saw the Software Engineering Intern posting for Summer 2027 and wanted to reach out.\n\nAt Bright Agency, I built a React and TypeScript component library that four client projects now use. I also raised a retail site's Lighthouse performance score from 62 to 91 and added accessibility fixes for keyboard navigation and screen readers. Since Vercel created and maintains Next.js, and I have experience with Next.js, I'd like to bring that same focus on reusable components, performance, and accessibility to shipping production code and reviewing pull requests.\n\nWould you be open to a short call, or could you point me to the right person to talk to about the intern selection process?\n\nHannah Becker",
+        "subject": "Bright Agency frontend work and the Summer '27 intern role",
+        "words": 130,
+        "claims_total": 9,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 89,
+        "critic_scores": {
+          "specificity": 78,
+          "tone": 85,
+          "grounding": 92,
+          "no_fluff": 95,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 82
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft A is written from the recruiter's perspective, directly ties the candidate's experience to the role requirements, and avoids clich\u00e9s. Draft B incorrectly presents the candidate as the sender, which would confuse a hiring contact and make it less likely to be answered.",
+        "multi_was_A": false
+      },
+      "judge_cost_usd": 0.019794
+    },
+    {
+      "id": "93efb54a4344",
+      "profile_id": "p3_frontend_junior",
+      "company": "Airbnb",
+      "title": "Software Engineer, Analytics Infrastructure",
+      "error": null,
+      "baseline": {
+        "tokens": 227,
+        "cost_usd": 0.002457,
+        "calls": 1,
+        "latency_s": 2.29,
+        "body": "Hi Hannah,\n\nI came across your profile and thought of Airbnb's Analytics Infrastructure team. We are looking for a Software Engineer to help build data tools like Apache Superset, and your frontend experience could be valuable here.\n\nYour work at Bright Agency on a React and TypeScript component library and accessibility improvements stands out. We value quality driven engineers who can contribute to user-facing products. Your skills with React, TypeScript, and Next.js align well with the full stack nature of this role.\n\nWould you be open to a brief chat about this opportunity?\n\nBest,\nAirbnb Recruiting",
+        "subject": "Frontend skills for Airbnb's Analytics Infrastructure team",
+        "words": 96,
+        "claims_total": 10,
+        "claims_unsupported": 3,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "came across your profile",
+          "thought of Airbnb's Analytics Infrastructure team",
+          "who can contribute to user-facing products"
+        ],
+        "overreach_texts": [
+          "align well with the full stack nature of this role"
+        ],
+        "rule_violations": [],
+        "critic_overall": 79,
+        "critic_scores": {
+          "specificity": 62,
+          "tone": 75,
+          "grounding": 88,
+          "no_fluff": 78,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 2387,
+        "cost_usd": 0.018801000000000002,
+        "calls": 6,
+        "latency_s": 13.97,
+        "body": "Hi there,\n\nI'm reaching out because I saw the Software Engineer, Analytics Infrastructure opening and noticed the team values full stack work and customer-centric tools for data practitioners. I'm currently a junior frontend developer at Bright Agency, where I built a React and TypeScript component library used by four client projects and improved a retail site's Lighthouse score from 62 to 91. Since the team manages data products used by 7,000 monthly active users, I'd be glad to learn how frontend quality and accessibility work factors into tools like Superset. Would you have 15 minutes this week to point me toward the right person on the Analytics Products team?\n\nHannah Becker",
+        "subject": "Analytics Infrastructure role - frontend experience with React and TypeScript",
+        "words": 111,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 86,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 80,
+          "grounding": 95,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 5,
+        "first_critic_overall": 85
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "A references specific posting details (7,000 users, Superset) and reflects the candidate's actual experience, making it more likely to get a response. B is mistakenly written from the recruiter's side and uses generic phrasing.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.022413000000000002
+    },
+    {
+      "id": "9614ed358af6",
+      "profile_id": "p5_fullstack_senior",
+      "company": "Mercury",
+      "title": "Senior Full-Stack Engineer",
+      "error": null,
+      "baseline": {
+        "tokens": 185,
+        "cost_usd": 0.002319,
+        "calls": 1,
+        "latency_s": 2.23,
+        "body": "Hi Claire,\n\nI came across your background and thought of Mercury, where we're hiring senior full-stack engineers. Your experience leading a team at Lumen Health and owning a patient scheduling product end to end aligns well with the product ownership we value here.\n\nYour TypeScript, React, Node.js, and GraphQL expertise would translate directly to our stack. We work in an autonomous, close-knit environment, partnering closely with designers and product leaders to build lovable fintech experiences for startups.\n\nIf this sounds interesting, I'd welcome a conversation.\n\nBest,\n[Your Name]",
+        "subject": "Senior Full-Stack Engineer opportunity at Mercury",
+        "words": 88,
+        "claims_total": 6,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "would translate directly to our stack"
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 78,
+        "critic_scores": {
+          "specificity": 70,
+          "tone": 82,
+          "grounding": 73,
+          "no_fluff": 83,
+          "length": 94
+        }
+      },
+      "multi": {
+        "tokens": 8932,
+        "cost_usd": 0.068016,
+        "calls": 13,
+        "latency_s": 32.35,
+        "body": "Hi there,\n\nI'm writing about the Senior Full-Stack Engineer role at Mercury. At Lumen Health, I led a team of four building a patient scheduling product used by 200 clinics. I also designed a GraphQL API layer over three legacy services and cut p95 API latency by 40 percent through query and caching changes.\n\nMercury's job posting says your product engineering team wants to rescue customers from frustrating legacy industry tools. The API layer I designed at Lumen Health consolidated three legacy services into one GraphQL interface, which speaks directly to that problem. The role also emphasizes product ownership and self-organizing on small and medium projects, and at Pixelwave I introduced code review and testing standards for a team of eight while building React dashboards and Node.js services.\n\nGiven that Mercury is growing its product engineering group and hiring senior full-stack engineers, would you be open to a short call or able to point me to the right person?\n\nClaire Dubois",
+        "subject": "Senior Full-Stack Engineer role at Mercury",
+        "words": 161,
+        "claims_total": 11,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "that speaks directly to that problem"
+        ],
+        "rule_violations": [],
+        "critic_overall": 91,
+        "critic_scores": {
+          "specificity": 82,
+          "tone": 88,
+          "grounding": 100,
+          "no_fluff": 88,
+          "length": 100
+        },
+        "attempts": 4,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 7,
+        "first_critic_overall": 84
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A ties the candidate's work to Mercury's stated goal of replacing legacy tools and shows product ownership. Draft B is generic and misaddresses the candidate as if she were the recipient, weakening its realism.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.021942000000000003
+    },
+    {
+      "id": "9ba0fbb0f884",
+      "profile_id": "p1_backend_newgrad",
+      "company": "Databricks",
+      "title": "Software Engineering Intern (2027)",
+      "error": null,
+      "baseline": {
+        "tokens": 205,
+        "cost_usd": 0.002547,
+        "calls": 1,
+        "latency_s": 2.04,
+        "body": "Dear Databricks Team,\n\nI am writing to express my strong interest in the Software Engineering Intern position at Databricks. As a Computer Science student at the University of Leeds graduating in 2026, I have been building backend features with Python, FastAPI, and PostgreSQL.\n\nMy recent internship at Finlytics involved building REST endpoints, writing PostgreSQL queries for reporting tables, and adding pytest coverage for payment webhooks. I have also deployed Python applications with Docker. I am excited by the opportunity to contribute to the Databricks platform and learn how it scales while maintaining quality and security.\n\nThank you for your consideration.\n\nAisha Rahman",
+        "subject": "Databricks Software Engineering Intern Application - Aisha Rahman",
+        "words": 102,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 75,
+        "critic_scores": {
+          "specificity": 35,
+          "tone": 72,
+          "grounding": 100,
+          "no_fluff": 75,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3151,
+        "cost_usd": 0.020553000000000002,
+        "calls": 6,
+        "latency_s": 12.9,
+        "body": "Hi there,\n\nI came across the Software Engineering Intern (2027) role and noticed Databricks is hiring across backend and database teams to build features that contribute directly to the platform.\n\nLast summer I worked as a backend engineering intern at Finlytics, where I built REST endpoints in FastAPI for an invoicing service and wrote PostgreSQL queries and migrations for reporting tables. I also added pytest coverage for payment webhooks. Separately, I built a Splitwise clone with auth and settlement logic using FastAPI, PostgreSQL, and React.\n\nI understand you can only consider one application in 30 days, so I'd like to confirm whether backend or database work in the Bellevue office would be the strongest fit before I apply. Would a short call be possible next week?\n\nAisha Rahman",
+        "subject": "Backend intern experience for Databricks platform teams",
+        "words": 128,
+        "claims_total": 11,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 91,
+        "critic_scores": {
+          "specificity": 88,
+          "tone": 85,
+          "grounding": 95,
+          "no_fluff": 88,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 5,
+        "first_critic_overall": 89
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is more specific, actionable, and likely to get a reply: it asks a concrete question about backend vs database fit and requests a call, while tying the candidate's real experience to the posting. B is polite but generic and gives the hiring contact no clear reason or prompt to respond.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.020883
+    },
+    {
+      "id": "a0bdb16a2298",
+      "profile_id": "p4_platform_mid",
+      "company": "Decagon",
+      "title": "Senior Software Engineer, Platform Security",
+      "error": null,
+      "baseline": {
+        "tokens": 179,
+        "cost_usd": 0.002493,
+        "calls": 1,
+        "latency_s": 2.18,
+        "body": "Hi Ravi,\n\nI came across your background in platform engineering and Kubernetes on AWS, and I think you could be a great fit for the Senior Software Engineer, Platform Security role at Decagon.\n\nYou would be the founding engineer at the intersection of Security and Infrastructure, building paved paths for secure service creation, security tooling, and infrastructure-as-code. Your experience migrating 30 services to Kubernetes with Terraform-managed AWS infrastructure and building a Go CLI for service onboarding aligns closely with this work.\n\nThis role is based in San Francisco and is in-office. If you're open to exploring it, I'd be happy to share more details.\n\nBest,\n[Your Name]",
+        "subject": "Platform Security role at Decagon",
+        "words": 107,
+        "claims_total": 10,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Ravi could be a great fit for the Senior Software Engineer, Platform Security role at Decagon",
+          "Ravi's experience aligns closely with this work"
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 82,
+        "critic_scores": {
+          "specificity": 70,
+          "tone": 85,
+          "grounding": 80,
+          "no_fluff": 90,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 2219,
+        "cost_usd": 0.017109,
+        "calls": 6,
+        "latency_s": 10.03,
+        "body": "Hi there,\n\nI saw the Senior Software Engineer, Platform Security opening at Decagon. The role sits at the intersection of security and infrastructure, which matches my background as a platform engineer running Kubernetes workloads on AWS.\n\nAt ShipFast, I migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure and built a Go CLI that automated service onboarding. Those projects were about giving other engineers a reliable default path, which sounds close to how your Security Engineering team approaches paved paths and strong SLAs.\n\nI am based outside San Francisco and would need to confirm relocation before proceeding, but I wanted to ask a direct question first: is this role open to candidates who would relocate in time for an in-office start? If so, I can send a short note on what I would focus on in the first 90 days.\n\nRavi Menon",
+        "subject": "Platform security role - K8s and AWS background",
+        "words": 142,
+        "claims_total": 7,
+        "claims_unsupported": 1,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "Ravi is based outside San Francisco"
+        ],
+        "overreach_texts": [
+          "Those projects were about giving other engineers a reliable default path"
+        ],
+        "rule_violations": [],
+        "critic_overall": 90,
+        "critic_scores": {
+          "specificity": 83,
+          "tone": 88,
+          "grounding": 93,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 4,
+        "first_critic_overall": 90
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "A is written from the candidate's perspective, directly addresses the role's security/infrastructure intersection, asks a specific relocation question, and is concise. B is from a recruiter's perspective, misstates the candidate as 'founding engineer,' and is generic.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.019257
+    },
+    {
+      "id": "acc87626d2fc",
+      "profile_id": "p5_fullstack_senior",
+      "company": "Brex",
+      "title": "Senior Software Engineer, Full Stack",
+      "error": null,
+      "baseline": {
+        "tokens": 171,
+        "cost_usd": 0.002241,
+        "calls": 1,
+        "latency_s": 2.49,
+        "body": "Hi Claire, I came across your background leading teams and owning products end to end, and thought of Brex's Senior Full-Stack Engineer role on our Task Workflows Platform team in S\u00e3o Paulo. You would build scalable backend APIs and frontend UX for workflow tools, leveraging TypeScript, React, Node.js, PostgreSQL, GraphQL, and AWS. Your experience designing a GraphQL API layer over legacy services and cutting p95 latency by 40% aligns well with the platform challenges here. The role is hybrid with three days per week in our S\u00e3o Paulo office. Would you be open to a conversation?",
+        "subject": "Senior Full-Stack Engineer opportunity at Brex",
+        "words": 96,
+        "claims_total": 9,
+        "claims_unsupported": 1,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "The role leverages TypeScript, React, Node.js, PostgreSQL, GraphQL, and AWS"
+        ],
+        "overreach_texts": [
+          "Claire's experience aligns well with the platform challenges at Brex"
+        ],
+        "rule_violations": [],
+        "critic_overall": 85,
+        "critic_scores": {
+          "specificity": 75,
+          "tone": 85,
+          "grounding": 85,
+          "no_fluff": 90,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3670,
+        "cost_usd": 0.02385,
+        "calls": 6,
+        "latency_s": 11.93,
+        "body": "Hi there,\n\nI'm a senior full-stack engineer who has led small teams and owned products end to end. At Lumen Health, I led a team of four building a patient scheduling product used by 200 clinics; I also designed a GraphQL API layer over three legacy services and cut p95 API latency by 40 percent through query and caching changes.\n\nBrex's engineering posting describes teams that operate with high autonomy and own outcomes from architecture to deployment. That matches how I've worked: earlier at Pixelwave, I introduced code review and testing standards for a team of eight while building React dashboards and Node.js services.\n\nI'd be glad to hear whether my background maps to the Senior Software Engineer, Full Stack role in S\u00e3o Paulo. Could I send a short note to the right person, or have 15 minutes with someone on the team?\n\nClaire Dubois",
+        "subject": "Senior full-stack engineer for Brex engineering",
+        "words": 145,
+        "claims_total": 11,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "That matches how I've worked",
+          "my background maps to the Senior Software Engineer, Full Stack role in S\u00e3o Paulo"
+        ],
+        "rule_violations": [],
+        "critic_overall": 89,
+        "critic_scores": {
+          "specificity": 80,
+          "tone": 85,
+          "grounding": 95,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 90
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "B is a personalized recruiter-style note referencing the S\u00e3o Paulo office and specific stack alignment, while A reads like a generic candidate inquiry that asks the reader to route it rather than directly engaging.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.021279
+    },
+    {
+      "id": "af1e4145edde",
+      "profile_id": "p2_ml_intern",
+      "company": "Duolingo",
+      "title": "Data Scientist, Intern",
+      "error": null,
+      "baseline": {
+        "tokens": 220,
+        "cost_usd": 0.00282,
+        "calls": 1,
+        "latency_s": 2.35,
+        "body": "Hi Duolingo team,\n\nI'm Mateo, a final-year Statistics and Computer Science student at the University of Toronto writing to express my interest in the Data Scientist, Intern role.\n\nMy background aligns well with the position's focus on analyzing large datasets and applying analytical methods. As a Research Assistant, I trained image classification models in PyTorch and built data cleaning pipelines in pandas. I also developed a churn prediction model using scikit-learn and SQL, and fine-tuned a transformer for sentiment classification.\n\nI'm skilled in Python, SQL, and Spark, and I'm enthusiastic about using fact-based decision making to improve user experiences. Duolingo's mission to make education universally available is especially meaningful to me.\n\nBest,\nMateo Alvarez",
+        "subject": "Data Scientist Intern application - Mateo Alvarez",
+        "words": 114,
+        "claims_total": 9,
+        "claims_unsupported": 1,
+        "claims_overreach": 1,
+        "unsupported_texts": [
+          "I'm enthusiastic about using fact-based decision making to improve user experiences."
+        ],
+        "overreach_texts": [
+          "My background aligns well with the position's focus on analyzing large datasets and applying analytical methods."
+        ],
+        "rule_violations": [],
+        "critic_overall": 70,
+        "critic_scores": {
+          "specificity": 55,
+          "tone": 70,
+          "grounding": 75,
+          "no_fluff": 65,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3308,
+        "cost_usd": 0.021887999999999998,
+        "calls": 6,
+        "latency_s": 12.4,
+        "body": "Hi there,\n\nI\u2019m a final-year Statistics and Computer Science student at University of Toronto, focused on machine learning and data engineering. Your intern posting asks for people who can apply advanced analytical and AI methods to model user behavior and estimate the impact of potential new features. That maps closely to work I\u2019ve done: I trained image classification models in PyTorch at the University Vision Lab, and I built a gradient boosting churn model with a scikit-learn, pandas and SQL feature pipeline.\n\nDuolingo\u2019s mission is to develop the best education in the world and make it universally available. I\u2019d welcome a short call to hear how your data science interns typically split time between modeling and working with product and engineering teams. If I\u2019m not the right contact, could you point me to the recruiter for this role?\n\nMateo Alvarez",
+        "subject": "Data Scientist Intern application from Mateo Alvarez",
+        "words": 140,
+        "claims_total": 7,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "That maps closely to work I\u2019ve done"
+        ],
+        "rule_violations": [],
+        "critic_overall": 88,
+        "critic_scores": {
+          "specificity": 75,
+          "tone": 80,
+          "grounding": 100,
+          "no_fluff": 85,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 5,
+        "first_critic_overall": 85
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A ties ML work directly to Duolingo's needs and asks a relevant question. Draft B uses generic phrases, making it less specific and engaging.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.022695
+    },
+    {
+      "id": "b9948c725515",
+      "profile_id": "p5_fullstack_senior",
+      "company": "Robinhood",
+      "title": "Senior Software Engineer, International",
+      "error": null,
+      "baseline": {
+        "tokens": 155,
+        "cost_usd": 0.002193,
+        "calls": 1,
+        "latency_s": 1.8,
+        "body": "Hi Claire, I came across your profile and thought of Robinhood's Senior Software Engineer, International role in Toronto. You've led a team of four at Lumen Health and designed a GraphQL API layer over legacy services, which aligns with our need for full-stack architecture across React/TypeScript and resilient backend systems. Your work cutting p95 latency by 40 percent also matches our focus on system reliability for global expansion. The role involves building localized experiences for international onboarding and multi-currency funding. Since you're open to remote work, would you be open to a conversation about this Toronto-based opportunity?",
+        "subject": "Senior full-stack engineer for Robinhood International",
+        "words": 97,
+        "claims_total": 9,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "which aligns with our need for full-stack architecture across React/TypeScript and resilient backend systems",
+          "also matches our focus on system reliability for global expansion"
+        ],
+        "rule_violations": [],
+        "critic_overall": 63,
+        "critic_scores": {
+          "specificity": 30,
+          "tone": 75,
+          "grounding": 75,
+          "no_fluff": 60,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3741,
+        "cost_usd": 0.026763000000000002,
+        "calls": 6,
+        "latency_s": 12.32,
+        "body": "Hi there,\n\nI'm a senior full-stack engineer who has led small teams and owned products end to end. At Lumen Health, I led a team of four building a patient scheduling product used by 200 clinics, and I designed a GraphQL API layer over three legacy services. That work included cutting p95 API latency by 40 percent through query and caching changes.\n\nRobinhood's international role would put those system design and ownership habits against a different kind of scale: democratizing finance for all. I'd like to learn how this team is structured and where a Toronto-based engineer can contribute.\n\nCould we set up a short call, or could you point me to the right person on the International team?\n\nClaire Dubois",
+        "subject": "Senior full-stack lead for Robinhood International",
+        "words": 121,
+        "claims_total": 12,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Robinhood's international role involves system design and ownership"
+        ],
+        "rule_violations": [],
+        "critic_overall": 90,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 88,
+          "grounding": 100,
+          "no_fluff": 92,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 7,
+        "first_critic_overall": 88
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "A is candidate-authored, concise, and connects experience to the role without flattery. B addresses the candidate as if from the company but invents remote-work openness, making it less truthful.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.023745
+    },
+    {
+      "id": "b9acdc3305fd",
+      "profile_id": "p3_frontend_junior",
+      "company": "Replit",
+      "title": "Software Engineering Intern \u2013 Winter 2027 ",
+      "error": null,
+      "baseline": {
+        "tokens": 269,
+        "cost_usd": 0.002727,
+        "calls": 1,
+        "latency_s": 2.37,
+        "body": "Hi Hannah,\n\nI came across your profile and thought of Replit's Software Engineering Internship for Winter 2027. Your two years of product experience with React, TypeScript, and Next.js, plus your work building a component library used by four client projects, aligns with our focus on shipping real features to millions of developers.\n\nYour accessibility improvements and Lighthouse performance work also reflect the kind of user-focused, autonomous problem-solving we value on the engineering team.\n\nIf you're interested in a 16-week paid internship building developer tools and AI-powered experiences, I'd be glad to share more.\n\nBest,\n[Your name]",
+        "subject": "Replit Winter 2027 internship \u2013 React and TypeScript background",
+        "words": 96,
+        "claims_total": 12,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Hannah's component library work aligns with Replit's focus on shipping real features to millions of developers",
+          "Hannah's accessibility and Lighthouse work reflect user-focused, autonomous problem-solving"
+        ],
+        "rule_violations": [
+          "contains a placeholder like [Name]"
+        ],
+        "critic_overall": 82,
+        "critic_scores": {
+          "specificity": 70,
+          "tone": 80,
+          "grounding": 90,
+          "no_fluff": 80,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 4572,
+        "cost_usd": 0.031656,
+        "calls": 7,
+        "latency_s": 15.86,
+        "body": "Hi there,\n\nI'm a junior frontend engineer with two years of product experience, currently at Bright Agency. I saw the Software Engineering Intern \u2013 Winter 2027 posting, and the emphasis on making coding accessible stood out to me. At Bright Agency, I built a React and TypeScript component library used by four client projects, improved a retail site's Lighthouse performance score from 62 to 91, and added accessibility fixes for keyboard navigation and screen readers. I've also built a drag-and-drop recipe planner with offline support using React, TypeScript, and IndexedDB.\n\nWould you be open to a short call about the internship in the next couple of weeks? If not, could you point me to the right person on the engineering team?\n\nHannah Becker",
+        "subject": "Frontend experience for Replit's Winter 2027 internship",
+        "words": 123,
+        "claims_total": 7,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 87,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 85,
+          "grounding": 95,
+          "no_fluff": 90,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 89
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "Draft A is concise, candidate-specific, and directly tied to the Replit posting, with concrete achievements and a clear call to action. Draft B has a mistaken greeting ('Hi Hannah'), reads like a recruiter sending to themselves, and is more generic.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.020472
+    },
+    {
+      "id": "dea4963833a9",
+      "profile_id": "p4_platform_mid",
+      "company": "Grafana Labs",
+      "title": "Staff Backend Engineer - Mimir Query, Databases | Canada | Remote",
+      "error": null,
+      "baseline": {
+        "tokens": 226,
+        "cost_usd": 0.002466,
+        "calls": 1,
+        "latency_s": 2.25,
+        "body": "Hi Ravi, I saw your experience running Kubernetes workloads on AWS and building platform tooling in Go, including a CLI for service onboarding and CI/CD improvements. Your background in Prometheus monitoring and Terraform-managed infrastructure aligns well with the Databases team at Grafana Labs. We are looking for a Staff Backend Engineer to work on the Mimir Query squad, helping operate and optimize the telemetry databases behind Grafana Cloud across AWS, GCP, and Azure. This is a remote position, and we are looking for candidates in the USA time zones. If you are open to exploring this role, I would be glad to connect.",
+        "subject": "Platform engineer interested in Mimir Query role",
+        "words": 103,
+        "claims_total": 12,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Ravi's background aligns well with the Databases team at Grafana Labs"
+        ],
+        "rule_violations": [],
+        "critic_overall": 48,
+        "critic_scores": {
+          "specificity": 30,
+          "tone": 70,
+          "grounding": 20,
+          "no_fluff": 70,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 5392,
+        "cost_usd": 0.036432000000000006,
+        "calls": 7,
+        "latency_s": 16.19,
+        "body": "Hi there,\n\nI'm a platform engineer with five years of experience running Kubernetes workloads on AWS. At ShipFast, I built a Go CLI that automated service onboarding and migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure. Earlier, at DataHaus, I set up Prometheus and Grafana monitoring for 15 services.\n\nYour Staff Backend Engineer role for Mimir Query, Databases is remote in Canada, and Grafana Labs operates as a 100% remote company with team members across 40+ countries. My hands-on work with Prometheus, Grafana dashboards, and Go-based infrastructure tooling maps closely to the open-source observability stack Grafana Cloud is built on.\n\nWould you be open to a short call, or can you point me to the right person on the team?\n\nRavi Menon",
+        "subject": "Staff Backend Engineer, Mimir Query - Ravi Menon",
+        "words": 123,
+        "claims_total": 10,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "maps closely to the open-source observability stack Grafana Cloud is built on."
+        ],
+        "rule_violations": [],
+        "critic_overall": 83,
+        "critic_scores": {
+          "specificity": 62,
+          "tone": 84,
+          "grounding": 92,
+          "no_fluff": 88,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 7,
+        "first_critic_overall": 83
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft A is from the hiring contact's perspective, ties Ravi's Kubernetes, Go, Terraform, and Prometheus experience directly to the Mimir Query role, and correctly notes the USA time zones. Draft B has the wrong sender perspective and misstates the posting's location details.",
+        "multi_was_A": false
+      },
+      "judge_cost_usd": 0.026733
+    },
+    {
+      "id": "ebab0b67b822",
+      "profile_id": "p2_ml_intern",
+      "company": "Reddit",
+      "title": "Machine Learning Engineer",
+      "error": null,
+      "baseline": {
+        "tokens": 338,
+        "cost_usd": 0.003558,
+        "calls": 1,
+        "latency_s": 2.99,
+        "body": "Hi Reddit ML team,\n\nI'm Mateo Alvarez, a final-year Statistics and Computer Science student at the University of Toronto focused on machine learning and data engineering. I've been following Reddit's scale and community-driven ML problems, and I'd love to contribute as a Machine Learning Engineer.\n\nAs a Research Assistant at the University Vision Lab, I trained PyTorch image classification models, built pandas data cleaning pipelines, and co-authored a workshop paper on data augmentation. I also built a churn predictor with scikit-learn, pandas, and SQL, and fine-tuned a transformer for sentiment classification using PyTorch and Hugging Face. My background includes Spark and Jupyter for large-scale data work.\n\nI'm excited about building end-to-end ML systems for recommendations, search, and user understanding. I'm remote-friendly and open to intern or new grad opportunities.\n\nBest,\nMateo",
+        "subject": "ML Engineer application from a PyTorch and Spark student",
+        "words": 131,
+        "claims_total": 13,
+        "claims_unsupported": 2,
+        "claims_overreach": 0,
+        "unsupported_texts": [
+          "Mateo Alvarez has been following Reddit's scale and community-driven ML problems",
+          "Mateo Alvarez is excited about building end-to-end ML systems for recommendations, search, and user understanding"
+        ],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 85,
+        "critic_scores": {
+          "specificity": 70,
+          "tone": 85,
+          "grounding": 90,
+          "no_fluff": 88,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 4863,
+        "cost_usd": 0.034857,
+        "calls": 8,
+        "latency_s": 18.24,
+        "body": "Hi there,\n\nI\u2019m a final-year student focused on machine learning and data engineering, and I saw the Machine Learning Engineer role. The posting notes that Reddit\u2019s ML work covers personalized recommendations, search, and ranking systems, which aligns with my interest in working across modeling and pipelines.\n\nAs a Research Assistant at the University Vision Lab, I trained image classification models in PyTorch and built data cleaning pipelines in pandas. I also co-authored a workshop paper on data augmentation. Separately, I fine-tuned a small transformer for sentiment classification with PyTorch and built a churn predictor with a scikit-learn feature pipeline over SQL. These projects show modeling and data pipeline fundamentals.\n\nWould you have 15 minutes to share what your team looks for when evaluating engineers for recommendation or search projects, or point me to the right person?\n\nMateo Alvarez",
+        "subject": "ML background for Reddit recommendation and search",
+        "words": 138,
+        "claims_total": 8,
+        "claims_unsupported": 1,
+        "claims_overreach": 0,
+        "unsupported_texts": [
+          "I saw the Machine Learning Engineer role."
+        ],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 91,
+        "critic_scores": {
+          "specificity": 82,
+          "tone": 88,
+          "grounding": 95,
+          "no_fluff": 92,
+          "length": 100
+        },
+        "attempts": 2,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 6,
+        "first_critic_overall": 82
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft B is more natural and direct, introduces Mateo with school and focus, and connects his specific experience to the role without padding. Draft A is slightly more formal and mentions ranking without clear basis, which weakens relevance.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.024933000000000004
+    },
+    {
+      "id": "f457b99fa726",
+      "profile_id": "p1_backend_newgrad",
+      "company": "Scale AI",
+      "title": "Software Engineer, Public Sector - New Grad",
+      "error": null,
+      "baseline": {
+        "tokens": 255,
+        "cost_usd": 0.002337,
+        "calls": 1,
+        "latency_s": 2.42,
+        "body": "Hi Aisha, I came across your profile and noticed your backend engineering internship at Finlytics, where you built FastAPI endpoints and wrote PostgreSQL queries. Your experience with Python, Docker, and REST APIs aligns well with the Software Engineer, Public Sector - New Grad role at Scale AI in San Francisco. The role involves building data pipelines and ML infrastructure for government datasets. Your Splitwise clone and URL shortener projects also demonstrate relevant full-stack and containerization skills. Would you be open to a quick chat about this opportunity?",
+        "subject": "New Grad Backend Engineer for Public Sector at Scale AI",
+        "words": 87,
+        "claims_total": 12,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Aisha's experience aligns well with the Software Engineer, Public Sector - New Grad role at Scale AI"
+        ],
+        "rule_violations": [],
+        "critic_overall": 71,
+        "critic_scores": {
+          "specificity": 65,
+          "tone": 78,
+          "grounding": 68,
+          "no_fluff": 70,
+          "length": 91
+        }
+      },
+      "multi": {
+        "tokens": 6580,
+        "cost_usd": 0.054383999999999995,
+        "calls": 11,
+        "latency_s": 27.09,
+        "body": "Hi there,\n\nI am reaching out about the Software Engineer, Public Sector - New Grad role at Scale AI. I graduate from the University of Leeds with a BSc in Computer Science in 2026. At Finlytics, I built REST endpoints in FastAPI for an invoicing service and wrote PostgreSQL queries and migrations for reporting tables, adding pytest coverage for payment webhooks. Separately, I built a rate-limited URL shortener with Python, Redis, and Docker, and a Splitwise clone with auth and settlement logic using FastAPI, PostgreSQL, and React. The Public Sector posting mentions ingesting and processing federal datasets, and my FastAPI and PostgreSQL work is the background I would bring to that. Would you be open to a short call next week, or could you point me to the right person to speak with?\n\nAisha Rahman",
+        "subject": "New Grad SWE for Scale Public Sector",
+        "words": 135,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 1,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "my FastAPI and PostgreSQL work is the background I would bring to that"
+        ],
+        "rule_violations": [],
+        "critic_overall": 93,
+        "critic_scores": {
+          "specificity": 85,
+          "tone": 92,
+          "grounding": 98,
+          "no_fluff": 95,
+          "length": 100
+        },
+        "attempts": 4,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 5,
+        "first_critic_overall": 89
+      },
+      "pairwise": {
+        "winner": "baseline",
+        "reason": "Draft A is recruiter-perspective, addresses the candidate directly, and connects relevant skills to the posting without fabricated claims. Draft B is candidate-perspective and effectively a cover letter, making it less suitable as outreach.",
+        "multi_was_A": false
+      },
+      "judge_cost_usd": 0.022757999999999997
+    },
+    {
+      "id": "f6a9a01278ed",
+      "profile_id": "p4_platform_mid",
+      "company": "Lovable",
+      "title": "Staff / Principal Software Engineer, Infrastructure Security",
+      "error": null,
+      "baseline": {
+        "tokens": 203,
+        "cost_usd": 0.002877,
+        "calls": 1,
+        "latency_s": 2.43,
+        "body": "Hi Ravi,\n\nI came across your background in platform engineering and thought of a senior infrastructure security role at Lovable. You have five years of experience running Kubernetes workloads on AWS, with hands-on work in Terraform-managed infrastructure and a track record of improving CI/CD. Those areas align with the guardrails and supply-chain hardening work this role would own, especially across AWS and Kubernetes.\n\nLovable is a fast-growing software creation platform, and this is a Staff/Principal-level position setting technical direction for cloud, identity, and runtime security. The team is looking for someone who can ship guardrails as code using Go or Python, which matches your background.\n\nThe role is based in Stockholm. If you're open to exploring it, I'd be happy to share more details.\n\nBest",
+        "subject": "Platform engineer with Kubernetes, AWS, Terraform background",
+        "words": 125,
+        "claims_total": 10,
+        "claims_unsupported": 0,
+        "claims_overreach": 2,
+        "unsupported_texts": [],
+        "overreach_texts": [
+          "Those areas align with the guardrails and supply-chain hardening work this role would own, especially across AWS and Kubernetes",
+          "Shipping guardrails as code using Go or Python matches Ravi's background"
+        ],
+        "rule_violations": [],
+        "critic_overall": 90,
+        "critic_scores": {
+          "specificity": 85,
+          "tone": 90,
+          "grounding": 90,
+          "no_fluff": 92,
+          "length": 100
+        }
+      },
+      "multi": {
+        "tokens": 3271,
+        "cost_usd": 0.020877,
+        "calls": 6,
+        "latency_s": 11.97,
+        "body": "Hi there,\n\nI noticed Lovable is looking for a Staff/Principal engineer to own Infrastructure Security, and I want to put my name forward. At ShipFast, I migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure and cut deploy times from 25 to 7 minutes through a new CI/CD pipeline. That work touches two of the areas called out in the posting: cloud and build pipelines.\n\nI am a platform engineer with five years of experience running Kubernetes workloads on AWS, and I write Go, so I can go beyond configuration and build tooling where it matters. Your posting says you are building a generational company from Stockholm, and I would like to learn more about what is hardest to secure there today.\n\nIs there someone I could speak with for 15 minutes about the role?\n\nRavi Menon",
+        "subject": "Platform security background for Lovable's infrastructure",
+        "words": 137,
+        "claims_total": 8,
+        "claims_unsupported": 0,
+        "claims_overreach": 0,
+        "unsupported_texts": [],
+        "overreach_texts": [],
+        "rule_violations": [],
+        "critic_overall": 88,
+        "critic_scores": {
+          "specificity": 72,
+          "tone": 88,
+          "grounding": 100,
+          "no_fluff": 85,
+          "length": 100
+        },
+        "attempts": 1,
+        "passed": true,
+        "warnings": [],
+        "research_facts": 5,
+        "first_critic_overall": 94
+      },
+      "pairwise": {
+        "winner": "multi",
+        "reason": "A is a direct, candidate-authored pitch that cites relevant achievements and ends with a clear call to action. B is framed as a recruiter message to Ravi, not from him, and is less tailored to the posting.",
+        "multi_was_A": true
+      },
+      "judge_cost_usd": 0.022865999999999997
+    }
+  ],
+  "seed": 0,
+  "settings": {
+    "model_fast": "deepseek-flash",
+    "model_strong": "deepseek-v4-pro",
+    "price_in_per_mtok": 3.0,
+    "price_out_per_mtok": 15.0,
+    "critic_threshold": 75,
+    "critic_max_retries": 3
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "source": "llm-proxy",
+  "k": 10,
+  "profiles": 5,
+  "systems": {
+    "matcher": {
+      "per_profile": {
+        "p1_backend_newgrad": 0.8,
+        "p2_ml_intern": 0.6,
+        "p3_frontend_junior": 0.3,
+        "p4_platform_mid": 0.5,
+        "p5_fullstack_senior": 1.0
+      },
+      "macro": 0.64,
+      "lo": 0.44000000000000006,
+      "hi": 0.8400000000000001
+    },
+    "keyword": {
+      "per_profile": {
+        "p1_backend_newgrad": 0.7,
+        "p2_ml_intern": 0.6,
+        "p3_frontend_junior": 0.0,
+        "p4_platform_mid": 0.4,
+        "p5_fullstack_senior": 0.6
+      },
+      "macro": 0.45999999999999996,
+      "lo": 0.22000000000000003,
+      "hi": 0.6399999999999999
+    }
+  },
+  "diff_matcher_minus_keyword": {
+    "diff": 0.18000000000000002,
+    "lo": 0.06000000000000001,
+    "hi": 0.32,
+    "reading": "a better"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "n": 20,
+  "repeats": 3,
+  "variants": {
+    "production": {
+      "accuracy_mean": 1.0,
+      "accuracy_min": 1.0,
+      "accuracy_max": 1.0,
+      "accuracy_excl_borderline_mean": 1.0,
+      "n_excl_borderline": 20,
+      "per_class": {
+        "startup": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 18
+        },
+        "mid": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 21
+        },
+        "mnc": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 21
+        }
+      },
+      "confusion_summed_over_runs": {
+        "startup": {
+          "startup": 18,
+          "mid": 0,
+          "mnc": 0
+        },
+        "mid": {
+          "startup": 0,
+          "mid": 21,
+          "mnc": 0
+        },
+        "mnc": {
+          "startup": 0,
+          "mid": 0,
+          "mnc": 21
+        }
+      },
+      "disagreements_or_errors": [],
+      "seed_methods": 1
+    },
+    "llm_only": {
+      "accuracy_mean": 1.0,
+      "accuracy_min": 1.0,
+      "accuracy_max": 1.0,
+      "accuracy_excl_borderline_mean": 1.0,
+      "n_excl_borderline": 20,
+      "per_class": {
+        "startup": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 18
+        },
+        "mid": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 21
+        },
+        "mnc": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 21
+        }
+      },
+      "confusion_summed_over_runs": {
+        "startup": {
+          "startup": 18,
+          "mid": 0,
+          "mnc": 0
+        },
+        "mid": {
+          "startup": 0,
+          "mid": 21,
+          "mnc": 0
+        },
+        "mnc": {
+          "startup": 0,
+          "mid": 0,
+          "mnc": 21
+        }
+      },
+      "disagreements_or_errors": [],
+      "seed_methods": 0
+    }
+  }
+}

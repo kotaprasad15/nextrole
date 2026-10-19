@@ -1,0 +1,51 @@
+company,label,approx_employees,borderline,note
+Linear,startup,100,false,
+PostHog,startup,90,false,
+Modal,startup,90,false,
+Lovable,startup,80,false,
+Baseten,startup,120,false,
+Decagon,startup,120,false,
+Raycast,startup,40,false,
+Resend,startup,25,false,obscure
+Fly.io,startup,70,false,
+Warp,startup,50,false,
+Mintlify,startup,50,false,obscure
+Clerk,startup,80,false,
+Convex,startup,40,false,obscure
+Cal.com,startup,40,false,obscure
+Railway,startup,30,false,obscure
+Figma,mid,1500,false,
+Discord,mid,700,false,
+Reddit,mid,2000,false,
+Cloudflare,mid,4200,true,near the 5000 mid/mnc threshold
+Coinbase,mid,3700,false,
+Robinhood,mid,2400,false,
+Brex,mid,1100,false,
+Scale AI,mid,900,false,
+Vercel,mid,600,false,
+Grafana Labs,mid,1500,false,
+Fivetran,mid,1200,false,
+Gusto,mid,2500,false,
+Asana,mid,1800,false,
+Duolingo,mid,900,false,
+Anthropic,mid,2500,false,
+Notion,mid,800,false,
+Pinterest,mid,4600,true,near the 5000 mid/mnc threshold
+Stripe,mnc,8000,false,
+Airbnb,mnc,7000,false,
+Databricks,mnc,9000,false,
+Shopify,mnc,8000,false,
+Spotify,mnc,9000,false,
+Uber,mnc,30000,false,
+Netflix,mnc,13000,false,
+Salesforce,mnc,70000,false,
+Microsoft,mnc,220000,false,
+Google,mnc,180000,false,
+Amazon,mnc,1500000,false,
+Apple,mnc,160000,false,
+IBM,mnc,280000,false,
+Accenture,mnc,740000,false,
+Deloitte,mnc,460000,false,
+Siemens,mnc,320000,false,
+Nvidia,mnc,36000,false,
+Datadog,mnc,6500,true,near the 5000 mid/mnc threshold

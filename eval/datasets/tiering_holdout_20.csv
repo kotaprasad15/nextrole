@@ -1,0 +1,21 @@
+company,label,approx_employees,borderline,note
+Zed Industries,startup,20,false,obscure
+Tinybird,startup,100,false,obscure
+Liveblocks,startup,20,false,obscure
+PlanetScale,startup,100,false,obscure
+Axiom,startup,40,false,obscure
+Inngest,startup,30,false,obscure
+Zapier,mid,800,false,
+GitLab,mid,2000,false,
+Webflow,mid,900,false,
+Squarespace,mid,1500,false,
+Dropbox,mid,2500,false,
+Etsy,mid,2400,false,
+Airtable,mid,600,false,
+Atlassian,mnc,12000,false,
+Workday,mnc,20000,false,
+ServiceNow,mnc,25000,false,
+Snowflake,mnc,7800,false,
+Block,mnc,12000,false,
+Zoom,mnc,7500,false,
+Adobe,mnc,30000,false,

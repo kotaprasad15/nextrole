@@ -55,6 +55,7 @@ class RunState(TypedDict, total=False):
     best: tuple[OutreachDraft, CriticReport]
     previous: tuple[OutreachDraft, CriticReport]
     attempts: int
+    reports: list[CriticReport]  # every critic report, in order (first draft -> last)
     passed: bool
     stop_loop: bool
     persist: bool  # False for the legacy sync wrappers that persist in the caller

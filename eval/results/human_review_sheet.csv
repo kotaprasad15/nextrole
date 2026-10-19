@@ -1,0 +1,308 @@
+posting_id,candidate,role,posting_excerpt,draft_A,draft_B,prefer,notes
+ebab0b67b822,"Name: Mateo Alvarez
+Summary: Final-year student focused on machine learning and data engineering.
+Skills: Python, PyTorch, pandas, scikit-learn, SQL, Spark, Jupyter
+Experience: Research Assistant at University Vision Lab (2024-09-2025-05)
+  - Trained image classification models in PyTorch on a lab dataset
+  - Built data cleaning pipelines in pandas
+  - Co-authored a workshop paper on data augmentation
+Project Churn predictor: Gradient boosting model for customer churn with a feature pipeline [scikit-learn, pandas, SQL]
+Project Tweet sentiment: Fine-tuned a small transformer for sentiment classification [PyTorch, Hugging Face]
+Education: BSc Statistics and Computer Science, University of Toronto 2026",Machine Learning Engineer at Reddit,"Reddit is a community of communities. It’s built on shared interests, passion, and trust, and is home to the most open and authentic conversations on the internet. Every day, Reddit users submit, vote, and comment on the topics they care most about. With 100,000+ active communities and approximately 130 million daily active unique visitors, Reddit is one of the internet’s largest sources of information. For more information, visit www.redditinc.com . At Reddit, machine learning sits at the heart of how millions of people discover, connect, and engage with the world’s largest collection of human conversations. From powering personalized recommendations and search to optimizing advertising sys","Subject: ML Engineer application - Mateo Alvarez
+
+Hi team, I'm Mateo Alvarez, a final-year Statistics and Computer Science student at the University of Toronto. I'm reaching out because your Machine Learning Engineer role aligns closely with my background in building ML systems, from modeling to data pipelines. In the University Vision Lab, I trained PyTorch image classifiers and built pandas cleaning pipelines. My projects include a churn predictor using scikit-learn and SQL, and a fine-tuned transformer for sentiment analysis. I'm excited about Reddit's scale and would welcome the chance to contribute.","Subject: ML Engineer application - Mateo Alvarez
+
+Hi there,
+
+The Machine Learning Engineer role at Reddit involves personalized recommendations, search, and ranking systems. My experience includes building a churn predictor with a feature pipeline using scikit-learn, pandas, and SQL, which mirrors the end-to-end ML systems work described in the posting. I also fine-tuned a small transformer for sentiment classification using PyTorch and Hugging Face, and trained image classification models in PyTorch as a Research Assistant.
+
+Reddit has 100,000+ active communities and approximately 130 million daily active unique visitors.
+
+Would you be open to a short call, or could you point me to the right person to speak with about the role?
+
+Mateo Alvarez",,
+675bfc8ad20e,"Name: Mateo Alvarez
+Summary: Final-year student focused on machine learning and data engineering.
+Skills: Python, PyTorch, pandas, scikit-learn, SQL, Spark, Jupyter
+Experience: Research Assistant at University Vision Lab (2024-09-2025-05)
+  - Trained image classification models in PyTorch on a lab dataset
+  - Built data cleaning pipelines in pandas
+  - Co-authored a workshop paper on data augmentation
+Project Churn predictor: Gradient boosting model for customer churn with a feature pipeline [scikit-learn, pandas, SQL]
+Project Tweet sentiment: Fine-tuned a small transformer for sentiment classification [PyTorch, Hugging Face]
+Education: BSc Statistics and Computer Science, University of Toronto 2026",Data Engineer Intern at Coinbase,"Ready to do the most impactful work of your career? At Coinbase , we are uncompromising on our mission to increase economic freedom. The bar is high, the environment is intense, and we like it that way. This isn't a place for complacency, it’s a place to be pushed past your perceived limits. If you're ready to build the future of finance alongside people who refuse to settle for ""good enough,"" you belong here. Coinbase is a remote-first, but not remote-only company. Expect to get together quarterly for intense in-person working sessions called “surges.” learn more about working at Coinbase . This is a 12-week internship during summer 2027. As a Data Engineer Intern within the Platform produc","Subject: Data engineering background for Coinbase intern role
+
+Hi there,
+
+I’m Mateo Alvarez, a final-year Statistics and Computer Science student at University of Toronto focused on machine learning and data engineering. I’m reaching out about the Data Engineer Intern role in the Platform product group.
+
+The posting mentions partnering with analytics engineering to build data pipelines and infrastructure for analytical and machine learning use cases. That aligns with my lab work, where I built data cleaning pipelines in pandas and trained image classification models in PyTorch, plus a churn predictor project using scikit-learn, pandas, and SQL for the feature pipeline.
+
+Would you be open to a short call to share who on the Platform team I should speak with about this internship?
+
+Mateo Alvarez","Subject: Data Engineer Intern application - Mateo Alvarez
+
+Hi team,
+
+I'm Mateo, a final-year Statistics and CS student at the University of Toronto. I'm writing to express interest in the Data Engineer Intern role at Coinbase.
+
+My background aligns well with the pipeline and infrastructure focus. As a Research Assistant, I built data cleaning pipelines in pandas and trained PyTorch models. My projects include a churn predictor with a feature pipeline using scikit-learn, pandas, and SQL, plus hands-on SQL for relational data.
+
+I'm comfortable in Python and Spark, and I'm eager to apply these skills to scalable data infrastructure, analytical deep dives, and governance best practices. I'm excited by Coinbase's mission and would welcome the chance to contribute during the 2027 summer internship.
+
+Thanks for your consideration,
+Mateo Alvarez",,
+b9948c725515,"Name: Claire Dubois
+Summary: Senior full-stack engineer who has led small teams and owned products end to end.
+Skills: TypeScript, React, Node.js, PostgreSQL, GraphQL, AWS, System design
+Experience: Senior Software Engineer at Lumen Health (2020-01-present)
+  - Led a team of four building a patient scheduling product used by 200 clinics
+  - Designed a GraphQL API layer over three legacy services
+  - Cut p95 API latency by 40 percent through query and caching changes
+Experience: Software Engineer at Pixelwave (2016-08-2019-12)
+  - Built React dashboards and Node.js services for ad analytics
+  - Introduced code review and testing standards for a team of eight
+Education: MSc Computer Science, Sorbonne University 2016","Senior Software Engineer, International at Robinhood","Join us in building the future of finance. Our mission is to democratize finance for all. An estimated $124 trillion of assets will be inherited by younger generations in the next two decades. The largest transfer of wealth in human history. If you’re ready to be at the epicenter of this historic cultural and financial shift, keep reading. About the team + role We are building an elite team, applying frontier technologies to the world’s biggest financial problems. We’re looking for bold thinkers. Sharp problem-solvers. Builders who are wired to make an impact. Robinhood isn’t a place for complacency, it’s where ambitious people do the best work of their careers. We’re a high-performing, fast","Subject: Senior full-stack engineer for Robinhood International
+
+Hi Claire,
+
+I saw your profile and thought of Robinhood's Senior Software Engineer, International role in Toronto. Your experience leading a team of four at Lumen Health and owning products end to end aligns with the core technical driver responsibilities for global expansion.
+
+Your work designing a GraphQL API layer and cutting p95 latency by 40% speaks to the technical rigor and system reliability this role prioritizes. The role requires architecting localized customer experiences with React and TypeScript frontends, which matches your demonstrated strengths.
+
+Given your background in scalable systems and full-stack ownership, I believe you could make an impact on Robinhood's international platform.
+
+Best,
+[Your Name]","Subject: Senior full-stack lead interested in Robinhood International role
+
+Hi there,
+
+I'm Claire Dubois, a senior full-stack engineer currently at Lumen Health. Your posting for the Senior Software Engineer, International role in Toronto stood out because it asks for builders who can work on large-scale financial problems, which matches the kind of ownership I've had: leading a team of four on a product used by 200 clinics.
+
+Two parts of my background seem directly relevant. I've led small teams and owned products end to end, and at Lumen Health I designed a GraphQL API layer over three legacy services and cut p95 API latency by 40 percent through query and caching changes. The posting mentions applying frontier technologies to big financial problems; that API work was one of my cases of simplifying a complex legacy system.
+
+Would you be open to a short call, or can you point me to the right person for this role?
+
+Claire Dubois",,
+6c39f9918ff1,"Name: Ravi Menon
+Summary: Platform engineer with five years of experience running Kubernetes workloads on AWS.
+Skills: Go, Kubernetes, AWS, Terraform, Python, Prometheus, CI/CD
+Experience: Platform Engineer at ShipFast (2021-03-present)
+  - Migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure
+  - Built a Go CLI that automated service onboarding
+  - Reduced deploy time from 25 to 7 minutes with a new CI/CD pipeline
+Experience: DevOps Engineer at DataHaus (2019-06-2021-02)
+  - Set up Prometheus and Grafana monitoring for 15 services
+  - Maintained Jenkins pipelines and Docker images
+Education: BTech Computer Science, IIT Madras 2019",Platform Engineer - Compute Capacity at Supabase,"ABOUT SUPABASE
+
+Supabase is the Postgres development platform, built by developers for developers. We provide a complete backend solution including Database, Auth, Storage, Edge Functions, Realtime, and Vector Search. All services are deeply integrated and designed for growth.
+
+
+
+
+ABOUT THE ROLE
+
+We are seeking a platform engineer to join our Compute Capacity team. This team owns the capacity plan that keeps compute supply ahead of demand across every region we operate in — the forecasting, buffer policy, and provisioning systems that make sure a project never runs into a wall it didn't know was there.
+
+You'll work on the systems that turn a capacity plan into provisioned reality: reservatio","Subject: Platform Engineer with Kubernetes and AWS experience interested in Compute Capacity
+
+Hi there,
+
+I'm writing to express my interest in the Platform Engineer - Compute Capacity role at Supabase.
+
+I have five years of platform engineering experience at ShipFast and DataHaus. I've migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure and built a Go CLI that automated service onboarding. I also reduced deploy time from 25 to 7 minutes with a new CI/CD pipeline and have experience setting up Prometheus and Grafana monitoring.
+
+Having worked on AWS, Kubernetes, and CI/CD systems, I'm passionate about building robust, automated infrastructure. The opportunity to work on capacity planning and fleet automation at Supabase's scale is exciting.
+
+Would you be open to a brief conversation about how my experience could support your team?
+
+Best,
+Ravi Menon","Subject: Platform engineer with AWS Kubernetes and Terraform experience
+
+Hi there,
+
+I saw the Platform Engineer - Compute Capacity posting. The team owns capacity planning and provisioning systems across regions; my background is in running Kubernetes workloads on AWS and building automation around that infrastructure.
+
+At ShipFast, I migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure, which maps to the Infrastructure as Code work around fleet reconciliation and reservation acquisition in this role. I also built a Go CLI that automated service onboarding, and a new CI/CD pipeline that cut deploy time from 25 to 7 minutes.
+
+If this seems useful, would you be open to a short call about the team's current provisioning systems? Happy to work around your schedule.
+
+Ravi Menon",,
+06c3d487df7d,"Name: Ravi Menon
+Summary: Platform engineer with five years of experience running Kubernetes workloads on AWS.
+Skills: Go, Kubernetes, AWS, Terraform, Python, Prometheus, CI/CD
+Experience: Platform Engineer at ShipFast (2021-03-present)
+  - Migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure
+  - Built a Go CLI that automated service onboarding
+  - Reduced deploy time from 25 to 7 minutes with a new CI/CD pipeline
+Experience: DevOps Engineer at DataHaus (2019-06-2021-02)
+  - Set up Prometheus and Grafana monitoring for 15 services
+  - Maintained Jenkins pipelines and Docker images
+Education: BTech Computer Science, IIT Madras 2019",Senior Site Reliability Engineer at Okta,"Secure Every Identity, from AI to Human Identity is the key to unlocking the potential of AI. Okta secures AI by building the trusted, neutral infrastructure that enables organizations to safely embrace this new era. This work requires a relentless drive to solve complex challenges with real-world stakes. We are looking for builders and owners who operate with speed and urgency and execute with excellence. This is an opportunity to do career-defining work. We're all in on this mission. If you are too, let's talk. What You’ll Be Doing Design, build, and operate highly scalable, reliable, and secure infrastructure powering our production systems across AWS and GCP. Lead major reliability and m","Subject: Platform engineer for Okta SRE role
+
+Hi Okta team,
+
+I'm Ravi Menon, a platform engineer with five years of Kubernetes and AWS experience. At ShipFast I migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure and cut deploy time from 25 to 7 minutes with a new CI/CD pipeline. I also built a Go CLI that automated service onboarding.
+
+I'm excited about Okta's SRE work on container platform migrations and microservice enablement. I'd welcome the chance to bring my Kubernetes, Terraform, Go, and CI/CD background to your Bengaluru team.
+
+Best,
+Ravi Menon","Subject: Kubernetes + AWS experience for Okta SRE role
+
+Hi there,
+
+I came across the Senior Site Reliability Engineer role in Bengaluru. The posting mentions leading container platform migrations and acting as a technical authority in Kubernetes and AWS. At ShipFast, I migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure and built a Go CLI that automated service onboarding. I also cut deploy time from 25 to 7 minutes with a new CI/CD pipeline. I have five years of experience running Kubernetes workloads on AWS. Would you be open to a short call, or could you point me to the right person to speak with about this role?
+
+Ravi Menon",,
+4222ed879d8a,"Name: Claire Dubois
+Summary: Senior full-stack engineer who has led small teams and owned products end to end.
+Skills: TypeScript, React, Node.js, PostgreSQL, GraphQL, AWS, System design
+Experience: Senior Software Engineer at Lumen Health (2020-01-present)
+  - Led a team of four building a patient scheduling product used by 200 clinics
+  - Designed a GraphQL API layer over three legacy services
+  - Cut p95 API latency by 40 percent through query and caching changes
+Experience: Software Engineer at Pixelwave (2016-08-2019-12)
+  - Built React dashboards and Node.js services for ad analytics
+  - Introduced code review and testing standards for a team of eight
+Education: MSc Computer Science, Sorbonne University 2016","Senior Software Engineer, Infrastructure Platform at Lattice","This is Engineering at Lattice Lattice’s Engineering team is continuously working to better both our product and our craft. We use a modern, cutting-edge tech stack and love experimenting with new technologies. We strive for maintainable, robust, and performant code. We’re highly collaborative and continuously iterative, and work closely with designers and product managers. We prioritize not only great technical architecture but also an amazing product experience. The Infrastructure Platform team focuses on the cloud services, infrastructure, and internal platforms that power Lattice’s products. We build reliable, scalable pathways that make it easier for product engineers to develop, deploy","Subject: Infrastructure Platform background from Lumen Health
+
+Hi there,
+
+I'm a senior full-stack engineer currently at Lumen Health, where I led a team of four building a patient scheduling product used by 200 clinics. I designed a GraphQL API layer over three legacy services and cut p95 API latency by 40 percent through query and caching changes.
+
+The Infrastructure Platform role focuses on AWS infrastructure and internal platforms, and the posting notes a broad technical footprint including AWS, Kubernetes, and observability. My background includes AWS and system design, plus experience designing the GraphQL API layer over those legacy services.
+
+I'd like to learn who owns this search and whether a short call would make sense.
+
+Claire Dubois","Subject: Senior platform engineer with AWS, TypeScript, and team lead experience
+
+Hello,
+
+I'm reaching out because the Infrastructure Platform role at Lattice aligns closely with my background. As a Senior Software Engineer at Lumen Health, I led a team of four building a product used by 200 clinics, designed a GraphQL API layer over legacy services, and cut p95 API latency by 40 percent through query and caching changes.
+
+My experience includes TypeScript, Node.js, AWS, PostgreSQL, and system design. I have led technical initiatives and enjoy building scalable, reusable internal capabilities that improve developer productivity.
+
+I am based remotely in Canada and would welcome the chance to discuss how I can contribute to Lattice's platform work.
+
+Best,
+Claire Dubois",,
+85167a633313,"Name: Hannah Becker
+Summary: Junior frontend engineer with two years of product experience.
+Skills: React, TypeScript, JavaScript, CSS, Next.js, Jest, Accessibility
+Experience: Junior Frontend Developer at Bright Agency (2024-02-present)
+  - Built a React and TypeScript component library used by four client projects
+  - Improved Lighthouse performance score from 62 to 91 on a retail site
+  - Added accessibility fixes for keyboard navigation and screen readers
+Project Recipe board: Drag-and-drop recipe planner with offline support [React, TypeScript, IndexedDB]
+Education: BSc Informatics, TU Munich 2023","Entry Level Software Engineer, Recommendations at Rover","Who we are: 
+At Rover, pets and their people are at the heart of everything we do. We connect pet parents with trusted pet care across the U.S., Canada, Europe, and Australia.
+Headquartered in Seattle and Barcelona, we’re a values driven, fast-growing tech company focused on building safe and personalized experiences tailored to the needs of each unique pet. We’re investing in AI as a business accelerator and provide every team member access to AI tools in service of creating better experiences for our community.
+We are proud to be recognized as a great place to work, having been named among the 100 Best Companies to Work For in Seattle Business Magazine and Washington’s Best Workplaces in t","Subject: Hannah Becker for Entry Level Software Engineer, Recommendations
+
+Hi Rover team,
+
+I’m Hannah, a junior frontend engineer with two years of product experience, currently building React and TypeScript component libraries at Bright Agency. I’m drawn to Rover’s focus on accessible and personalized experiences, which aligns with my work adding keyboard navigation and screen reader fixes while improving Lighthouse performance from 62 to 91.
+
+I’d love to bring this experience to the Recommendations team and help build user-impacting marketplace features. I’m based in the Greater Seattle Area and available for hybrid work.
+
+Best,
+Hannah","Subject: Frontend engineer for Rover Recommendations
+
+Hi there,
+
+I’m Hannah Becker, a junior frontend engineer with two years of product experience. I saw the Entry Level Software Engineer, Recommendations role and wanted to reach out because Rover’s focus on personalized experiences aligns with the type of frontend work I’ve been doing.
+
+At Bright Agency, I built a React and TypeScript component library used by four client projects, and I improved a retail site’s Lighthouse performance score from 62 to 91. I also added accessibility fixes for keyboard navigation and screen readers, which seems relevant given Rover’s stated commitment to accessible experiences.
+
+I’m based around the Seattle area and would be glad to do a short call about how my frontend experience could support the Recommendations team. If there’s a better contact for this role, I’d appreciate that direction.
+
+Thanks,
+Hannah Becker",,
+7c532997b506,"Name: Mateo Alvarez
+Summary: Final-year student focused on machine learning and data engineering.
+Skills: Python, PyTorch, pandas, scikit-learn, SQL, Spark, Jupyter
+Experience: Research Assistant at University Vision Lab (2024-09-2025-05)
+  - Trained image classification models in PyTorch on a lab dataset
+  - Built data cleaning pipelines in pandas
+  - Co-authored a workshop paper on data augmentation
+Project Churn predictor: Gradient boosting model for customer churn with a feature pipeline [scikit-learn, pandas, SQL]
+Project Tweet sentiment: Fine-tuned a small transformer for sentiment classification [PyTorch, Hugging Face]
+Education: BSc Statistics and Computer Science, University of Toronto 2026","PhD Data Scientist, Intern at Stripe","Who we are About Stripe Stripe is a technology company focused on improving the conditions for economic growth and prosperity. We build programmable financial infrastructure, rethinking from first principles how financial services should work, to make it easier and cheaper for any business to start and scale. More than 10 million businesses build on Stripe, spanning the economic frontier—from solo founders to established enterprises—united by a practical focus on growth. The most ambitious companies in the world use Stripe as core infrastructure to grow faster. They process trillions of dollars a year on Stripe, equivalent to around 1.6% of global GDP. While economic growth makes everyone be","Subject: PhD Data Scientist Intern application from Mateo Alvarez
+
+Hi there,
+
+I came across the PhD Data Scientist, Intern role in Toronto. My background is in machine learning and data engineering: as a research assistant, I trained image classification models in PyTorch and built data cleaning pipelines in pandas. I also built a gradient boosting churn model with scikit-learn, pandas, and SQL, and fine-tuned a transformer for sentiment classification using PyTorch and Hugging Face.
+
+Stripe ships product upgrades daily and invests heavily back into its technology; I would welcome the chance to apply that same compounding-improvement mindset to model and pipeline work on the intern team.
+
+Would you be open to a short call, or could you point me to the right person to speak with about this role?
+
+Mateo Alvarez","Subject: Interest in PhD Data Scientist Intern role
+
+Hi team, I'm Mateo Alvarez, a final-year BSc Statistics and Computer Science student at University of Toronto. I came across the PhD Data Scientist Intern role at Stripe and wanted to reach out. My background is focused on machine learning and data engineering. As a Research Assistant in the University Vision Lab, I trained image classification models in PyTorch and built data cleaning pipelines in pandas. I've also completed projects like a churn predictor using scikit-learn and SQL, and fine-tuned a transformer for sentiment classification. I'm excited about Stripe's work in fraud and financial crime, and I'd welcome the opportunity to apply my modeling and data skills to help protect users and the business. Thank you for your consideration.",,
+f457b99fa726,"Name: Aisha Rahman
+Summary: New grad software engineer with backend and database experience.
+Skills: Python, FastAPI, PostgreSQL, SQL, Docker, REST APIs, Git
+Experience: Backend Engineering Intern at Finlytics (2025-06-2025-09)
+  - Built REST endpoints in FastAPI for an invoicing service
+  - Wrote PostgreSQL queries and migrations for reporting tables
+  - Added pytest coverage for payment webhooks
+Project Splitwise clone: Expense-sharing web app with auth and settlement logic [FastAPI, PostgreSQL, React]
+Project URL shortener: Rate-limited URL shortener deployed with Docker [Python, Redis, Docker]
+Education: BSc Computer Science, University of Leeds 2026","Software Engineer, Public Sector - New Grad at Scale AI","At Scale, our mission is to develop reliable AI systems for the world's most important decisions. For 10 years, Scale has provided the high-quality data and full-stack technologies that power the world's leading models, and has helped enterprises and governments build, deploy, and oversee AI applications that deliver real impact. We work closely with industry leaders like Meta, Ernst & Young, Mayo Clinic, Time Inc., the Government of Qatar, and U.S. government agencies including the Army and Air Force. Public Sector engineers build the core product including the systems required to ingest and process federal datasets that support real-time decision-making in contested environments. As a New ","Subject: New Grad backend candidate for Public Sector team
+
+Hi Scale AI team,
+
+I’m a final-year Computer Science student at University of Leeds writing to express interest in the Software Engineer, Public Sector – New Grad role in San Francisco.
+
+My background aligns well with the backend and data-focused work. As a Backend Engineering Intern at Finlytics, I built REST endpoints in FastAPI, wrote PostgreSQL queries and migrations, and added pytest coverage for payment webhooks. I also have hands-on project experience with Docker, including a rate-limited URL shortener and a FastAPI/PostgreSQL splitwise clone.
+
+I’m excited by the mission of building reliable systems for high-stakes government decisions, and I’d welcome the chance to bring my backend, database, and containerization skills to your team. I’m comfortable with ambiguity and eager to learn new domains quickly.
+
+Thank you for your consideration.
+
+Aisha Rahman","Subject: New grad backend engineer for Scale Public Sector
+
+Hi there,
+
+I'm applying for the Software Engineer, Public Sector - New Grad role. The posting highlights ingesting and processing federal datasets for decision-making, and Scale AI's public sector work includes U.S. government agencies such as the Army and Air Force.
+
+At Finlytics, I wrote PostgreSQL queries and migrations for reporting tables and built REST endpoints in FastAPI for an invoicing service. Those are the same skills involved in systems that process and retrieve structured federal data. A personal project, an expense-sharing web app with auth and settlement logic, used FastAPI, PostgreSQL, and React. I also deployed a rate-limited URL shortener with Docker.
+
+I'm finishing my BSc in Computer Science at the University of Leeds in 2026. Could you point me to the right person to talk with about the public sector engineering team, or would you be open to a short call?
+
+Aisha Rahman",,
+5061d2aaecef,"Name: Aisha Rahman
+Summary: New grad software engineer with backend and database experience.
+Skills: Python, FastAPI, PostgreSQL, SQL, Docker, REST APIs, Git
+Experience: Backend Engineering Intern at Finlytics (2025-06-2025-09)
+  - Built REST endpoints in FastAPI for an invoicing service
+  - Wrote PostgreSQL queries and migrations for reporting tables
+  - Added pytest coverage for payment webhooks
+Project Splitwise clone: Expense-sharing web app with auth and settlement logic [FastAPI, PostgreSQL, React]
+Project URL shortener: Rate-limited URL shortener deployed with Docker [Python, Redis, Docker]
+Education: BSc Computer Science, University of Leeds 2026","Forward Deployed Software Engineer, Internship at Palantir","Le poste
+
+Les Forward Deployed Software Engineers (FDSE) travaillent directement avec les clients afin de comprendre rapidement leurs problèmes les plus importants et ainsi concevoir et implémenter des solutions qui vont utiliser leurs données afin de résoudre ces problématiques. Nos clients s’appuient sur les plateformes de Palantir pour certaines de leurs opérations les plus critiques, et les projets débutent souvent par une question ouverte, par exemple : « Comment évaluer le risque d’incendie de forêt et, par conséquent, comment optimiser le réseau électrique ? » ou « Comment évaluer rapidement notre chaîne d’approvisionnement alimentaire et l’adapter afin d’apporter à temps une aide vit","Subject: Backend intern experience for Forward Deployed Software Engineer, Internship
+
+Hello,
+
+I’m Aisha Rahman, a University of Leeds BSc Computer Science student graduating in 2026. I’m writing to apply for the Forward Deployed Software Engineer Internship in Paris.
+
+As a Backend Engineering Intern at Finlytics, I built REST endpoints in FastAPI, wrote PostgreSQL queries and migrations, and added pytest coverage for payment webhooks. I also built a Splitwise clone with FastAPI, PostgreSQL, and React, and deployed a Dockerized URL shortener with Redis.
+
+I’m excited by the FDSE role because it combines backend engineering, client collaboration, and high-impact projects. I’m comfortable working autonomously and would welcome the opportunity to contribute from day one.
+
+Best,
+Aisha Rahman","Subject: Backend intern experience for FDSE internship in Paris
+
+Hi there,
+
+The Paris posting says FDSEs work directly with clients, with responsibilities similar to a small start-up and end-to-end execution in small teams. My background is in backend and database work: at Finlytics I built REST endpoints in FastAPI for an invoicing service, wrote PostgreSQL queries and migrations for reporting tables, and added pytest coverage for payment webhooks. I also deployed a rate-limited URL shortener using Python, Redis, and Docker.
+
+I am completing a BSc in Computer Science at the University of Leeds in 2026. The posting mentions that an FDSE day can include coding a custom web application, which relates to my FastAPI and React work on an expense-sharing app with authentication and settlement logic.
+
+Would you be open to a short call to share what you look for in Paris FDSE interns?
+
+Aisha Rahman",,

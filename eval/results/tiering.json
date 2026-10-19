@@ -1,0 +1,119 @@
+{
+  "n": 50,
+  "repeats": 3,
+  "variants": {
+    "production": {
+      "accuracy_mean": 0.98,
+      "accuracy_min": 0.98,
+      "accuracy_max": 0.98,
+      "accuracy_excl_borderline_mean": 1.0,
+      "n_excl_borderline": 47,
+      "per_class": {
+        "startup": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 45
+        },
+        "mid": {
+          "precision": 0.9444444444444444,
+          "recall": 1.0,
+          "f1": 0.9714285714285714,
+          "support": 51
+        },
+        "mnc": {
+          "precision": 1.0,
+          "recall": 0.9444444444444444,
+          "f1": 0.9714285714285714,
+          "support": 54
+        }
+      },
+      "confusion_summed_over_runs": {
+        "startup": {
+          "startup": 45,
+          "mid": 0,
+          "mnc": 0
+        },
+        "mid": {
+          "startup": 0,
+          "mid": 51,
+          "mnc": 0
+        },
+        "mnc": {
+          "startup": 0,
+          "mid": 3,
+          "mnc": 51
+        }
+      },
+      "disagreements_or_errors": [
+        {
+          "company": "Datadog",
+          "label": "mnc",
+          "borderline": true,
+          "approx_employees": 6500,
+          "votes": {
+            "mid": 3
+          }
+        }
+      ],
+      "seed_methods": 13
+    },
+    "llm_only": {
+      "accuracy_mean": 0.9866666666666667,
+      "accuracy_min": 0.98,
+      "accuracy_max": 1.0,
+      "accuracy_excl_borderline_mean": 1.0,
+      "n_excl_borderline": 47,
+      "per_class": {
+        "startup": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 45
+        },
+        "mid": {
+          "precision": 0.9622641509433962,
+          "recall": 1.0,
+          "f1": 0.9807692307692307,
+          "support": 51
+        },
+        "mnc": {
+          "precision": 1.0,
+          "recall": 0.9629629629629629,
+          "f1": 0.9811320754716981,
+          "support": 54
+        }
+      },
+      "confusion_summed_over_runs": {
+        "startup": {
+          "startup": 45,
+          "mid": 0,
+          "mnc": 0
+        },
+        "mid": {
+          "startup": 0,
+          "mid": 51,
+          "mnc": 0
+        },
+        "mnc": {
+          "startup": 0,
+          "mid": 2,
+          "mnc": 52
+        }
+      },
+      "disagreements_or_errors": [
+        {
+          "company": "Datadog",
+          "label": "mnc",
+          "borderline": true,
+          "approx_employees": 6500,
+          "votes": {
+            "mnc": 1,
+            "mid": 2
+          }
+        }
+      ],
+      "seed_methods": 0
+    }
+  }
+}

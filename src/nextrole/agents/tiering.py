@@ -24,17 +24,20 @@ SEED_FILE = Path(__file__).parent.parent / "data" / "mnc_seed.json"
 MIN_CACHE_CONFIDENCE = 0.6
 
 SYSTEM = (
-    "Classify each company by size using general knowledge: "
-    "'startup' = under ~200 employees or early-stage; "
-    "'mid' = roughly 200-5000 employees; "
-    "'mnc' = over ~5000 employees or a multinational. "
-    "Return one entry per company, using the exact name given. If you do not recognise a "
-    "company, still pick the most likely tier but give low confidence (below 0.5)."
+    "Classify each company by size. For each one, estimate its current total number of "
+    "employees from general knowledge, then pick: 'startup' = under ~200 employees; 'mid' = roughly 200 to 5000 "
+    "employees; 'mnc' = over ~5000 employees. Size is decided by headcount ONLY. Being "
+    "well known, venture-backed, publicly listed or having offices in several countries does "
+    "NOT make a company an 'mnc': a famous software company with 1,500 people is 'mid'. "
+    "Return one entry per company, using the exact name given, with `approx_employees` as a "
+    "single number (use null only if you have no idea). If you do not recognise a company, "
+    "still give your best guess but a low confidence (below 0.5)."
 )
 
 
 class _Item(BaseModel):
     company: str
+    approx_employees: int | None = None
     tier: Tier
     confidence: float = 0.5
 
@@ -105,7 +108,12 @@ class TieringAgent:
             key = normalize_company(item.company)
             if key in unknown:  # ignore companies the model invented
                 conf = min(max(item.confidence, 0.0), 1.0)
-                out[key] = CompanyTier(company_key=key, tier=item.tier, method="llm", confidence=conf)
+                # The model supplies knowledge (a headcount estimate); our configured thresholds
+                # decide the tier, so tiers stay consistent with STARTUP/MID_MAX_EMPLOYEES and a
+                # fuzzy notion of "big company" can't leak in. Its own tier is only a fallback.
+                tier = (tier_from_employee_count(item.approx_employees, self.settings)
+                        if item.approx_employees and item.approx_employees > 0 else item.tier)
+                out[key] = CompanyTier(company_key=key, tier=tier, method="llm", confidence=conf)
         # Anything the model skipped defaults to 'mid' with zero confidence (never cached).
         for key in unknown.keys() - out.keys():
             out[key] = CompanyTier(company_key=key, tier="mid", method="llm", confidence=0.0)

@@ -117,9 +117,15 @@ class LLMClient:
         result = ChatResult([], "", 0, 0)
         try:
             resp = await self._request(model, system, messages, tools, max_tokens)
+            u = resp.usage
+            # Providers with prompt caching (e.g. DeepSeek) report cache hits separately from
+            # `input_tokens`; count every input token processed so budgets and cost never
+            # undercount (cached tokens are billed cheaper, so this errs on the safe side).
+            processed = (u.input_tokens + (getattr(u, "cache_read_input_tokens", 0) or 0)
+                         + (getattr(u, "cache_creation_input_tokens", 0) or 0))
             result = ChatResult(
-                list(resp.content), getattr(resp, "stop_reason", "") or "",
-                resp.usage.input_tokens, resp.usage.output_tokens,
+                list(resp.content), getattr(resp, "stop_reason", "") or "", processed,
+                u.output_tokens,
             )
             return result
         except Exception as exc:

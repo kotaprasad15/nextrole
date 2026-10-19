@@ -1,0 +1,132 @@
+{
+  "p1_backend_newgrad": {
+    "matcher": [
+      "e86b41b834a6",
+      "0a10ae3337ec",
+      "185e77035f0a",
+      "60fba6b978c8",
+      "be6f25198ed2",
+      "6eb224072938",
+      "b9acdc3305fd",
+      "dbc6d6adba27",
+      "f457b99fa726",
+      "23c1dc5e762c"
+    ],
+    "keyword": [
+      "f457b99fa726",
+      "0cb197c62462",
+      "0859f3730638",
+      "9ba0fbb0f884",
+      "14825a16668e",
+      "a8bf9c64ca52",
+      "3527f6b9f720",
+      "3d0c698f3d25",
+      "0a10ae3337ec",
+      "185e77035f0a"
+    ]
+  },
+  "p2_ml_intern": {
+    "matcher": [
+      "b058622c1f60",
+      "c8db71eee2f3",
+      "d958e11dd046",
+      "908dd21068a2",
+      "b887e5bcc5d9",
+      "af6ba16cdac3",
+      "675bfc8ad20e",
+      "7c532997b506",
+      "cb9ced172d24",
+      "4400e4f906c7"
+    ],
+    "keyword": [
+      "0cb197c62462",
+      "7c532997b506",
+      "cb2182a4b295",
+      "d958e11dd046",
+      "b058622c1f60",
+      "c8db71eee2f3",
+      "471a676728bf",
+      "cb9ced172d24",
+      "908dd21068a2",
+      "675bfc8ad20e"
+    ]
+  },
+  "p3_frontend_junior": {
+    "matcher": [
+      "60fba6b978c8",
+      "0592941c61b9",
+      "6cae6bab13b6",
+      "d374912860e9",
+      "c6adc179dea6",
+      "70c0e0647282",
+      "6eb224072938",
+      "b5d2e3f2a225",
+      "be6f25198ed2",
+      "a1172b776977"
+    ],
+    "keyword": [
+      "0859f3730638",
+      "29e9eac763fa",
+      "6eb224072938",
+      "8ba7735839d7",
+      "0592941c61b9",
+      "a1172b776977",
+      "d374912860e9",
+      "399e29400bfe",
+      "bfe82a672085",
+      "5061d2aaecef"
+    ]
+  },
+  "p4_platform_mid": {
+    "matcher": [
+      "9a0dc4f42bb1",
+      "e6e8d71f5039",
+      "a1a8ee62a0a9",
+      "20c6d7bcdb93",
+      "c5c6ac5c37ad",
+      "ffcd2f024589",
+      "80c81c7cc3f0",
+      "eb37133f0149",
+      "df89daef2601",
+      "9d2ea73f3665"
+    ],
+    "keyword": [
+      "06c3d487df7d",
+      "e74d3c519324",
+      "80c81c7cc3f0",
+      "5799a8723a2c",
+      "d7bfaaa0d90d",
+      "9a0dc4f42bb1",
+      "20c6d7bcdb93",
+      "eb37133f0149",
+      "2c565ac1dd46",
+      "e6e8d71f5039"
+    ]
+  },
+  "p5_fullstack_senior": {
+    "matcher": [
+      "20c33e4a39a9",
+      "d72c523c1e09",
+      "bf79044d2ea5",
+      "44aa80509cdf",
+      "f81ce3584cbe",
+      "8f61ebd29707",
+      "13a03fcba325",
+      "b9948c725515",
+      "d650eff5d167",
+      "afd50638cbe8"
+    ],
+    "keyword": [
+      "d50d36de978c",
+      "a62ea6bf3141",
+      "cf7177f9854b",
+      "13a03fcba325",
+      "8d079ce20f10",
+      "8f61ebd29707",
+      "b4f8666b1b49",
+      "1db37b2d2f62",
+      "1f83ff85656c",
+      "d650eff5d167"
+    ]
+  }
+}

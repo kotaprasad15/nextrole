@@ -1,0 +1,338 @@
+{
+  "n": 50,
+  "repeats": 3,
+  "variants": {
+    "production": {
+      "accuracy_mean": 0.7333333333333334,
+      "accuracy_min": 0.72,
+      "accuracy_max": 0.76,
+      "accuracy_excl_borderline_mean": 0.7588652482269503,
+      "n_excl_borderline": 47,
+      "per_class": {
+        "startup": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 45
+        },
+        "mid": {
+          "precision": 1.0,
+          "recall": 0.21568627450980393,
+          "f1": 0.3548387096774193,
+          "support": 51
+        },
+        "mnc": {
+          "precision": 0.574468085106383,
+          "recall": 1.0,
+          "f1": 0.7297297297297298,
+          "support": 54
+        }
+      },
+      "confusion_summed_over_runs": {
+        "startup": {
+          "startup": 45,
+          "mid": 0,
+          "mnc": 0
+        },
+        "mid": {
+          "startup": 0,
+          "mid": 11,
+          "mnc": 40
+        },
+        "mnc": {
+          "startup": 0,
+          "mid": 0,
+          "mnc": 54
+        }
+      },
+      "disagreements_or_errors": [
+        {
+          "company": "Figma",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 1500,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Discord",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 700,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Reddit",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 2000,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Cloudflare",
+          "label": "mid",
+          "borderline": true,
+          "approx_employees": 4200,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Coinbase",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 3700,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Robinhood",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 2400,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Brex",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 1100,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Scale AI",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 900,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Gusto",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 2500,
+          "votes": {
+            "mnc": 2,
+            "mid": 1
+          }
+        },
+        {
+          "company": "Asana",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 1800,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Duolingo",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 900,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Anthropic",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 2500,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Notion",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 800,
+          "votes": {
+            "mnc": 2,
+            "mid": 1
+          }
+        },
+        {
+          "company": "Pinterest",
+          "label": "mid",
+          "borderline": true,
+          "approx_employees": 4600,
+          "votes": {
+            "mnc": 3
+          }
+        }
+      ],
+      "seed_methods": 13
+    },
+    "llm_only": {
+      "accuracy_mean": 0.7799999999999999,
+      "accuracy_min": 0.76,
+      "accuracy_max": 0.8,
+      "accuracy_excl_borderline_mean": 0.8085106382978724,
+      "n_excl_borderline": 47,
+      "per_class": {
+        "startup": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 45
+        },
+        "mid": {
+          "precision": 1.0,
+          "recall": 0.35294117647058826,
+          "f1": 0.5217391304347826,
+          "support": 51
+        },
+        "mnc": {
+          "precision": 0.6206896551724138,
+          "recall": 1.0,
+          "f1": 0.7659574468085107,
+          "support": 54
+        }
+      },
+      "confusion_summed_over_runs": {
+        "startup": {
+          "startup": 45,
+          "mid": 0,
+          "mnc": 0
+        },
+        "mid": {
+          "startup": 0,
+          "mid": 18,
+          "mnc": 33
+        },
+        "mnc": {
+          "startup": 0,
+          "mid": 0,
+          "mnc": 54
+        }
+      },
+      "disagreements_or_errors": [
+        {
+          "company": "Figma",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 1500,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Discord",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 700,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Reddit",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 2000,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Cloudflare",
+          "label": "mid",
+          "borderline": true,
+          "approx_employees": 4200,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Coinbase",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 3700,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Robinhood",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 2400,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Brex",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 1100,
+          "votes": {
+            "mid": 2,
+            "mnc": 1
+          }
+        },
+        {
+          "company": "Scale AI",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 900,
+          "votes": {
+            "mnc": 2,
+            "mid": 1
+          }
+        },
+        {
+          "company": "Asana",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 1800,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Duolingo",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 900,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Anthropic",
+          "label": "mid",
+          "borderline": false,
+          "approx_employees": 2500,
+          "votes": {
+            "mnc": 3
+          }
+        },
+        {
+          "company": "Pinterest",
+          "label": "mid",
+          "borderline": true,
+          "approx_employees": 4600,
+          "votes": {
+            "mnc": 3
+          }
+        }
+      ],
+      "seed_methods": 0
+    }
+  }
+}

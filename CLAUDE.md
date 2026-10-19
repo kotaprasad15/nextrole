@@ -9,11 +9,12 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 - Lint: `uv run ruff check .`
 - Live baseline demo: `uv run python -m nextrole.baseline_demo` (needs `.env` with `ANTHROPIC_API_KEY`)
 
+- Evaluation (spends real tokens; see `eval/README.md`): `uv run python -m eval.run_eval {tiering|outreach|p10-sheet|p10-score|report}`
 - Live job discovery (no key needed): `uv run python -m nextrole.jobs_demo "software engineer" "remote"`
 
 - App (API + UI): `uv run uvicorn nextrole.api.main:app --reload`, open http://localhost:8000 (set `RESUME_ENCRYPTION_KEY` in `.env` first)
 
-## Architecture (current: milestone f)
+## Architecture (current: milestone g)
 - `config.py`: all tunables from `.env` (model names, budgets, prices). Never hardcode a model.
 - `llm/client.py`: the only gateway to Anthropic. Retries (transient only), timeout, budget check, tracing, JSON output validated by Pydantic with one repair retry.
 - Provider: `LLM_BASE_URL` (empty = Anthropic) points the same SDK at any Anthropic-compatible endpoint, e.g. DeepSeek `https://api.deepseek.com/anthropic` with `MODEL_FAST=deepseek-flash`, `MODEL_STRONG=deepseek-v4-pro`. Set `PRICE_*` to that provider's rates. PII caveat: DeepSeek hosted API is for sample resumes only.
@@ -46,6 +47,9 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 - Memory (`memory.py`): feedback notes (`POST /outreach/{id}/feedback`) + the user's last approved drafts feed the Writer as STYLE ONLY ("do not reuse facts"); the Critic still checks claims against the current fact sheet, so leaked facts get flagged. Bounded, per-user, deleted with the account.
 - DB: `COLUMN_MIGRATIONS` in `db/connection.py` adds columns that shipped after a table's first release (CREATE TABLE IF NOT EXISTS never alters). New tables: `runs` (history + events), `feedback`.
 - Web UI: `runPanel()` renders the live step feed from SSE (rows keyed by step+attempt, events de-duplicated by `seq`); dashboard has a "Paste a job posting" card; draft view has regenerate-with-live-steps and a feedback card.
+- `eval/` (milestone g): `run_eval.py` CLI, `outreach_eval.py` (paired baseline vs multi-agent), `tiering_eval.py`, `p10_eval.py`, `judge.py` (INDEPENDENT fact-check / pairwise / relevance judges, never used by the product), `metrics.py` (bootstrap CI, paired diffs, Wilson, confusion), `report.py` (tables from saved JSON only), `build_dataset.py`, `datasets/` (frozen postings, labeled companies, 5 synthetic profiles), `results/` (raw JSON). Rules: both systems get the same inputs/model; judges are blind and see only each system's own sources; the product Critic score is reported but flagged circular; intervals spanning zero are "inconclusive"; tiering labels are UNVERIFIED drafts; P@10 relevance must be rated by a human (LLM proxy is always labelled as such). pytest has `pythonpath = ["."]` so `eval` imports in tests.
+- Tiering (changed in g): the LLM estimates headcount and code applies the configured thresholds (`tier_from_employee_count`); the old prompt ("... or a multinational") made it label mid-size companies MNC (found by the eval).
+- `Budget.calls` counts model calls; `OutreachResult.reports` keeps every critic report (first draft -> final).
 - `agents/baseline.py`: single-agent baseline (control for the eval).
 
 ## Conventions

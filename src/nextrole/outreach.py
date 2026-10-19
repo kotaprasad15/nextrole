@@ -37,6 +37,7 @@ class OutreachResult:
     facts: list[Fact]
     attempts: int
     warnings: list[str] = field(default_factory=list)
+    reports: list[CriticReport] = field(default_factory=list)  # first draft -> last
 
 
 def rank_report(report: CriticReport) -> tuple[int, int, int]:
@@ -102,4 +103,5 @@ async def generate_outreach(
         raise (BudgetExceeded if final.get("error_kind") == "budget" else ValueError)(
             final.get("error", "run failed"))
     draft, report = final["best"]
-    return OutreachResult(draft, report, final["facts"], final["attempts"], final["warnings"])
+    return OutreachResult(draft, report, final["facts"], final["attempts"], final["warnings"],
+                          final.get("reports", []))

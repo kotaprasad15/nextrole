@@ -106,7 +106,7 @@ class Steps:
         passed = report.verdict == "pass"
         detail = f"score {report.overall}/100, " + ("passed" if passed else "needs a rewrite")
         return {"attempts": s.get("attempts", 0) + 1, "previous": (draft, report), "best": best,
-                "passed": passed}, detail
+                "passed": passed, "reports": [*s.get("reports", []), report]}, detail
 
     async def save(self, s: RunState) -> tuple[dict, str]:
         if s["mode"] == "recommend":

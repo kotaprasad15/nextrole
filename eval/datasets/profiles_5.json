@@ -1,0 +1,79 @@
+[
+  {
+    "id": "p1_backend_newgrad",
+    "name": "Aisha Rahman",
+    "summary": "New grad software engineer with backend and database experience.",
+    "skills": ["Python", "FastAPI", "PostgreSQL", "SQL", "Docker", "REST APIs", "Git"],
+    "experience": [
+      {"company": "Finlytics", "title": "Backend Engineering Intern", "start": "2025-06", "end": "2025-09",
+       "bullets": ["Built REST endpoints in FastAPI for an invoicing service", "Wrote PostgreSQL queries and migrations for reporting tables", "Added pytest coverage for payment webhooks"]}
+    ],
+    "projects": [
+      {"name": "Splitwise clone", "description": "Expense-sharing web app with auth and settlement logic", "tech": ["FastAPI", "PostgreSQL", "React"]},
+      {"name": "URL shortener", "description": "Rate-limited URL shortener deployed with Docker", "tech": ["Python", "Redis", "Docker"]}
+    ],
+    "education": [{"institution": "University of Leeds", "degree": "BSc Computer Science", "year": "2026"}],
+    "preferences": {"roles": ["software engineer", "backend"], "locations": [], "remote_ok": true, "experience_level": "Intern / New grad", "extras": ""}
+  },
+  {
+    "id": "p2_ml_intern",
+    "name": "Mateo Alvarez",
+    "summary": "Final-year student focused on machine learning and data engineering.",
+    "skills": ["Python", "PyTorch", "pandas", "scikit-learn", "SQL", "Spark", "Jupyter"],
+    "experience": [
+      {"company": "University Vision Lab", "title": "Research Assistant", "start": "2024-09", "end": "2025-05",
+       "bullets": ["Trained image classification models in PyTorch on a lab dataset", "Built data cleaning pipelines in pandas", "Co-authored a workshop paper on data augmentation"]}
+    ],
+    "projects": [
+      {"name": "Churn predictor", "description": "Gradient boosting model for customer churn with a feature pipeline", "tech": ["scikit-learn", "pandas", "SQL"]},
+      {"name": "Tweet sentiment", "description": "Fine-tuned a small transformer for sentiment classification", "tech": ["PyTorch", "Hugging Face"]}
+    ],
+    "education": [{"institution": "University of Toronto", "degree": "BSc Statistics and Computer Science", "year": "2026"}],
+    "preferences": {"roles": ["machine learning", "data scientist", "data engineer"], "locations": [], "remote_ok": true, "experience_level": "Intern / New grad", "extras": ""}
+  },
+  {
+    "id": "p3_frontend_junior",
+    "name": "Hannah Becker",
+    "summary": "Junior frontend engineer with two years of product experience.",
+    "skills": ["React", "TypeScript", "JavaScript", "CSS", "Next.js", "Jest", "Accessibility"],
+    "experience": [
+      {"company": "Bright Agency", "title": "Junior Frontend Developer", "start": "2024-02", "end": "present",
+       "bullets": ["Built a React and TypeScript component library used by four client projects", "Improved Lighthouse performance score from 62 to 91 on a retail site", "Added accessibility fixes for keyboard navigation and screen readers"]}
+    ],
+    "projects": [
+      {"name": "Recipe board", "description": "Drag-and-drop recipe planner with offline support", "tech": ["React", "TypeScript", "IndexedDB"]}
+    ],
+    "education": [{"institution": "TU Munich", "degree": "BSc Informatics", "year": "2023"}],
+    "preferences": {"roles": ["frontend", "front-end", "software engineer"], "locations": [], "remote_ok": true, "experience_level": "Junior", "extras": ""}
+  },
+  {
+    "id": "p4_platform_mid",
+    "name": "Ravi Menon",
+    "summary": "Platform engineer with five years of experience running Kubernetes workloads on AWS.",
+    "skills": ["Go", "Kubernetes", "AWS", "Terraform", "Python", "Prometheus", "CI/CD"],
+    "experience": [
+      {"company": "ShipFast", "title": "Platform Engineer", "start": "2021-03", "end": "present",
+       "bullets": ["Migrated 30 services to Kubernetes with Terraform-managed AWS infrastructure", "Built a Go CLI that automated service onboarding", "Reduced deploy time from 25 to 7 minutes with a new CI/CD pipeline"]},
+      {"company": "DataHaus", "title": "DevOps Engineer", "start": "2019-06", "end": "2021-02",
+       "bullets": ["Set up Prometheus and Grafana monitoring for 15 services", "Maintained Jenkins pipelines and Docker images"]}
+    ],
+    "projects": [],
+    "education": [{"institution": "IIT Madras", "degree": "BTech Computer Science", "year": "2019"}],
+    "preferences": {"roles": ["platform", "infrastructure", "site reliability", "devops", "backend"], "locations": [], "remote_ok": true, "experience_level": "Mid", "extras": ""}
+  },
+  {
+    "id": "p5_fullstack_senior",
+    "name": "Claire Dubois",
+    "summary": "Senior full-stack engineer who has led small teams and owned products end to end.",
+    "skills": ["TypeScript", "React", "Node.js", "PostgreSQL", "GraphQL", "AWS", "System design"],
+    "experience": [
+      {"company": "Lumen Health", "title": "Senior Software Engineer", "start": "2020-01", "end": "present",
+       "bullets": ["Led a team of four building a patient scheduling product used by 200 clinics", "Designed a GraphQL API layer over three legacy services", "Cut p95 API latency by 40 percent through query and caching changes"]},
+      {"company": "Pixelwave", "title": "Software Engineer", "start": "2016-08", "end": "2019-12",
+       "bullets": ["Built React dashboards and Node.js services for ad analytics", "Introduced code review and testing standards for a team of eight"]}
+    ],
+    "projects": [],
+    "education": [{"institution": "Sorbonne University", "degree": "MSc Computer Science", "year": "2016"}],
+    "preferences": {"roles": ["senior software engineer", "staff engineer", "full stack", "full-stack"], "locations": [], "remote_ok": true, "experience_level": "Senior", "extras": ""}
+  }
+]

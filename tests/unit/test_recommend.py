@@ -244,3 +244,16 @@ def test_select_candidates_gives_each_tier_a_share_and_backfills():
     assert {"BigCo", "Tiny", "MidCo"} <= {j.company for j in picked}  # nobody crowded out
     assert len(picked) == 6  # unused startup/mid slots backfilled by the MNC tier
     assert sum(j.company == "BigCo" for j in picked) == 4
+
+
+async def test_tiering_derives_tier_from_headcount_estimate_not_the_models_own_label():
+    """The model supplies a headcount estimate; configured thresholds decide the tier. This
+    is what stops 'famous or international' from being mistaken for 'MNC'."""
+    fake = FakeLLM(tier_reply=lambda names: {"items": [
+        {"company": names[0], "approx_employees": 1500, "tier": "mnc", "confidence": 0.9},
+        {"company": names[1], "approx_employees": 60, "tier": "mid", "confidence": 0.9},
+        {"company": names[2], "approx_employees": 40000, "tier": "startup", "confidence": 0.9},
+        {"company": names[3], "approx_employees": None, "tier": "mnc", "confidence": 0.9}]})
+    llm, s = make_llm(fake)
+    out = await TieringAgent(llm, connect(":memory:"), s).classify(["Aco", "Bco", "Cco", "Dco"])
+    assert [out[k].tier for k in ("aco", "bco", "cco", "dco")] == ["mid", "startup", "mnc", "mnc"]

@@ -1,0 +1,42 @@
+{
+  "ebab0b67b822": {
+    "A": "baseline",
+    "judge_winner": "baseline"
+  },
+  "675bfc8ad20e": {
+    "A": "multi",
+    "judge_winner": "multi"
+  },
+  "b9948c725515": {
+    "A": "baseline",
+    "judge_winner": "multi"
+  },
+  "6c39f9918ff1": {
+    "A": "baseline",
+    "judge_winner": "multi"
+  },
+  "06c3d487df7d": {
+    "A": "baseline",
+    "judge_winner": "multi"
+  },
+  "4222ed879d8a": {
+    "A": "multi",
+    "judge_winner": "baseline"
+  },
+  "85167a633313": {
+    "A": "baseline",
+    "judge_winner": "multi"
+  },
+  "7c532997b506": {
+    "A": "multi",
+    "judge_winner": "multi"
+  },
+  "f457b99fa726": {
+    "A": "baseline",
+    "judge_winner": "multi"
+  },
+  "5061d2aaecef": {
+    "A": "baseline",
+    "judge_winner": "multi"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "outreach_run1_judge_missing_prefs.json": "Run 1 (superseded): the fact-check judge was not shown the baseline's preference fields and saw postings truncated to 3,000 characters, which mislabels some valid claims.",
+  "outreach_run2_cache_confound.json": "Run 2: judge sources fixed. Quality metrics are valid, but cost and latency are confounded: the baseline's identical prompts were served from the provider's prompt cache, and only uncached input tokens were counted.",
+  "outreach.json": "Run 3 (reported in the main table): judge fixed, every input token counted including cached ones, and a per-call nonce defeats provider prompt caching for both systems."
+}

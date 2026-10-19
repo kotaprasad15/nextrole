@@ -128,3 +128,12 @@ async def test_disable_thinking_flag_is_sent_only_when_enabled(tmp_path):
         await llm.complete(agent="t", model="m", system="s", user="u")
         assert ("thinking" in sent[0]) is flag
         assert not flag or sent[0]["thinking"] == {"type": "disabled"}
+
+
+async def test_cached_input_tokens_are_counted_so_budgets_never_undercount(tmp_path):
+    usage = SimpleNamespace(input_tokens=149, output_tokens=10, cache_read_input_tokens=1664,
+                            cache_creation_input_tokens=7)
+    fake = FakeAnthropic(SimpleNamespace(content=[SimpleNamespace(type="text", text="ok")], usage=usage))
+    llm = _llm(tmp_path, fake)
+    res = await llm.complete(agent="t", model="m", system="s", user="u")
+    assert res.input_tokens == 149 + 1664 + 7 and llm.budget.tokens_used == 149 + 1664 + 7 + 10

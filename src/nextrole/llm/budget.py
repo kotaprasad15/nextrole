@@ -14,6 +14,7 @@ class Budget:
     price_out_per_mtok: float
     tokens_used: int = 0
     cost_usd: float = 0.0
+    calls: int = 0  # model calls made (used by the eval for cost/latency reporting)
 
     @property
     def exhausted(self) -> bool:
@@ -32,6 +33,7 @@ class Budget:
             input_tokens * self.price_in_per_mtok + output_tokens * self.price_out_per_mtok
         ) / 1_000_000
         self.tokens_used += input_tokens + output_tokens
+        self.calls += 1
         self.cost_usd += cost
         return cost
 
