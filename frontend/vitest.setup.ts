@@ -28,6 +28,15 @@ if (!("IntersectionObserver" in window)) {
   (window as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IO;
 }
 
+// jsdom lacks pointer capture and scrollIntoView, which Radix menus and selects call.
+if (typeof Element !== "undefined") {
+  const proto = Element.prototype as unknown as Record<string, unknown>;
+  proto.hasPointerCapture ??= () => false;
+  proto.setPointerCapture ??= () => {};
+  proto.releasePointerCapture ??= () => {};
+  proto.scrollIntoView ??= () => {};
+}
+
 // jsdom lacks ResizeObserver (Radix Switch/Radio size their hidden inputs with it).
 if (!("ResizeObserver" in window)) {
   class RO {

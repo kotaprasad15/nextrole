@@ -16,6 +16,7 @@ import { cn } from "@/lib/cn";
 import { findJob } from "@/lib/jobs";
 import { useSavedJobs } from "@/lib/local/saved-jobs";
 import { TIER_META } from "@/lib/tier";
+import { TrackerControl } from "./tracker-control";
 
 /**
  * One opening in depth. The API has no single-job endpoint and does not expose job descriptions,
@@ -102,6 +103,7 @@ export function JobDetail({ jobId }: { jobId: string }) {
           <Button variant="ghost" aria-pressed={isSaved} onClick={() => saved.toggle(job.job_id)}>
             <Bookmark className={cn("size-4", isSaved && "fill-current text-primary")} aria-hidden /> {isSaved ? "Saved" : "Save"}
           </Button>
+          <TrackerControl job={job} tier={tier} />
         </div>
       </Card>
 
