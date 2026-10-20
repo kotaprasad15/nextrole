@@ -4,7 +4,7 @@ import { Logo } from "@/components/shell/logo";
 import { SkipLink } from "@/components/shell/skip-link";
 import { Button } from "@/components/ui/button";
 
-// Public marketing pages. (Smooth scroll and the scrollytelling story join this group in milestone 9.)
+// Public marketing pages. Smooth scroll and the scroll story are added per page by <ScrollStory>.
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
     <>
