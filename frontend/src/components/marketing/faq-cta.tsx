@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { HOME_SECTIONS } from "@/lib/marketing/constants";
 
 export const FAQS = [
   {
@@ -27,8 +28,8 @@ export const FAQS = [
 
 export function Faq() {
   return (
-    <section aria-labelledby="faq-title" className="py-20 lg:py-28">
-      <div className="page-container grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+    <section id="faq" data-section={HOME_SECTIONS.faq} aria-labelledby="faq-title" className="scroll-mt-16 pb-[var(--section-y)]">
+      <div className="marketing-container grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <h2 id="faq-title" className="font-display text-display-lg text-balance">Questions, answered plainly</h2>
         <div className="divide-y divide-border rounded-card border border-border bg-surface">
           {FAQS.map((f) => (
@@ -48,8 +49,8 @@ export function Faq() {
 
 export function FinalCta() {
   return (
-    <section aria-labelledby="cta-title" className="pb-20 lg:pb-28">
-      <div className="page-container">
+    <section data-section={HOME_SECTIONS.start} aria-labelledby="cta-title" className="pb-[var(--section-y)]">
+      <div className="marketing-container">
         <div className="relative isolate overflow-hidden rounded-card border border-border bg-surface px-6 py-16 text-center shadow-2 md:px-12">
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
             <div className="absolute -left-20 -top-20 size-80 rounded-full bg-startup/15 blur-3xl" />
@@ -59,10 +60,10 @@ export function FinalCta() {
           <h2 id="cta-title" className="font-display text-display-lg text-balance">Ready to find your next role?</h2>
           <p className="mx-auto mt-4 max-w-xl text-body-lg text-muted">Start with your resume. It takes about two minutes, and you stay in control of everything that gets written.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" magnetic>
+            <Button asChild size="lg" magnetic fx="glow">
               <Link href="/signup">Create your account</Link>
             </Button>
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild size="lg" variant="secondary" fx="outline">
               <Link href="/login">Log in</Link>
             </Button>
           </div>

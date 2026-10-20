@@ -71,7 +71,8 @@ import { OutreachPage } from "@/components/outreach/outreach-page";
 import { ProfilePage } from "@/components/profile/profile-page";
 import { SettingsPage } from "@/components/settings/settings-page";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Home from "@/app/(marketing)/page";
+import { Hero } from "@/components/marketing/hero";
+import { HomeBody } from "@/components/marketing/home-body";
 import { SAMPLE_JD, SAMPLE_RESUME } from "@/lib/ats/sample";
 import { a11yViolations } from "@/test/axe";
 
@@ -210,7 +211,7 @@ describe("accessibility (axe)", () => {
   });
 
   it("homepage", async () => {
-    const { container } = renderPage(<Home />);
+    const { container } = renderPage(<HomeBody hero={<Hero jobs={[]} />} />);
     await clean(container);
   });
 

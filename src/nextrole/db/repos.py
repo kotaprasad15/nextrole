@@ -139,6 +139,40 @@ def add_pinned_match(conn: sqlite3.Connection, user_id: int, match: MatchResult)
     conn.commit()
 
 
+def list_featured_jobs(conn: sqlite3.Connection, limit: int = 3) -> list[tuple[Job, str | None]]:
+    """Real postings for the PUBLIC homepage: recent, connector-sourced, one per company.
+
+    Privacy: only the shared `jobs` cache is read (never `matches`, so no user id or score), and
+    user-pasted jobs are excluded. Tier comes from the shared tier cache when known, else None.
+    Picks different tiers first so the sample is varied.
+    """
+    rows = conn.execute(
+        """SELECT j.company_key, j.job_json, t.tier
+           FROM jobs j LEFT JOIN company_tiers t ON t.company_key = j.company_key
+           ORDER BY j.fetched_at DESC, j.rowid DESC LIMIT 300"""
+    ).fetchall()
+    seen: set[str] = set()
+    candidates: list[tuple[Job, str | None]] = []
+    for r in rows:
+        if r["company_key"] in seen:
+            continue
+        job = Job.model_validate_json(r["job_json"])  # re-runs the https validation on read
+        if job.source == "pasted" or job.apply_url is None or not job.is_open:
+            continue
+        seen.add(r["company_key"])
+        candidates.append((job, r["tier"]))
+    picked: list[tuple[Job, str | None]] = []
+    tiers_used: set[str] = set()
+    for c in candidates:  # first pass: one per KNOWN tier, so the sample is varied
+        if c[1] is not None and c[1] not in tiers_used and len(picked) < limit:
+            tiers_used.add(c[1])
+            picked.append(c)
+    for c in candidates:  # second pass: fill up (including companies whose tier is not known yet)
+        if c not in picked and len(picked) < limit:
+            picked.append(c)
+    return picked
+
+
 def list_matches(conn: sqlite3.Connection, user_id: int) -> list[tuple[Job, MatchResult, str]]:
     """(job, match, tier) rows, best score first. Jobs are rebuilt through the Job model, so
     the https validation runs again on read."""

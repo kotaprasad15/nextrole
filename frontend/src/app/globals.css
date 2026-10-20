@@ -205,3 +205,165 @@ html.cursor-custom [data-cursor="none"] * {
 html.cursor-custom input[type="range"] {
   cursor: grab;
 }
+
+/* ---- Homepage layout rhythm: ONE vertical padding scale, so no gap can exceed it ---- */
+:root {
+  --nav-h: 4rem; /* header height INCLUDING its 1px border (border-box) */
+  --marquee-h: 3.5rem;
+  /* 40px on phones, ~5vw on laptops, capped at 96px: at 1440 wide it is 72px, at 1920 it is 96px */
+  --section-y: clamp(2.5rem, 5vw, 6rem);
+  --glass-bg: rgb(255 255 255 / 0.66);
+  --glass-border: rgb(255 255 255 / 0.55);
+}
+
+/* ---- No native scrollbar (site-wide). Wheel, touch and keyboard scrolling are unaffected. ---- */
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Glass surface: translucent white over colour, with a solid-ish fallback ---- */
+@layer utilities {
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.65), 0 0 0 1px rgb(20 22 26 / 0.04), var(--shadow-2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      background: rgb(255 255 255 / 0.94);
+    }
+  }
+}
+
+/* ---- App pages: a 2px scroll-progress line (CSS scroll-driven animation, no JS) replaces the scrollbar's cue ---- */
+.app-progress {
+  display: none;
+}
+@supports (animation-timeline: scroll()) {
+  .app-progress {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 45;
+    height: 2px;
+    background: var(--color-primary);
+    transform-origin: left center;
+    transform: scaleX(0);
+    pointer-events: none;
+    animation: app-progress-grow linear both;
+    animation-timeline: scroll(root);
+    animation-duration: auto !important; /* a scroll timeline ignores time; keep reduced-motion rules from breaking it */
+  }
+  @keyframes app-progress-grow {
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
+/* ---- Homepage hero + marquee + backdrop ---- */
+.hero-fill {
+  /* The hero plus the marquee under it fill the first screen exactly; svh so mobile browser chrome does not jump it. */
+  min-height: calc(100svh - var(--nav-h) - var(--marquee-h));
+}
+
+@keyframes marquee-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-track {
+  animation: marquee-scroll 55s linear infinite;
+}
+.marquee[data-paused="true"] .marquee-track,
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes grid-shimmer { 0%, 100% { opacity: 0.045; } 50% { opacity: 0.085; } }
+@keyframes chip-float { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -10px, 0); } }
+
+/* Floating chips also drift at different depths as the page scrolls (CSS scroll-driven; no JS). */
+@supports (animation-timeline: scroll()) {
+  .chip-drift {
+    animation: chip-drift linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100svh;
+    animation-duration: auto !important;
+  }
+  @keyframes chip-drift {
+    to { transform: translate3d(0, var(--dy, -60px), 0); }
+  }
+}
+
+/* Primary CTA: a conic-gradient border that rotates (the angle is a registered property so it can animate). */
+@property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes spin-angle { to { --angle: 360deg; } }
+.fx-border {
+  --angle: 0deg; /* fallback where @property is unsupported: a static gradient border */
+  /* Gradient-border trick: the solid fill is clipped to the padding box, the rotating conic gradient shows
+     through the transparent 2px border. (A pseudo-element behind the button would paint OVER its own
+     background, because the button forms the stacking context.) */
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--color-primary), var(--color-primary)) padding-box,
+    conic-gradient(from var(--angle), var(--color-startup), var(--color-mid), var(--color-primary), var(--color-startup)) border-box;
+  animation: spin-angle 4s linear infinite;
+}
+.fx-border:hover {
+  background:
+    linear-gradient(var(--color-primary-hover), var(--color-primary-hover)) padding-box,
+    conic-gradient(from var(--angle), var(--color-startup), var(--color-mid), var(--color-primary), var(--color-startup)) border-box;
+}
+
+/* Secondary CTA: top and bottom edges draw themselves in from opposite sides on hover (transform only). */
+.fx-outline::before,
+.fx-outline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fx-outline::before { top: 0; transform-origin: left center; }
+.fx-outline::after { bottom: 0; transform-origin: right center; }
+.fx-outline:hover::before,
+.fx-outline:hover::after,
+.fx-outline:focus-visible::before,
+.fx-outline:focus-visible::after { transform: scaleX(1); }
+
+/* One container width for the whole homepage (header, hero, scenes, FAQ, footer) so edges line up at every size. */
+@layer utilities {
+  .marketing-container {
+    width: 100%;
+    max-width: 85rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 768px) {
+    .marketing-container {
+      padding-inline: 2rem;
+    }
+  }
+}
+
+/* Story scenes: compact by default; a viewport-tall pinned stage only where the pin runs. */
+.scene {
+  padding-bottom: var(--section-y);
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduced"]) .scene {
+    min-height: 100svh;
+    padding-top: var(--nav-h);
+    padding-bottom: 0;
+  }
+}

@@ -30,8 +30,10 @@ export function SceneAgents() {
       step="2. A small team of agents"
       title="Each agent has one job, and an orchestrator keeps them in line."
       flip
+      accent="mid"
+      points={["Plans each run and stops at cost or step limits", "Keeps whatever finished if a step fails", "Every step is visible on the Activity page"]}
       visual={
-        <div className="relative mx-auto aspect-square w-full max-w-md">
+        <div className="relative aspect-square h-full max-h-[36rem] w-full max-w-[36rem]">
           <svg aria-hidden viewBox="0 0 100 100" className="absolute inset-0 size-full">
             {AGENTS.map((a, i) => {
               const p = place(i);
@@ -40,7 +42,7 @@ export function SceneAgents() {
               );
             })}
           </svg>
-          <div data-el="hub" className="absolute left-1/2 top-1/2 grid size-24 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-primary/30 bg-primary-tint text-center shadow-2">
+          <div data-el="hub" className="absolute left-1/2 top-1/2 grid size-28 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-primary/30 bg-primary-tint text-center shadow-2 sm:size-32">
             <span className="text-small font-semibold text-primary">Orchestrator</span>
           </div>
           {AGENTS.map((a, i) => {
@@ -53,7 +55,7 @@ export function SceneAgents() {
                     data-el="node"
                     data-cursor="link"
                     aria-label={`${a.name}: ${a.text}`}
-                    className="relative grid h-14 w-24 place-items-center rounded-control border border-border bg-surface px-2 text-small font-semibold shadow-2 transition-shadow hover:shadow-3 sm:h-16 sm:w-28"
+                    className="relative grid h-14 w-24 place-items-center rounded-control border border-border bg-surface px-2 text-small font-semibold shadow-2 transition-shadow hover:shadow-3 sm:h-[4.25rem] sm:w-32 sm:text-body"
                   >
                     {a.name}
                     <span data-el="status" aria-hidden className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-surface bg-success" />

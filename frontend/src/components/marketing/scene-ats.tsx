@@ -10,29 +10,39 @@ export function SceneAts() {
       id="ats"
       step="5. Check your resume"
       title="See which keywords a filter would catch, and which it would miss."
+      accent="mid"
+      points={["Keywords, sections and formatting checked", "Runs in your browser: nothing is uploaded", "Only ever suggests skills you really have"]}
       visual={
-        <div aria-hidden className="mx-auto flex max-w-md flex-col items-center gap-6 rounded-card border border-border bg-surface p-6 shadow-3">
-          <div className="relative size-36">
+        <div aria-hidden className="flex w-full max-w-xl flex-col items-center gap-8 rounded-card border border-border bg-surface p-8 shadow-3">
+          <div className="relative size-48">
             <svg viewBox="0 0 120 120" className="size-full -rotate-90">
               <circle cx="60" cy="60" r={RING_R} fill="none" stroke="var(--color-border)" strokeWidth="10" />
               <circle data-el="ring" cx="60" cy="60" r={RING_R} fill="none" stroke="var(--color-success)" strokeWidth="10" strokeLinecap="round" strokeDasharray={RING_C} strokeDashoffset={RING_C * (1 - ATS_TO / 100)} />
             </svg>
             <div className="absolute inset-0 grid place-items-center text-center">
               <div>
-                <p data-el="ats-score" className="font-display text-display-lg leading-none tabular-nums">{ATS_TO}</p>
+                <p data-el="ats-score" className="font-display text-display-xl leading-none tabular-nums">{ATS_TO}</p>
                 <p className="text-caption text-muted">of 100</p>
               </div>
             </div>
           </div>
-          <ul className="flex flex-wrap justify-center gap-2">
+          <ul className="flex flex-wrap justify-center gap-2.5">
             {KEYWORDS.map((k, i) => (
               <li key={k} data-el="kw" className="relative">
                 {/* Two stacked states: "missing" fades out and "found" fades in as the score climbs. */}
-                <span data-el="kw-missing" className="absolute inset-0 grid place-items-center rounded-full border border-warning/40 bg-warning-tint px-3 py-1 text-small text-warning-ink opacity-0">{k}</span>
-                <span data-el="kw-found" data-i={i} className="inline-block rounded-full border border-success/30 bg-success-tint px-3 py-1 text-small text-success-ink">{k}</span>
+                <span data-el="kw-missing" className="absolute inset-0 grid place-items-center rounded-full border border-warning/40 bg-warning-tint px-4 py-1.5 text-body text-warning-ink opacity-0">{k}</span>
+                <span data-el="kw-found" data-i={i} className="inline-block rounded-full border border-success/30 bg-success-tint px-4 py-1.5 text-body text-success-ink">{k}</span>
               </li>
             ))}
           </ul>
+          <dl className="w-full max-w-sm space-y-3">
+            {[["Keyword match", 80], ["Sections present", 100], ["Formatting", 95]].map(([label, v]) => (
+              <div key={label}>
+                <div className="flex justify-between text-small"><dt className="font-medium">{label}</dt><dd className="tabular-nums text-muted">{v}</dd></div>
+                <div className="mt-1 h-2 overflow-hidden rounded-full bg-ink/[0.07]"><div className="h-full origin-left rounded-full bg-primary" style={{ width: `${v}%` }} /></div>
+              </div>
+            ))}
+          </dl>
           <p className="text-caption text-muted">Sample resume and posting, for illustration.</p>
         </div>
       }

@@ -157,7 +157,24 @@ describe("Tilt", () => {
     expect(Math.abs(Number(m[1]))).toBeLessThanOrEqual(4);
     fireEvent.pointerLeave(el);
     await act(async () => void (await new Promise((r) => setTimeout(r, 5))));
-    expect(el.style.transform).toContain("rotateX(0deg) rotateY(0deg)");
+    expect(el.style.transform).toMatch(/translateY\(0px\) rotateX\(0(\.00)?deg\) rotateY\(0(\.00)?deg\)/);
+  });
+
+  it("with glare and lift: a highlight follows the pointer and the card rises only while hovered", async () => {
+    const { container } = render(<Tilt glare lift={4}><p>child</p></Tilt>);
+    const el = screen.getByText("child").parentElement!;
+    el.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 100, right: 200, bottom: 100, x: 0, y: 0, toJSON: () => ({}) });
+    const shine = container.querySelector<HTMLElement>("span span")!;
+    fireEvent.pointerEnter(el, { pointerType: "mouse" });
+    fireEvent.pointerMove(el, { clientX: 100, clientY: 50, pointerType: "mouse" });
+    await act(async () => void (await new Promise((r) => setTimeout(r, 5))));
+    expect(el.style.transform).toContain("translateY(-4px)");
+    expect(shine.style.opacity).toBe("1");
+    expect(shine.style.transform).toBe("translate3d(40px, -10px, 0)"); // pointer minus 30% of the width
+    fireEvent.pointerLeave(el);
+    await act(async () => void (await new Promise((r) => setTimeout(r, 5))));
+    expect(el.style.transform).toContain("translateY(0px)");
+    expect(shine.style.opacity).toBe("0");
   });
 
   it("ignores touch pointers", async () => {

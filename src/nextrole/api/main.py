@@ -5,7 +5,7 @@ from collections.abc import Callable
 import httpx
 from fastapi import FastAPI
 
-from nextrole.api.routers import auth, outreach, profile, recommendations, runs
+from nextrole.api.routers import auth, outreach, profile, public, recommendations, runs
 from nextrole.config import Settings, get_settings
 from nextrole.db import repos
 from nextrole.db.connection import connect
@@ -46,6 +46,7 @@ def create_app(
     app.include_router(recommendations.router)
     app.include_router(outreach.router)
     app.include_router(runs.router)
+    app.include_router(public.router)
 
     @app.get("/health")
     def health() -> dict:

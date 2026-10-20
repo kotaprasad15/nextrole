@@ -101,3 +101,41 @@ describe("token contrast (WCAG AA)", () => {
     expect(over(token("startup"), "#ffffff", 0.1)).toBe(token("startup-tint"));
   });
 });
+
+describe("homepage backdrop and glass keep text readable (WCAG AA)", async () => {
+  const { WORST_CASE_LAYERS, ORBS, BLOBS } = await import("./marketing/backdrop");
+  const glassAlpha = Number(css.match(/--glass-bg:\s*rgb\(255 255 255 \/ ([\d.]+)\)/)![1]);
+  // Composite EVERY backdrop layer over the page background: the worst place a word can ever sit.
+  const worst = WORST_CASE_LAYERS.reduce((under, [name, alpha]) => over(token(name), under, alpha), bg());
+  const glassOnWorst = over("#ffffff", worst, glassAlpha);
+
+  it("the backdrop layers are light (their combined wash is a tint, not a colour)", () => {
+    for (const o of ORBS) expect(o.alpha).toBeLessThanOrEqual(0.1);
+    for (const b of BLOBS) expect(Math.max(b.fromAlpha, b.toAlpha)).toBeLessThanOrEqual(0.1);
+  });
+
+  it("hero text colours are readable on the worst-case stack of every layer", () => {
+    for (const [label, fg] of [["ink", token("ink")], ["primary-hover (eyebrow)", token("primary-hover")]] as const) {
+      expect(contrast(fg, worst), `${label} on ${worst}`).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+    // text-ink/75 (hero paragraph) and text-ink/85 (trust row, bullets) are translucent ink: blend before measuring
+    for (const a of [0.75, 0.85]) expect(contrast(over(token("ink"), worst, a), worst), `ink/${a * 100}`).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
+  it("text on glass cards and chips is readable over the worst-case stack", () => {
+    for (const [label, fg] of [["ink", token("ink")], ["muted", token("muted")], ["startup-ink", token("startup-ink")], ["mid-ink", token("mid-ink")], ["mnc-ink", token("mnc-ink")]] as const) {
+      expect(contrast(fg, glassOnWorst), `${label} on glass ${glassOnWorst}`).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+    expect(contrast(over(token("ink"), glassOnWorst, 0.85), glassOnWorst)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
+  it("the hero's secondary copy is not plain muted text (muted is only guaranteed on flat surfaces)", () => {
+    const hero = readFileSync(path.resolve(__dirname, "../components/marketing/hero.tsx"), "utf-8");
+    expect(hero).not.toMatch(/text-muted/);
+  });
+
+  it("the glass is translucent enough to refract but still a surface", () => {
+    expect(glassAlpha).toBeGreaterThanOrEqual(0.55);
+    expect(glassAlpha).toBeLessThanOrEqual(0.9);
+  });
+});

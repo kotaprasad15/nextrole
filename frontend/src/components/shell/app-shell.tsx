@@ -18,6 +18,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <>
       <SkipLink />
+      <div aria-hidden className="app-progress" />
       {/* usePathname (active link) needs a Suspense boundary under Cache Components; the fallback
           has the same height so nothing shifts when the real nav streams in. */}
       <Suspense fallback={<NavFallback />}>

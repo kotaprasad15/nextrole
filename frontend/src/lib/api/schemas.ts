@@ -164,3 +164,16 @@ export interface StartRunBody {
 // ---- auth ----
 export const MeSchema = z.object({ email: z.string() });
 export type Me = z.infer<typeof MeSchema>;
+
+// ---- public (no login): real postings for the homepage hero ----
+export const FeaturedJobSchema = z.object({
+  title: z.string(),
+  company: z.string(),
+  location: z.string(),
+  remote: z.boolean(),
+  tier: TierSchema.nullable(),
+  source: z.string(),
+  /** From the source API (https), rendered verbatim; the UI refuses anything else. */
+  apply_url: z.string().startsWith("https://"),
+});
+export type FeaturedJob = z.infer<typeof FeaturedJobSchema>;

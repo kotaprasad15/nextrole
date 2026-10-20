@@ -4,3 +4,15 @@ export const ATS_FROM = 41;
 export const ATS_TO = 87;
 export const RING_R = 52;
 export const RING_C = 2 * Math.PI * RING_R;
+
+/** Homepage section names, shared by the server-rendered sections (data-section) and the client scroll tracker. */
+export const HOME_SECTIONS = {
+  intro: "Intro",
+  resume: "Resume",
+  agents: "Agents",
+  jobs: "Jobs",
+  outreach: "Outreach",
+  ats: "ATS check",
+  faq: "FAQ",
+  start: "Get started",
+} as const;
