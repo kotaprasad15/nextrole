@@ -48,6 +48,8 @@ export function toggleSavedJob(id: string) {
   write(next);
 }
 
+export const clearSavedJobs = () => write(EMPTY);
+
 function subscribe(l: () => void) {
   listeners.add(l);
   window.addEventListener("storage", l);

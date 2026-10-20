@@ -2,6 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
+import { Cursor } from "@/components/ui/cursor";
+import { DisplayPrefsEffect } from "@/components/display-prefs-effect";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ApiError } from "@/lib/api/client";
@@ -19,7 +21,7 @@ function makeQueryClient() {
   });
 }
 
-/** App-wide client providers: server-state cache, tooltips, toasts. */
+/** App-wide client providers: server-state cache, tooltips, toasts, the custom cursor and display preferences. */
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(makeQueryClient);
   return (
@@ -27,6 +29,8 @@ export function Providers({ children }: { children: ReactNode }) {
       <TooltipProvider>
         {children}
         <Toaster />
+        <Cursor />
+        <DisplayPrefsEffect />
       </TooltipProvider>
     </QueryClientProvider>
   );

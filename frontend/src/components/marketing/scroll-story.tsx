@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { useDisplayPrefs } from "@/lib/local/display-prefs";
 import { TIMELINES } from "@/lib/marketing/timelines";
 
 /**
@@ -17,8 +18,11 @@ import { TIMELINES } from "@/lib/marketing/timelines";
 export function ScrollStory({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
+  // "Always reduce motion" in Settings turns the whole motion layer off (the OS setting is handled by the media queries below).
+  const reduceByChoice = useDisplayPrefs().prefs.motion === "reduced";
 
   useEffect(() => {
+    if (reduceByChoice) return;
     let cancelled = false;
     let teardown: (() => void) | undefined;
 
@@ -83,7 +87,7 @@ export function ScrollStory({ children }: { children: ReactNode }) {
       cancelled = true;
       teardown?.();
     };
-  }, []);
+  }, [reduceByChoice]);
 
   return (
     <div ref={root}>

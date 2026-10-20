@@ -113,6 +113,8 @@ export function untrackJob(id: string) {
   write(read().filter((j) => j.id !== id));
 }
 
+export const clearTracker = () => write(NONE);
+
 function subscribe(l: () => void) {
   listeners.add(l);
   window.addEventListener("storage", l);

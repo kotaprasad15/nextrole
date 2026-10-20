@@ -76,6 +76,8 @@ export function clearVersions(jobId: string) {
   save(rest);
 }
 
+export const clearAllVersions = () => save({});
+
 function subscribe(l: () => void) {
   listeners.add(l);
   window.addEventListener("storage", l);
