@@ -39,3 +39,8 @@ export function useOutreachList() {
 export function useRuns(options: { refetchInterval?: number | false } = {}) {
   return useQuery({ queryKey: keys.runs, queryFn: api.runs, ...options });
 }
+
+/** The draft for one job. A 404 means "no draft yet" (not an error the user needs to see). */
+export function useDraft(jobId: string) {
+  return useQuery({ queryKey: keys.outreachByJob(jobId), queryFn: () => api.outreachByJob(jobId) });
+}
