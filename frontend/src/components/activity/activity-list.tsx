@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented } from "@/components/ui/segmented";
 import { useRuns } from "@/lib/api/queries";
 import type { RunMode } from "@/lib/api/schemas";
 import { MODE_LABEL, formatCost, formatDuration, runDurationMs } from "@/lib/activity/trace";
@@ -22,7 +22,7 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
     <Card className="!p-4">
       <dt className="text-caption text-muted">{label}</dt>
       <dd className="mt-1 font-display text-display-lg tabular-nums leading-none">{value}</dd>
-      {hint && <p className="mt-1.5 text-caption text-muted">{hint}</p>}
+      {hint && <dd className="mt-1.5 text-caption text-muted">{hint}</dd>}
     </Card>
   );
 }
@@ -73,13 +73,12 @@ export function ActivityList() {
       </dl>
 
       <div className="flex flex-col gap-5">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-          <TabsList aria-label="Filter runs by type">
-            {FILTERS.map((f) => (
-              <TabsTrigger key={f} value={f}>{f === "all" ? "All" : MODE_LABEL[f]} <span className="tabular-nums text-muted">({count(f)})</span></TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <Segmented
+          label="Filter runs by type"
+          value={filter}
+          onValueChange={setFilter}
+          options={FILTERS.map((f) => ({ value: f, label: <>{f === "all" ? "All" : MODE_LABEL[f]} <span className="tabular-nums text-muted">({count(f)})</span></> }))}
+        />
 
         {rows.length === 0 ? (
           <p role="status" className="text-small text-muted">No runs of this type yet.</p>

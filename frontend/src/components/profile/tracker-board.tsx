@@ -43,9 +43,9 @@ function TrackerCard({ item, onMove, onRemove }: { item: BoardItem; onMove: (s: 
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           {item.tier && <TierBadge tier={item.tier} short />}
-          <h4 className="mt-1.5 text-small font-semibold leading-snug">
+          <h3 className="mt-1.5 text-small font-semibold leading-snug">
             {item.live ? <Link href={`/jobs/${encodeURIComponent(item.id)}`} className="hover:underline">{item.title}</Link> : item.title}
-          </h4>
+          </h3>
           {item.company && <p className="text-caption text-muted">{item.company}</p>}
         </div>
         <DropdownMenu>
@@ -132,9 +132,9 @@ export function TrackerBoard() {
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {STATUSES.map((s) => (
           <section key={s} aria-labelledby={`col-${s}`} className="rounded-card bg-ink/[0.03] p-3">
-            <h3 id={`col-${s}`} className="px-1 text-small font-semibold">
+            <h2 id={`col-${s}`} className="px-1 text-small font-semibold">
               {STATUS_LABEL[s]} <span className="tabular-nums font-normal text-muted">({board[s].length})</span>
-            </h3>
+            </h2>
             <p className="px-1 text-caption text-muted">{HINT[s]}</p>
             <ul className="mt-3 flex flex-col gap-3">
               {board[s].map((item) => (

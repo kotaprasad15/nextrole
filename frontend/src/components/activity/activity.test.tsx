@@ -48,7 +48,7 @@ describe("ActivityList", () => {
     const user = userEvent.setup();
     wrap(<ActivityList />);
     await screen.findByText("Finished successfully");
-    await user.click(screen.getByRole("tab", { name: /Pasted job \(1\)/ }));
+    await user.click(screen.getByRole("radio", { name: /Pasted job \(1\)/ }));
     expect(screen.getByRole("link", { name: "Pasted job" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Write outreach" })).not.toBeInTheDocument();
   });

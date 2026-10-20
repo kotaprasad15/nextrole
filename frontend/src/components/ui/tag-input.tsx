@@ -75,7 +75,7 @@ export function TagInput({ value, onChange, max = 20, suggestions = [], noun = "
             commit(draft);
             props.onBlur?.(e);
           }}
-          className="min-w-32 flex-1 bg-transparent px-1.5 py-1 text-body text-ink outline-none placeholder:text-muted/80 disabled:cursor-not-allowed"
+          className="min-w-32 flex-1 bg-transparent px-1.5 py-1 text-body text-ink outline-none placeholder:text-muted disabled:cursor-not-allowed"
         />
       </div>
       {open.length > 0 && !full && (

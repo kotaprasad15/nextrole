@@ -17,13 +17,13 @@ function KeywordGroup({ title, items, tone }: { title: string; items: KeywordRes
   if (!items.length) return null;
   return (
     <div>
-      <h4 className="text-small font-semibold">{title}</h4>
+      <h3 className="text-small font-semibold">{title}</h3>
       <ul className="mt-2 flex flex-wrap gap-1.5">
         {items.map((k) => (
           <li key={k.term}>
             <Chip tone={tone}>
               {k.display}
-              {k.importance !== "general" && <span className="text-caption opacity-80"> · {k.importance === "required" ? "required" : "preferred"}</span>}
+              {k.importance !== "general" && <span className="text-caption"> · {k.importance === "required" ? "required" : "preferred"}</span>}
             </Chip>
           </li>
         ))}
@@ -136,7 +136,7 @@ export function AtsResults({ result, headingRef }: { result: AtsResult; headingR
           <div className="mt-4 grid gap-5 md:grid-cols-2">
             {r.suggestions.map((s, idx) => (
               <div key={`${s.section}-${idx}`}>
-                <h4 className="text-small font-semibold text-primary">{s.section}</h4>
+                <h3 className="text-small font-semibold text-primary">{s.section}</h3>
                 <ul className="mt-1.5 list-disc pl-5 text-small text-ink/85">
                   {s.tips.map((t) => <li key={t} className="mt-1">{t}</li>)}
                 </ul>

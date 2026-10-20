@@ -23,7 +23,7 @@ export function EmptyState({
       )}
     >
       {icon && <div className="grid size-12 place-items-center rounded-full bg-primary-tint text-primary [&_svg]:size-6">{icon}</div>}
-      <h3 className="text-h3 font-semibold tracking-tight">{title}</h3>
+      <h2 className="text-h3 font-semibold tracking-tight">{title}</h2>
       {description && <p className="max-w-md text-small text-muted">{description}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>

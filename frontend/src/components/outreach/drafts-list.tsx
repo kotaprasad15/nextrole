@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented } from "@/components/ui/segmented";
 import { TierBadge } from "@/components/ui/badge";
 import { useOutreachList, useRecommendations } from "@/lib/api/queries";
 import type { OutreachStatus } from "@/lib/api/schemas";
@@ -59,13 +59,12 @@ export function DraftsList() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-        <TabsList aria-label="Filter drafts by status">
-          {FILTERS.map((f) => (
-            <TabsTrigger key={f.value} value={f.value}>{f.label} <span className="tabular-nums text-muted">({count(f.value)})</span></TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <Segmented
+        label="Filter drafts by status"
+        value={filter}
+        onValueChange={setFilter}
+        options={FILTERS.map((f) => ({ value: f.value, label: <>{f.label} <span className="tabular-nums text-muted">({count(f.value)})</span></> }))}
+      />
 
       {rows.length === 0 ? (
         <p className="text-small text-muted" role="status">No drafts with this status.</p>

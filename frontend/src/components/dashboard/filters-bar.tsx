@@ -38,7 +38,7 @@ export function FiltersBar({ value, onChange, shown, total }: { value: Filters; 
             placeholder="Search title, company or place"
             value={value.query}
             onChange={(e) => set("query", e.target.value)}
-            className="h-10 w-full rounded-full border border-border-strong bg-surface pl-10 pr-4 text-small transition-[border-color,box-shadow] placeholder:text-muted/80 hover:border-ink/40 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15"
+            className="h-10 w-full rounded-full border border-border-strong bg-surface pl-10 pr-4 text-small transition-[border-color,box-shadow] placeholder:text-muted hover:border-ink/40 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15"
           />
         </div>
         <Toggle pressed={value.remoteOnly} onClick={() => set("remoteOnly", !value.remoteOnly)}>Remote only</Toggle>

@@ -20,7 +20,7 @@ export function FactsList({ facts }: { facts: Fact[] }) {
         if (!items.length) return null;
         return (
           <div key={source}>
-            <h4 className="text-small font-semibold">{title}</h4>
+            <h3 className="text-small font-semibold">{title}</h3>
             <ul className="mt-1.5 flex flex-col gap-1.5">
               {items.map((f) => {
                 const href = safeSource(f.source_ref);

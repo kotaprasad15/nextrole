@@ -14,7 +14,7 @@ import { cn } from "@/lib/cn";
 
 const control =
   "w-full rounded-control border border-border-strong bg-surface px-3.5 text-body text-ink " +
-  "placeholder:text-muted/80 transition-[border-color,box-shadow] duration-150 " +
+  "placeholder:text-muted transition-[border-color,box-shadow] duration-150 " +
   "hover:border-ink/40 focus-visible:border-primary focus-visible:outline-none " +
   "focus-visible:ring-4 focus-visible:ring-primary/15 disabled:opacity-50 " +
   "aria-[invalid=true]:border-danger aria-[invalid=true]:focus-visible:ring-danger/15";

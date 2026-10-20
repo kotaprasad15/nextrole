@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState, type FormEvent } from "react";
+import { Suspense, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -29,9 +29,19 @@ const COPY = {
  * new accounts go to onboarding; returning users go to where they were headed, or to onboarding
  * if they never finished it.
  */
+/** The return path is read when it is needed (on submit), not during render: reading it through
+ * useSearchParams would make the whole form client-rendered and delay first paint until JS runs. */
+const nextParam = () => new URLSearchParams(window.location.search).get("next");
+
+/** "Create an account" / "Log in" link that carries ?next= along. Only THIS link waits for the URL;
+ * until it is known the plain link is shown, so the form itself is server-rendered. */
+function AltLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const next = useSearchParams().get("next");
+  return <Link href={{ pathname: href, query: next ? { next } : undefined }} className="link-underline font-medium text-primary">{children}</Link>;
+}
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
-  const params = useSearchParams();
   const qc = useQueryClient();
   const c = COPY[mode];
   const schema = mode === "login" ? loginSchema : signupSchema;
@@ -53,10 +63,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
     mutationFn: () => (mode === "login" ? api.login(values.email.trim(), values.password) : api.signup(values.email.trim(), values.password)),
     onSuccess: async () => {
       qc.clear();
-      if (mode === "signup") return router.replace(safeNext(params.get("next"), "/onboarding"));
+      if (mode === "signup") return router.replace(safeNext(nextParam(), "/onboarding"));
       // Returning user: if they never completed onboarding, finish that first.
       const hasProfile = await api.profile().then(() => true, (e) => !(e instanceof ApiError && e.status === 404));
-      router.replace(hasProfile ? safeNext(params.get("next")) : "/onboarding");
+      router.replace(hasProfile ? safeNext(nextParam()) : "/onboarding");
     },
     onError: (err) => {
       const mapped = mapAuthError(mode, err);
@@ -138,9 +148,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       <p className="mt-6 text-center text-small text-muted">
         {c.altText}{" "}
-        <Link href={{ pathname: c.altHref, query: params.get("next") ? { next: params.get("next") } : undefined }} className="link-underline font-medium text-primary">
-          {c.altLink}
-        </Link>
+        <Suspense fallback={<Link href={c.altHref} className="link-underline font-medium text-primary">{c.altLink}</Link>}>
+          <AltLink href={c.altHref}>{c.altLink}</AltLink>
+        </Suspense>
       </p>
 
       <p className="mt-8 flex items-start gap-2 rounded-control border border-border bg-surface px-3.5 py-3 text-caption text-muted">

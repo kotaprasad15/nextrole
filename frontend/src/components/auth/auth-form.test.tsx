@@ -30,6 +30,7 @@ function renderForm(mode: "login" | "signup") {
 beforeEach(() => {
   vi.clearAllMocks();
   search = "";
+  window.history.pushState({}, "", "/");
 });
 
 describe("AuthForm", () => {
@@ -87,7 +88,7 @@ describe("AuthForm", () => {
   });
 
   it("logs a returning user in to where they were headed", async () => {
-    search = "next=%2Foutreach";
+    window.history.pushState({}, "", "/login?next=%2Foutreach"); // read at submit time, not render time
     login.mockResolvedValue({ email: "a@b.co" });
     profile.mockResolvedValue({});
     const user = userEvent.setup();

@@ -34,8 +34,9 @@ export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return <div className={cn("mb-4 flex flex-col gap-1", className)} {...props} />;
 }
 
-export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-h3 font-semibold tracking-tight", className)} {...props} />;
+/** Heading level follows the document outline: h2 under the page title, pass `as="h3"` inside an h2 section. */
+export function CardTitle({ className, as: Tag = "h2", ...props }: HTMLAttributes<HTMLHeadingElement> & { as?: "h2" | "h3" | "h4" }) {
+  return <Tag className={cn("text-h3 font-semibold tracking-tight", className)} {...props} />;
 }
 
 export function CardDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {

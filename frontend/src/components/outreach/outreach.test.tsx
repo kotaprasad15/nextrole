@@ -75,7 +75,7 @@ describe("OutreachPage", () => {
   it("shows the draft, the reviewer panel and the facts it used (https sources only)", async () => {
     wrap(<OutreachPage jobId="s1" />);
     expect(await screen.findByLabelText("Subject")).toHaveValue("FastAPI work");
-    expect(screen.getByText("Reviewer passed", { selector: "h3, h3 *" })).toBeInTheDocument();
+    expect(screen.getByText("Reviewer passed", { selector: "h2, h2 *" })).toBeInTheDocument();
     expect(screen.getByText("Lumen raised a Series A in 2025")).toBeInTheDocument();
     const sources = screen.getAllByRole("link", { name: /source/ });
     expect(sources.map((a) => a.getAttribute("href"))).toEqual(["https://boards.example.com/lumen/1", "https://news.example.com/lumen"]);
@@ -218,8 +218,8 @@ describe("DraftsList", () => {
     wrap(<DraftsList />);
     expect(await screen.findByRole("link", { name: "Platform Engineer" })).toHaveAttribute("href", "/jobs/s1/outreach");
     expect(screen.getByRole("link", { name: /no longer in your matches/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /All \(2\)/ })).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: /Approved \(1\)/ }));
+    expect(screen.getByRole("radio", { name: /All \(2\)/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("radio", { name: /Approved \(1\)/ }));
     expect(screen.queryByRole("link", { name: "Platform Engineer" })).not.toBeInTheDocument();
   });
 

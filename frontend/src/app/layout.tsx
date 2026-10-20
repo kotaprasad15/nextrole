@@ -4,7 +4,8 @@ import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], display: "swap" });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap" });
+// Only the ATS resume box uses the mono face, so it is not preloaded on every page.
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "swap", preload: false });
 // Instrument Serif only ships regular + italic; that is all the design uses.
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",

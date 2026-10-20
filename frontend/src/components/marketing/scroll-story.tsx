@@ -15,6 +15,19 @@ import { TIMELINES } from "@/lib/marketing/timelines";
  * everything down and rebuilds it, and unmounting reverts every tween and trigger. GSAP, ScrollTrigger
  * and Lenis are imported dynamically here, so no other page ever downloads them.
  */
+/** Resolve once the page has loaded and the main thread is idle (or after a short cap). */
+function whenIdle(): Promise<void> {
+  return new Promise((resolve) => {
+    const go = () => {
+      const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+      if (ric) ric(() => resolve(), { timeout: 2500 });
+      else setTimeout(resolve, 200);
+    };
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+  });
+}
+
 export function ScrollStory({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
@@ -27,6 +40,11 @@ export function ScrollStory({ children }: { children: ReactNode }) {
     let teardown: (() => void) | undefined;
 
     (async () => {
+      // The motion layer is not needed to paint or to read the page, so it waits for the browser
+      // to be idle after load. That keeps the ~140 KB of GSAP and ScrollTrigger off the critical path
+      // (first paint, LCP and input delay) and still ready long before anyone scrolls.
+      await whenIdle();
+      if (cancelled) return;
       const [{ gsap }, { ScrollTrigger }, { default: Lenis }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger"), import("lenis")]);
       const scope = root.current;
       if (cancelled || !scope) return;

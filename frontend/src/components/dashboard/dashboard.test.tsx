@@ -46,7 +46,7 @@ describe("Dashboard", () => {
     expect(await screen.findByRole("tab", { name: /Startups \(2\)/ })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Mid-size \(1\)/ })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /MNCs \(0\)/ })).toBeInTheDocument();
-    const cards = screen.getAllByRole("heading", { level: 3, name: /Engineer/ });
+    const cards = screen.getAllByRole("heading", { level: 2, name: /Engineer/ });
     expect(cards.map((c) => c.textContent)).toEqual(["Platform Engineer", "Data Engineer"]);
   });
 

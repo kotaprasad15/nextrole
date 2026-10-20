@@ -47,11 +47,11 @@ export function JobCard({ job, tier, draftStatus, saved, onToggleSave }: Props) 
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="truncate text-small font-medium text-muted">{job.company}</p>
-              <h3 className="mt-0.5 text-h3 font-semibold leading-snug tracking-tight">
+              <h2 className="mt-0.5 text-h3 font-semibold leading-snug tracking-tight">
                 <Link href={`/jobs/${id}`} data-cursor="view" className="rounded-sm after:absolute after:inset-0 after:content-[''] focus-visible:after:rounded-card">
                   {job.title}
                 </Link>
-              </h3>
+              </h2>
               <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted">
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="size-3.5" aria-hidden />

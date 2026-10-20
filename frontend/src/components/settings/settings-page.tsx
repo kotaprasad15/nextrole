@@ -106,16 +106,16 @@ export function SettingsPage() {
         <Section title="Privacy and your data">
           <Card className="flex flex-col gap-5">
             <div>
-              <CardTitle>What is stored on the server (your account)</CardTitle>
+              <CardTitle as="h3">What is stored on the server (your account)</CardTitle>
               <CardDescription className="mt-1">Your profile, your resume file (encrypted), your matches, your outreach drafts and feedback notes, and your run history. Deleting your account removes all of it.</CardDescription>
             </div>
             <div>
-              <CardTitle>What is stored only in this browser</CardTitle>
+              <CardTitle as="h3">What is stored only in this browser</CardTitle>
               <CardDescription className="mt-1">Saved jobs, the application tracker, draft version history and these display settings. They never leave this device and are not backed up.</CardDescription>
               <Button variant="secondary" size="sm" className="mt-3" onClick={() => setConfirm("local")}>Clear data stored in this browser</Button>
             </div>
             <div>
-              <CardTitle>The AI model provider</CardTitle>
+              <CardTitle as="h3">The AI model provider</CardTitle>
               <CardDescription className="mt-1">To build your profile, score jobs and write drafts, your resume text and job postings are sent to the AI model provider this NextRole is set up with. Ask whoever runs your instance which provider that is. Drafts are never sent to anyone for you.</CardDescription>
             </div>
           </Card>

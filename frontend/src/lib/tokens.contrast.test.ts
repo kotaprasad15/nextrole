@@ -46,6 +46,21 @@ describe("token contrast (WCAG AA)", () => {
     }
   });
 
+  it("muted and ink text stay readable on every tinted surface the app puts text on", () => {
+    // Found by Lighthouse: inactive tab labels are muted text on the `bg-ink/5` tab list (4.13:1
+    // with the old muted colour). Page-only checks missed it, so check the common tints too.
+    const tints = [
+      over(token("ink"), bg(), 0.05), // tab lists, segmented controls
+      over(token("ink"), bg(), 0.03), // tracker columns
+      over(token("ink"), surface(), 0.05),
+      ...["primary", "startup", "mid", "mnc", "success", "warning", "danger"].map((n) => token(`${n}-tint`)),
+    ];
+    for (const on of tints) {
+      expect(contrast(token("muted"), on), `muted on ${on}`).toBeGreaterThanOrEqual(AA_TEXT);
+      expect(contrast(token("ink"), on), `ink on ${on}`).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+
   it("primary works as text/link colour and as a button fill with white text", () => {
     expect(contrast(token("primary"), surface())).toBeGreaterThanOrEqual(AA_TEXT);
     expect(contrast(token("primary"), bg())).toBeGreaterThanOrEqual(AA_TEXT);

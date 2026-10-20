@@ -47,9 +47,9 @@ export function SavedJobs() {
                 {it.tier && <TierBadge tier={it.tier} short />}
                 {it.tracked && <Badge tone="primary">{STATUS_LABEL[it.status]}</Badge>}
               </div>
-              <h3 className="mt-2 text-h3 font-semibold tracking-tight">
+              <h2 className="mt-2 text-h3 font-semibold tracking-tight">
                 {it.live ? <Link href={`/jobs/${encodeURIComponent(it.id)}`} className="hover:underline">{it.title}</Link> : it.title}
-              </h3>
+              </h2>
               {it.company && <p className="text-small text-muted">{it.company}</p>}
               {!it.live && <p className="mt-1 text-caption text-muted">This job is no longer in your current matches.</p>}
             </div>

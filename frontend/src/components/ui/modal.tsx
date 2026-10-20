@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { Dialog } from "radix-ui";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
@@ -26,11 +26,30 @@ export function Modal({
   footer?: ReactNode;
   className?: string;
 }) {
+  // Controlled dialogs have no Dialog.Trigger, so remember what had focus when it opened and give
+  // focus back there on close (keyboard users otherwise land on <body> and lose their place).
+  const opener = useRef<HTMLElement | null>(null);
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-[2px] data-[state=open]:animate-[fade-in_180ms_ease-out] data-[state=closed]:animate-[fade-out_140ms_ease-in]" />
         <Dialog.Content
+          onOpenAutoFocus={(e) => {
+            opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            // Start in the first field when there is one (forms), else keep Radix's default.
+            const field = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-autofocus], textarea, input:not([type=hidden]), select");
+            if (field) {
+              e.preventDefault();
+              field.focus();
+            }
+          }}
+          onCloseAutoFocus={(e) => {
+            const back = opener.current;
+            if (back && back.isConnected) {
+              e.preventDefault();
+              back.focus();
+            }
+          }}
           className={cn(
             "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
             "max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-card border border-border bg-surface p-6 shadow-3 focus:outline-none",
