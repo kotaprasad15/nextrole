@@ -27,3 +27,13 @@ if (!("IntersectionObserver" in window)) {
   }
   (window as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IO;
 }
+
+// jsdom lacks ResizeObserver (Radix Switch/Radio size their hidden inputs with it).
+if (!("ResizeObserver" in window)) {
+  class RO {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = RO;
+}

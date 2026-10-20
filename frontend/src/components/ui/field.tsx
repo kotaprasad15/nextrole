@@ -5,11 +5,10 @@ import {
   cloneElement,
   isValidElement,
   useId,
-  type InputHTMLAttributes,
+  type ComponentProps,
   type ReactElement,
   type ReactNode,
   type SelectHTMLAttributes,
-  type TextareaHTMLAttributes,
 } from "react";
 import { cn } from "@/lib/cn";
 
@@ -20,11 +19,12 @@ const control =
   "focus-visible:ring-4 focus-visible:ring-primary/15 disabled:opacity-50 " +
   "aria-[invalid=true]:border-danger aria-[invalid=true]:focus-visible:ring-danger/15";
 
-export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+// ComponentProps (not *HTMLAttributes) so `ref` is accepted: React 19 passes it as a plain prop.
+export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(control, "h-11", className)} {...props} />;
 }
 
-export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
   return <textarea className={cn(control, "min-h-28 py-3 leading-6", className)} {...props} />;
 }
 

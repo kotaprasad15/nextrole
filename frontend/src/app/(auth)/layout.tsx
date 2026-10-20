@@ -1,16 +1,22 @@
 import type { ReactNode } from "react";
+import { AuthShowcase } from "@/components/auth/auth-showcase";
 import { Logo } from "@/components/shell/logo";
 import { SkipLink } from "@/components/shell/skip-link";
 
-// Centered card layout for sign-in and sign-up. (The split-screen version lands in milestone 3.)
+// Split screen on large screens (brand panel + form); a single centered column on small ones.
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <SkipLink />
-      <main id="main" className="page-container flex min-h-screen flex-col items-center justify-center gap-8 py-12">
-        <Logo />
-        <div className="w-full max-w-md">{children}</div>
-      </main>
+      <div className="grid min-h-screen lg:grid-cols-2">
+        <AuthShowcase />
+        <main id="main" className="flex flex-col items-center justify-center gap-8 px-4 py-12 sm:px-8">
+          <div className="lg:hidden">
+            <Logo />
+          </div>
+          <div className="w-full max-w-sm">{children}</div>
+        </main>
+      </div>
     </>
   );
 }

@@ -131,7 +131,7 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
     if (file.size > 5 * 1024 * 1024) return err("file too large (max 5 MB)", 422);
     if (!name.endsWith(".pdf") && !name.endsWith(".docx")) return err("unsupported file type: upload a PDF or DOCX", 422);
     const csv = (k: string) => String(form.get(k) ?? "").split(",").map((x) => x.trim()).filter(Boolean);
-    await sleep(2800); // resume parsing is the slow step in the real app
+    await sleep(2800 * (f.speed ?? 1)); // resume parsing is the slow step in the real app
     const parsed: Profile = {
       ...PROFILE,
       preferences: {

@@ -1,75 +1,152 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
+import { PasswordInput } from "@/components/ui/password-input";
 import { ApiError } from "@/lib/api/client";
 import { api } from "@/lib/api/endpoints";
+import { mapAuthError } from "@/lib/auth-errors";
 import { safeNext } from "@/lib/route-guard";
+import { fieldErrors, loginSchema, signupSchema, type FieldErrors } from "@/lib/validation";
+import { PasswordStrength } from "./password-strength";
 
-/** Functional sign-in / sign-up. Milestone 3 restyles the surrounding page and adds richer validation. */
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+type Mode = "login" | "signup";
+type Errors = FieldErrors<"email" | "password">;
+
+const COPY = {
+  login: { title: "Welcome back", sub: "Log in to see your matches.", cta: "Log in", pending: "Logging in...", altText: "New to NextRole?", altLink: "Create an account", altHref: "/signup" },
+  signup: { title: "Create your account", sub: "Start with your resume. It takes about two minutes.", cta: "Create account", pending: "Creating account...", altText: "Already have an account?", altLink: "Log in", altHref: "/login" },
+} as const;
+
+/**
+ * Sign in / sign up. Validates on blur and on submit (mirroring the backend rules), focuses the
+ * first invalid field, maps server errors onto the right field, and routes the user onward:
+ * new accounts go to onboarding; returning users go to where they were headed, or to onboarding
+ * if they never finished it.
+ */
+export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const params = useSearchParams();
   const qc = useQueryClient();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const c = COPY[mode];
+  const schema = mode === "login" ? loginSchema : signupSchema;
+
+  const [values, setValues] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState<string>();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  const validateField = (name: "email" | "password", next = values) => {
+    const result = schema.safeParse(next);
+    const message = result.success ? undefined : fieldErrors<"email" | "password">(result.error)[name];
+    setErrors((e) => ({ ...e, [name]: message }));
+    return message;
+  };
 
   const submit = useMutation({
-    mutationFn: () => (mode === "login" ? api.login(email.trim(), password) : api.signup(email.trim(), password)),
-    onSuccess: () => {
+    mutationFn: () => (mode === "login" ? api.login(values.email.trim(), values.password) : api.signup(values.email.trim(), values.password)),
+    onSuccess: async () => {
       qc.clear();
-      // New accounts have no profile yet, so they start in onboarding.
-      router.replace(safeNext(params.get("next"), mode === "signup" ? "/onboarding" : "/dashboard"));
+      if (mode === "signup") return router.replace(safeNext(params.get("next"), "/onboarding"));
+      // Returning user: if they never completed onboarding, finish that first.
+      const hasProfile = await api.profile().then(() => true, (e) => !(e instanceof ApiError && e.status === 404));
+      router.replace(hasProfile ? safeNext(params.get("next")) : "/onboarding");
+    },
+    onError: (err) => {
+      const mapped = mapAuthError(mode, err);
+      if (mapped.field) {
+        setErrors((e) => ({ ...e, [mapped.field!]: mapped.message }));
+        (mapped.field === "email" ? emailRef : passwordRef).current?.focus();
+      } else setFormError(mapped.message);
     },
   });
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
+    setFormError(undefined);
+    const result = schema.safeParse(values);
+    if (!result.success) {
+      const errs = fieldErrors<"email" | "password">(result.error);
+      setErrors(errs);
+      (errs.email ? emailRef : passwordRef).current?.focus(); // first invalid field
+      return;
+    }
+    setErrors({});
     submit.mutate();
   };
-  const error = submit.error instanceof ApiError ? submit.error.message : submit.error ? "Something went wrong." : undefined;
-  const isLogin = mode === "login";
 
   return (
-    <Card className="p-7">
-      <h1 className="font-display text-display">{isLogin ? "Welcome back" : "Create your account"}</h1>
-      <p className="mt-2 text-small text-muted">
-        {isLogin ? "Log in to see your matches." : "Start with your resume. It takes about two minutes."}
-      </p>
-      <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
-        <Field label="Email">
-          <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        </Field>
-        <Field label="Password" hint={isLogin ? undefined : "At least 8 characters."}>
+    <div>
+      <h1 className="font-display text-display">{c.title}</h1>
+      <p className="mt-2 text-body text-muted">{c.sub}</p>
+
+      <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-5">
+        <Field label="Email" error={errors.email}>
           <Input
-            type="password"
-            autoComplete={isLogin ? "current-password" : "new-password"}
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            ref={emailRef}
+            type="email"
+            name="email"
+            autoComplete="email"
+            inputMode="email"
+            spellCheck={false}
+            value={values.email}
+            onChange={(e) => {
+              setValues((v) => ({ ...v, email: e.target.value }));
+              if (errors.email) setErrors((er) => ({ ...er, email: undefined }));
+            }}
+            onBlur={() => values.email && validateField("email")}
           />
         </Field>
-        {error && (
-          <p role="alert" className="text-small font-medium text-danger">
-            {error}
+
+        <Field label="Password" error={errors.password} hint={mode === "signup" ? "At least 8 characters." : undefined}>
+          <PasswordInput
+            ref={passwordRef}
+            name="password"
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            value={values.password}
+            onChange={(e) => {
+              setValues((v) => ({ ...v, password: e.target.value }));
+              if (errors.password) setErrors((er) => ({ ...er, password: undefined }));
+            }}
+            onBlur={() => mode === "signup" && values.password && validateField("password")}
+          />
+        </Field>
+        {mode === "signup" && <PasswordStrength password={values.password} />}
+
+        {formError && (
+          <p role="alert" className="rounded-control bg-danger-tint px-3.5 py-3 text-small font-medium text-danger-ink">
+            {formError}
           </p>
         )}
-        <Button type="submit" size="lg" disabled={submit.isPending}>
-          {submit.isPending ? "Please wait..." : isLogin ? "Log in" : "Create account"}
+
+        <Button type="submit" size="lg" disabled={submit.isPending} magnetic>
+          {submit.isPending ? (
+            <>
+              <Loader2 className="size-5 animate-spin" aria-hidden /> {c.pending}
+            </>
+          ) : (
+            c.cta
+          )}
         </Button>
       </form>
+
       <p className="mt-6 text-center text-small text-muted">
-        {isLogin ? "New to NextRole? " : "Already have an account? "}
-        <Link href={isLogin ? "/signup" : "/login"} className="link-underline font-medium text-primary">
-          {isLogin ? "Create an account" : "Log in"}
+        {c.altText}{" "}
+        <Link href={{ pathname: c.altHref, query: params.get("next") ? { next: params.get("next") } : undefined }} className="link-underline font-medium text-primary">
+          {c.altLink}
         </Link>
       </p>
-    </Card>
+
+      <p className="mt-8 flex items-start gap-2 rounded-control border border-border bg-surface px-3.5 py-3 text-caption text-muted">
+        <ShieldCheck className="mt-px size-4 shrink-0 text-success-ink" aria-hidden />
+        Your resume is stored encrypted, and you can delete everything at any time. NextRole never sends a message on your behalf.
+      </p>
+    </div>
   );
 }
