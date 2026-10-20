@@ -33,7 +33,7 @@ export function Modal({
         <Dialog.Content
           className={cn(
             "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
-            "rounded-card border border-border bg-surface p-6 shadow-3 focus:outline-none",
+            "max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-card border border-border bg-surface p-6 shadow-3 focus:outline-none",
             "data-[state=open]:animate-[modal-in_220ms_cubic-bezier(0.22,1,0.36,1)]",
             "data-[state=closed]:animate-[fade-out_140ms_ease-in]",
             className,

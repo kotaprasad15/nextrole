@@ -26,3 +26,16 @@ export function useLogout() {
     onSettled: () => qc.clear(),
   });
 }
+
+export function useRecommendations() {
+  return useQuery({ queryKey: keys.recommendations, queryFn: api.recommendations });
+}
+
+/** One row per draft (id, job, status): enough to badge job cards without loading every draft. */
+export function useOutreachList() {
+  return useQuery({ queryKey: keys.outreach, queryFn: api.outreachList });
+}
+
+export function useRuns(options: { refetchInterval?: number | false } = {}) {
+  return useQuery({ queryKey: keys.runs, queryFn: api.runs, ...options });
+}
