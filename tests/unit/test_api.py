@@ -147,12 +147,12 @@ def test_resubmitting_onboarding_replaces_old_resume_file(ctx):
     assert len(list(ctx.settings.upload_dir.iterdir())) == 1
 
 
-def test_me_and_frontend_served(ctx):
+def test_me_and_api_root(ctx):
     c = ctx.client
     assert c.get("/me").status_code == 401
     signup(c, email="Me@B.co")
     assert c.get("/me").json() == {"email": "me@b.co"}
-    page = c.get("/")
-    assert page.status_code == 200 and "NextRole" in page.text
-    assert c.get("/static/app.js").status_code == 200
-    assert c.get("/static/app.css").status_code == 200
+    # The old bundled UI is gone: / only points at the docs and the Next.js app; nothing is served statically.
+    root = c.get("/")
+    assert root.status_code == 200 and root.json()["docs"] == "/docs"
+    assert c.get("/static/app.js").status_code == 404

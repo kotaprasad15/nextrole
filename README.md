@@ -2,7 +2,7 @@
 
 Agentic job search and outreach: parse a resume, find real openings from legitimate sources (Greenhouse, Lever, Ashby, Adzuna), tier companies (Startup / Mid-size / MNC), explain fit, link to the real application page, and draft a grounded, human-approved outreach message. Built with prompting, tool use and LangGraph orchestration only.
 
-> Status: milestone g (evaluation suite and results). All seven milestones are built; see Evaluation for what is and isn't established. See the roadmap below.
+> Status: milestone g (evaluation suite and results) plus the redesigned Next.js frontend. All seven backend milestones are built; see Evaluation for what is and isn't established. See the roadmap below.
 
 ## Setup
 ```bash
@@ -11,6 +11,22 @@ cp .env.example .env   # add ANTHROPIC_API_KEY
 uv run pytest -q
 uv run python -m nextrole.baseline_demo
 ```
+
+## Run the app
+Two processes: the FastAPI backend and the Next.js frontend (the old UI that FastAPI used to serve has been removed).
+
+```bash
+# 1) backend (needs .env with an LLM key and RESUME_ENCRYPTION_KEY)
+uv run uvicorn nextrole.api.main:app --reload          # http://127.0.0.1:8000 (API docs at /docs)
+
+# 2) frontend
+cd frontend
+cp .env.example .env.local                             # real API by default; BACKEND_URL=http://127.0.0.1:8000
+npm install
+npm run dev -- -p 3100                                 # open http://127.0.0.1:3100
+```
+
+The browser only talks to the Next app, which proxies `/api/*` to the backend, so the session cookie is same-origin and the backend needs no CORS setup. For a production UI use `npm run build && npm start`. To explore the UI with sample data and no backend or model calls, set `NEXT_PUBLIC_API_MODE=mock` in `frontend/.env.local`. Frontend details: [`frontend/README.md`](frontend/README.md).
 
 ## Roadmap
 a. Foundations + baseline (done) · b. Job connectors (done) · c. Auth + resume parsing (done) · d. Tiering, ranking, dashboard (done) · e. Researcher/Writer/Critic (done) · f. Orchestrator, budgets, memory (done) · g. Evaluation (done; three human steps remain, listed under Evaluation)

@@ -1,12 +1,9 @@
 """FastAPI app factory. Run: `uv run uvicorn nextrole.api.main:app --reload`."""
 import sqlite3
 from collections.abc import Callable
-from pathlib import Path
 
 import httpx
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 from nextrole.api.routers import auth, outreach, profile, recommendations, runs
 from nextrole.config import Settings, get_settings
@@ -18,8 +15,6 @@ from nextrole.orchestrator.manager import RunManager
 from nextrole.resume.storage import ResumeStore
 from nextrole.sources.registry import discover as discover_jobs
 from nextrole.tracing.tracer import Tracer
-
-WEB_DIR = Path(__file__).parent.parent / "web"
 
 
 def create_app(
@@ -56,12 +51,10 @@ def create_app(
     def health() -> dict:
         return {"status": "ok"}
 
-    # Frontend: static files served same-origin, so session cookies need no CORS handling.
-    app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
-
     @app.get("/", include_in_schema=False)
-    def index() -> FileResponse:
-        return FileResponse(WEB_DIR / "index.html")
+    def index() -> dict:
+        # The UI is the Next.js app in frontend/ (it proxies /api/* here, so no CORS is needed).
+        return {"service": "NextRole API", "docs": "/docs", "ui": "run the Next.js app in frontend/ (see README)"}
 
     return app
 
