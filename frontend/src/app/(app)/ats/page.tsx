@@ -1,8 +1,18 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/shell/coming-soon";
+import { AtsChecker } from "@/components/ats/ats-checker";
+import { PageHeader } from "@/components/shell/page-header";
 
 export const metadata: Metadata = { title: "ATS check" };
 
 export default function Page() {
-  return <ComingSoon title="ATS check" description="Check how well your resume matches a job description." milestone={6} />;
+  return (
+    <>
+      <PageHeader
+        eyebrow="ATS check"
+        title="Will your resume get past the filter?"
+        description="Compare your resume with a job description and see which keywords and formatting a parser would catch or miss. It runs entirely in your browser."
+      />
+      <AtsChecker />
+    </>
+  );
 }
