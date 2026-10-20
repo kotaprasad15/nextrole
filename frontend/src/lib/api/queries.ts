@@ -36,8 +36,22 @@ export function useOutreachList() {
   return useQuery({ queryKey: keys.outreach, queryFn: api.outreachList });
 }
 
-export function useRuns(options: { refetchInterval?: number | false } = {}) {
-  return useQuery({ queryKey: keys.runs, queryFn: api.runs, ...options });
+/** Run history. Polls every few seconds only while some run is still going. */
+export function useRuns() {
+  return useQuery({
+    queryKey: keys.runs,
+    queryFn: api.runs,
+    refetchInterval: (q) => (q.state.data?.some((r) => r.status === "running") ? 3000 : false),
+  });
+}
+
+/** One run with its stored events. Polls while running (the live view also streams over SSE). */
+export function useRun(runId: string) {
+  return useQuery({
+    queryKey: keys.run(runId),
+    queryFn: () => api.run(runId),
+    refetchInterval: (q) => (q.state.data?.status === "running" ? 3000 : false),
+  });
 }
 
 /** The draft for one job. A 404 means "no draft yet" (not an error the user needs to see). */

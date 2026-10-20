@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/shell/coming-soon";
+import { ActivityList } from "@/components/activity/activity-list";
+import { PageHeader } from "@/components/shell/page-header";
 
 export const metadata: Metadata = { title: "Activity" };
 
 export default function Page() {
-  return <ComingSoon title="Activity" description="See which agents ran, how long they took and what they cost." milestone={8} />;
+  return (
+    <>
+      <PageHeader eyebrow="Activity" title="What the agents did" description="Every search and draft is a run. Open one to see each step, how long it took, and what it cost." />
+      <ActivityList />
+    </>
+  );
 }

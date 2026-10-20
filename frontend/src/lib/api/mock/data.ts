@@ -136,24 +136,35 @@ export function draftFor(jobId: string, status: Outreach["status"], id: number):
   };
 }
 
-function ev(seq: number, type: RunEvent["type"], step: string, detail: string, ms: number, tokens: number, data: RunEvent["data"] = {}): RunEvent {
-  return { seq, ts: 1760800000 + seq * 3, type, step, detail, latency_ms: ms, tokens, cost_usd: tokens * 0.0000045, data };
-}
+/** [step, detail, latency ms, attempt?]. Timestamps accumulate from the latencies, like a real run. */
+type PastStep = [string, string, number, number?];
 
-function pastRun(id: string, mode: RunDetail["mode"], status: RunDetail["status"], started: string, steps: [string, string, number][], tokens: number, error: string | null = null): RunDetail {
-  const events: RunEvent[] = [ev(0, "run_started", "", "", 0, 0, { mode }), ev(1, "plan", "", "", 0, 0, { steps: steps.map((s) => s[0]) })];
-  let seq = 2;
-  let t = 0;
-  steps.forEach(([step, detail, ms], i) => {
-    t += Math.round((tokens / steps.length) * (i + 1) > 0 ? tokens / steps.length : 0);
-    events.push(ev(seq++, "step_started", step, "", 0, Math.round(t - tokens / steps.length)));
-    events.push(ev(seq++, error && i === steps.length - 1 ? "step_failed" : "step_finished", step, detail, ms, Math.round(t)));
-  });
-  events.push(ev(seq, "run_finished", "", status, 0, tokens, { status, result: {}, error }));
-  return {
-    id, mode, status, job_id: null, tokens, cost_usd: tokens * 0.0000045, error, started_at: started,
-    finished_at: started, result: {}, events,
+function pastRun(
+  id: string, mode: RunDetail["mode"], status: RunDetail["status"], started: string, steps: PastStep[], tokens: number,
+  error: string | null = null, jobId: string | null = null,
+): RunDetail {
+  const t0 = Date.parse(`${started.replace(" ", "T")}Z`) / 1000;
+  let clock = t0;
+  const events: RunEvent[] = [];
+  const push = (type: RunEvent["type"], fields: Partial<RunEvent> = {}) => {
+    events.push({ seq: events.length, ts: clock, type, step: "", detail: "", latency_ms: 0, tokens: 0, cost_usd: 0, data: {}, ...fields });
   };
+  push("run_started", { data: { mode } });
+  push("plan", { data: { steps: [...new Set(steps.map((s) => s[0]))] } });
+  const per = tokens / Math.max(steps.length, 1);
+  steps.forEach(([step, detail, ms, attempt], i) => {
+    const data = attempt ? { attempt } : {};
+    clock += 0.25;
+    push("step_started", { step, data });
+    clock += ms / 1000;
+    const used = Math.round(per * (i + 1));
+    const failed = !!error && i === steps.length - 1;
+    push(failed ? "step_failed" : "step_finished", { step, detail, latency_ms: ms, tokens: used, cost_usd: used * 0.0000045, data });
+  });
+  clock += 0.1;
+  push("run_finished", { detail: status, tokens, cost_usd: tokens * 0.0000045, data: { status, result: {}, error } });
+  const finished = new Date(clock * 1000).toISOString().slice(0, 19).replace("T", " ");
+  return { id, mode, status, job_id: jobId, tokens, cost_usd: tokens * 0.0000045, error, started_at: started, finished_at: finished, result: {}, events };
 }
 
 export const PAST_RUNS: RunDetail[] = [
@@ -162,9 +173,10 @@ export const PAST_RUNS: RunDetail[] = [
     ["select", "40 candidates picked from 1,284 openings", 650], ["match", "scored 40 of 40 candidates", 12100], ["save", "saved 40 recommendations", 40],
   ], 33755),
   pastRun("b2c3d4e5f6a1", "outreach", "completed", "2026-10-19 19:02:44", [
-    ["research", "6 sourced facts about Lumen Labs", 5200], ["facts", "26 facts available to the writer", 12], ["write", "draft attempt 1 (118 words)", 7400],
-    ["critic", "score 90/100, passed", 5100], ["save", "draft saved (critic_passed)", 30],
-  ], 11204),
+    ["research", "6 sourced facts about Lumen Labs", 5200], ["facts", "26 facts available to the writer", 12], ["write", "draft attempt 1 (131 words)", 7400, 1],
+    ["critic", "score 71/100, needs revision", 5100, 1], ["write", "draft attempt 2 (118 words)", 6900, 2], ["critic", "score 90/100, passed", 4800, 2],
+    ["save", "draft saved (critic_passed)", 30],
+  ], 14820, null, "s1"),
   pastRun("c3d4e5f6a1b2", "single_job", "failed", "2026-10-20 09:15:02", [["ingest", "NextRole doesn't read LinkedIn, Indeed or Naukri pages. Paste the posting text instead (you can keep the link too).", 1]], 0,
     "NextRole doesn't read LinkedIn, Indeed or Naukri pages. Paste the posting text instead (you can keep the link too)."),
 ];
