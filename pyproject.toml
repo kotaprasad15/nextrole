@@ -45,3 +45,6 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.File", "fastapi.Form"]
 [tool.ruff.lint.per-file-ignores]
 # Report tables are built from many adjacent f-strings on purpose (one table row per entry).
 "eval/report.py" = ["ISC004"]
+# Parsers of hostile files must treat ANY failure as "reject this file", so they catch broadly on purpose.
+"src/nextrole/resume/*.py" = ["BLE001", "S110", "S112"]
+"tests/security/pdfs.py" = ["ISC004"]

@@ -120,6 +120,14 @@ def test_csrf_token_and_origin_are_required_once_logged_in(tmp_path):
     assert c.get("/me").status_code == 200  # safe methods are never blocked
 
 
+def test_logout_works_without_a_token_but_not_from_a_foreign_origin(tmp_path):
+    c = TestClient(make_app(tmp_path, csrf_enabled=True))
+    signup(c, headers={"Origin": ORIGIN})
+    c.cookies.delete("nextrole_csrf")  # e.g. cleared by the user: logout must still succeed
+    assert c.post("/auth/logout", headers={"Origin": "https://evil.example"}).status_code == 403
+    assert c.post("/auth/logout", headers={"Origin": ORIGIN}).status_code == 204
+
+
 def test_login_is_origin_checked_even_without_a_session(tmp_path):
     c = TestClient(make_app(tmp_path, csrf_enabled=True))
     r = c.post("/auth/login", json={"email": "a@b.co", "password": PW}, headers={"Origin": "https://evil.example"})

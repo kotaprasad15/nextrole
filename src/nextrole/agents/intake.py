@@ -10,6 +10,7 @@ Design decisions:
 from pydantic import BaseModel, Field
 
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.profile import Education, Experience, Preferences, Profile, Project
 
 MAX_RESUME_CHARS = 20_000
@@ -37,8 +38,8 @@ async def run_intake(
     extracted = await llm.complete_json(
         agent="intake",
         model=model,
-        system=SYSTEM,
-        user=f"RESUME:\n{resume_text[:MAX_RESUME_CHARS]}",
+        system=with_data_rule(SYSTEM),
+        user="Extract the profile from this resume.\n\n" + wrap("resume", resume_text, max_chars=MAX_RESUME_CHARS),
         schema=ExtractedProfile,
         max_tokens=3000,
     )

@@ -80,6 +80,10 @@ class Settings(BaseSettings):
     # there is no API for granting it.
     admin_emails: str = ""
     max_upload_mb: int = 5
+    max_resume_pages: int = 10
+    # Parse uploads in a child process with a timeout (resume/sandbox.py). Disable only for debugging.
+    resume_isolation: bool = True
+    resume_parse_timeout_s: float = 20.0
 
 
 @lru_cache

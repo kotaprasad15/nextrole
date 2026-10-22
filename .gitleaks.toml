@@ -1,0 +1,15 @@
+# Secret scanning config (https://github.com/gitleaks/gitleaks). Used by scripts/audit.sh and CI.
+title = "NextRole"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Throwaway values used only to exercise the detectors in tests"
+paths = [
+  '''tests/security/payloads\.py''',
+  '''tests/security/test_.*\.py''',
+  '''tests/conftest\.py''',
+  '''uv\.lock''',
+  '''frontend/package-lock\.json''',
+]

@@ -375,6 +375,19 @@ def list_runs(conn: sqlite3.Connection, user_id: int, limit: int = 20) -> list[s
         (user_id, limit)).fetchall()
 
 
+def list_run_ids(conn: sqlite3.Connection, user_id: int) -> list[str]:
+    return [r["id"] for r in conn.execute("SELECT id FROM runs WHERE user_id = ?", (user_id,))]
+
+
+def delete_orphan_pasted_jobs(conn: sqlite3.Connection) -> None:
+    """Pasted postings are the user's own text. Once no match points at one, nobody else can see it
+    and it must not outlive the account that pasted it."""
+    conn.execute(
+        """DELETE FROM jobs WHERE json_extract(job_json, '$.source') = 'pasted'
+           AND id NOT IN (SELECT job_id FROM matches)""")
+    conn.commit()
+
+
 def fail_stale_runs(conn: sqlite3.Connection) -> None:
     """A server restart orphans 'running' rows (their task died); mark them failed on startup."""
     conn.execute("UPDATE runs SET status = 'failed', error = 'server restarted', finished_at = ? "

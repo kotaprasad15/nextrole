@@ -23,6 +23,9 @@ CSRF_HEADER = "x-csrf-token"
 UNSAFE = {"POST", "PUT", "PATCH", "DELETE"}
 # Token-authenticated by a signed link in an email, not by our cookies: no session to ride.
 CSRF_EXEMPT_PREFIXES = ("/alerts/unsubscribe",)
+# Logging out must always work (the 401 handler calls it when the CSRF cookie may already be gone, and
+# a forged logout is a nuisance, not a breach). The Origin check still applies.
+TOKEN_EXEMPT_PATHS = ("/auth/logout",)
 # Interactive API docs need inline scripts and a CDN; they get a relaxed policy (disable in prod).
 DOCS_PATHS = ("/docs", "/redoc", "/openapi.json")
 
@@ -69,7 +72,7 @@ class SecurityMiddleware:
             return "cross-site request blocked"
         if origin == "null":
             return "cross-site request blocked"
-        if request.cookies.get(SESSION_COOKIE):
+        if request.cookies.get(SESSION_COOKIE) and request.url.path not in TOKEN_EXEMPT_PATHS:
             cookie = request.cookies.get(CSRF_COOKIE, "")
             header = request.headers.get(CSRF_HEADER, "")
             if not cookie or not header or not hmac.compare_digest(cookie, header):

@@ -10,6 +10,7 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 - Live baseline demo: `uv run python -m nextrole.baseline_demo` (needs `.env` with `ANTHROPIC_API_KEY`)
 
 - Evaluation (spends real tokens; see `eval/README.md`): `uv run python -m eval.run_eval {tiering|outreach|p10-sheet|p10-score|report}`
+- Security: `uv run python -m nextrole.security genkey|rotate|encrypt-existing` (key management), `bash scripts/audit.sh` (pip-audit, npm audit, gitleaks, secret scan; needs network), `uv run pytest -q tests/security` (adversarial suite). Details and threat model: `docs/SECURITY.md`.
 - Live job discovery (no key needed): `uv run python -m nextrole.jobs_demo "software engineer" "remote"`
 
 - App: two processes. API: `uv run uvicorn nextrole.api.main:app --reload` (port 8000; set `RESUME_ENCRYPTION_KEY` in `.env` first). UI: `cd frontend && npm install && npm run dev -- -p 3100`, open http://127.0.0.1:3100 (the Next app proxies `/api/*` to the API, `BACKEND_URL` in `frontend/.env.local`, default `http://127.0.0.1:8000`; leave `NEXT_PUBLIC_API_MODE` unset for the real API). Production UI: `npm run build && npm start`.
@@ -49,12 +50,12 @@ Next.js 16 (App Router, React 19, TypeScript strict) + Tailwind v4 + Radix, "Pap
 - `llm/client.py`: the only gateway to Anthropic. Retries (transient only), timeout, budget check, tracing, JSON output validated by Pydantic with one repair retry.
 - Provider: `LLM_BASE_URL` (empty = Anthropic) points the same SDK at any Anthropic-compatible endpoint, e.g. DeepSeek `https://api.deepseek.com/anthropic` with `MODEL_FAST=deepseek-flash`, `MODEL_STRONG=deepseek-v4-pro`. Set `PRICE_*` to that provider's rates. PII caveat: DeepSeek hosted API is for sample resumes only.
 - `llm/budget.py`: per-run token/cost cap (`BudgetExceeded`).
-- `tracing/`: JSONL trace per run in `traces/`, always passed through `redact()` (no resume text).
+- `tracing/`: JSONL trace per run in `traces/`, always passed through `redact()` (sensitive keys dropped, emails/phones/tokens masked, long text = length+hash only, no prefix).
 - `models/`: Pydantic types. `HttpsUrl` enforces https; `Job.apply_url` is set only by source connectors.
 - `sources/`: `BoardSource` connectors (Greenhouse, Lever, Ashby) normalize public ATS payloads into `Job`; `registry.discover()` fans out in parallel with timeouts/retries, records per-board errors instead of failing, filters by `Preferences`, and dedupes. Boards are curated in `data/boards.json`. Apply URLs are copied verbatim from the API; non-https rows are skipped.
 - `db/`: sqlite3 + `schema.sql` + `repos.py` functions (no ORM). Cascade deletes: deleting a user removes sessions/profile; the encrypted resume file is deleted by the caller (`DELETE /me`). One shared connection (`check_same_thread=False`) is fine for the demo; use per-request connections before real deployment.
-- `auth/`: Argon2 password hashes; opaque server-side sessions (only SHA-256 of the token stored; HttpOnly SameSite=Lax cookie). Not yet: login throttling.
-- `resume/`: `extract_text` (magic-byte type check + size cap, PDF/DOCX) and `ResumeStore` (Fernet-encrypted at rest, needs `RESUME_ENCRYPTION_KEY`).
+- `auth/`: Argon2id password hashes; `policy.py` = signup password rules (8-256, upper, lower, special; login accepts older passwords); opaque server-side sessions (only SHA-256 of the token stored; HttpOnly SameSite=Lax cookie, Secure in production). Login is throttled per IP and per email and locks an account for 15 min after 5 failures (`users.failed_logins/locked_until`).
+- `resume/`: `inspect.py` (magic bytes, size/page limits, rejects scripts/macros/zip bombs/encrypted files, removes hidden text, flags injection phrases, returns a SANITIZED copy), `worker.py` + `sandbox.py` (the parse runs in a child process with a timeout; `RESUME_ISOLATION=false` only for tests), `extract.py` (in-process helper), `storage.py` (`ResumeStore`: AES-256-GCM files; reads old Fernet files). The onboarding route stores the sanitized copy, never the raw upload.
 - `agents/intake.py`: resume text -> `Profile` via `ExtractedProfile` schema; resume is untrusted data (injection guard in prompt, schema-constrained output).
 - `api/`: `create_app(settings, conn, llm_factory)` factory (injectable for tests). Routes: `/auth/signup|login|logout`, `DELETE /me`, `POST /onboarding` (multipart), `GET /me`, `GET|PUT /profile`. Run: `uv run uvicorn nextrole.api.main:app --reload`.
 - `agents/tiering.py`: startup/mid/mnc. Order: DB cache -> `data/mnc_seed.json` -> employee-count thresholds (`tier_from_employee_count`, no source supplies counts yet) -> one batched LLM call. Every confident (>=0.6) decision is cached in `company_tiers`; low-confidence ones are not.
@@ -79,9 +80,20 @@ Next.js 16 (App Router, React 19, TypeScript strict) + Tailwind v4 + Radix, "Pap
 - `Budget.calls` counts model calls; `OutreachResult.reports` keeps every critic report (first draft -> final).
 - `agents/baseline.py`: single-agent baseline (control for the eval).
 
+## Security architecture (milestone B; see `docs/SECURITY.md`)
+- **Field encryption** (`security/crypto.py`, `security/protect.py`): AES-256-GCM, keyring from `ENCRYPTION_KEYS` (first = active), ciphertext bound to `table.column:user_id`. `db/repos.py` seals/opens profile JSON, outreach draft/facts/critic/recipient and feedback notes; add a new PII column there AND to `ENCRYPTED_COLUMNS`. No plaintext fallback: without a key, saving personal data raises `CryptoNotConfigured`. The keyring is process-wide (`crypto.configure`, set in `create_app`); `tests/conftest.py` sets a test key. `RESUME_ENCRYPTION_KEY` (legacy Fernet) still works (a key is derived from it) and is upgraded at startup by `db/migrate.run_data_migrations`.
+- **Migrations** (`db/migrate.py`): numbered, append-only, idempotent, a backup of an existing DB file goes to `<db dir>/backups/` before any pending one. Never edit a released migration; `schema.sql` is only the baseline. Never touch `data/nextrole.db` by hand.
+- **Request security** (`security/web.py`, pure-ASGI middleware): headers on every response, Origin check on every write, double-submit CSRF token (`nextrole_csrf` cookie + `X-CSRF-Token`, sent by `lib/api/client.ts`) once logged in (logout and `/alerts/unsubscribe` are token-exempt). Tests build apps with explicit Settings to exercise it; `tests/conftest.py` turns CSRF and rate limits off by default through env.
+- **Rate limits** (`security/ratelimit.py`, in memory; `api/deps.py`: `rate_limit_ip`, `rate_limit_user`): attach to every route that is expensive (LLM, upload, export) or abusable. `client_ip` trusts `X-Forwarded-For` only for `TRUSTED_PROXY_HOPS` proxies.
+- **RBAC**: `users.role`; `require_admin` (404 for non-admins, role re-read from the DB every request); admins come only from `ADMIN_EMAILS`.
+- **Untrusted text** (`llm/untrusted.py`): EVERY prompt that includes resume, posting, fetched page, user-written text or text derived from them wraps it with `wrap(label, text)` and the system prompt goes through `with_data_rule()`. Agents reading such text get no tools. Model output that reaches users is link-stripped by schema (`models/match.py`) or checked by `agents/output_guard.py` (the Critic's `rule_violations` includes it; a draft with a secret or prompt leak is withheld in `orchestrator/nodes.save`). `security/injection.py` is a tripwire, not the defence.
+- **SSRF** (`tools/netguard.py`, `tools/fetch.py`): `resolve_public` + connection pinning; use `fetch_page_text` for ANY outbound fetch of a user- or page-supplied URL.
+- **Privacy**: `GET /me/export` (sections registered with `@export_section` in `export.py`: add one for every new user-data table), `DELETE /me` (cascade + resume file + orphan pasted jobs + traces). `tests/security/test_privacy.py` asserts no table keeps a row for a deleted user: new tables need `user_id ... ON DELETE CASCADE`.
+
 ## Conventions
 - Type hints everywhere; small functions; docstrings explain *why*.
 - The LLM never generates or edits URLs. Agent outputs reference `job_id` only.
 - Drafts are never auto-sent; human approval gates "ready to send".
 - Ask before adding dependencies or making major architectural changes.
-- Never commit secrets; `.env` is gitignored.
+- Never commit secrets; `.env` is gitignored (`tests/security/test_repo_secrets.py` scans tracked files).
+- New routes: take the user from the session (never the body), validate input with Pydantic, add rate limits to anything costly, return 404 not 403 for other users' objects, and add the data to export/delete.

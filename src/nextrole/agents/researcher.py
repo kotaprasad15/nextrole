@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from nextrole.config import Settings
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.company import normalize_company
 from nextrole.models.job import Job
 from nextrole.models.research import CompanyResearch, Fact, NewsItem
@@ -70,12 +71,13 @@ class ResearcherAgent:
         return await self._extract(job, tools, research)
 
     async def _gather(self, job: Job, tools: ResearchTools) -> None:
+        # Company and role come from a posting (for pasted jobs, from user-supplied text): data.
         messages: list[dict] = [{"role": "user", "content": (
-            f"Company: {job.company}\nRole: {job.title}\n"
+            wrap("company_and_role", f"Company: {job.company}\nRole: {job.title}") + "\n"
             f"Job posting URL: {job.apply_url or '(none)'}")}]
         for _ in range(self.settings.research_max_steps):
             res = await self.llm.chat(
-                agent="researcher", model=self.settings.model_fast, system=LOOP_SYSTEM,
+                agent="researcher", model=self.settings.model_fast, system=with_data_rule(LOOP_SYSTEM),
                 messages=messages, tools=TOOL_DEFS, max_tokens=800,
             )
             calls = res.tool_uses[:MAX_CALLS_PER_STEP]
@@ -86,7 +88,8 @@ class ResearcherAgent:
                 _block_to_dict(b) for b in res.content
                 if (b.type == "text" and b.text.strip()) or b in calls]})
             results = [{"type": "tool_result", "tool_use_id": c.id,
-                        "content": await tools.call(c.name, dict(c.input))} for c in calls]
+                        "content": wrap("tool_result", await tools.call(c.name, dict(c.input)))}
+                       for c in calls]
             messages.append({"role": "user", "content": results})
 
     async def _extract(
@@ -97,8 +100,9 @@ class ResearcherAgent:
             for s in tools.sources.values()
         )
         out = await self.llm.complete_json(
-            agent="researcher_extract", model=self.settings.model_fast, system=EXTRACT_SYSTEM,
-            user=f"Company: {job.company}\n\nSOURCES:\n{digest}", schema=_ResearchOut,
+            agent="researcher_extract", model=self.settings.model_fast,
+            system=with_data_rule(EXTRACT_SYSTEM),
+            user=wrap("company", job.company) + "\n\n" + wrap("sources", digest), schema=_ResearchOut,
             max_tokens=2500,
         )
         research.summary = out.summary

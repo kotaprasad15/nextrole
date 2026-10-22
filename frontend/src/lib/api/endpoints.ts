@@ -31,6 +31,8 @@ export const api = {
   logout: () => apiRequest("/auth/logout", { method: "POST" }),
   me: () => apiRequest("/me", { schema: MeSchema }),
   deleteAccount: () => apiRequest("/me", { method: "DELETE" }),
+  /** Everything the server holds about the signed-in user (decrypted, JSON). */
+  exportData: () => apiRequest("/me/export", { schema: z.record(z.string(), z.unknown()) }),
 
   // profile and onboarding
   profile: () => apiRequest("/profile", { schema: ProfileSchema }),

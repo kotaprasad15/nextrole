@@ -162,7 +162,7 @@ export interface StartRunBody {
 }
 
 // ---- auth ----
-export const MeSchema = z.object({ email: z.string() });
+export const MeSchema = z.object({ email: z.string(), role: z.enum(["user", "admin"]).default("user") });
 export type Me = z.infer<typeof MeSchema>;
 
 // ---- public (no login): real postings for the homepage hero ----

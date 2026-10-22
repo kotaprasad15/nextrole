@@ -5,6 +5,7 @@ export const ENDPOINTS = [
   { method: "POST", path: "/auth/logout" },
   { method: "GET", path: "/me" },
   { method: "DELETE", path: "/me" },
+  { method: "GET", path: "/me/export" },
   { method: "POST", path: "/onboarding" },
   { method: "GET", path: "/profile" },
   { method: "PUT", path: "/profile" },

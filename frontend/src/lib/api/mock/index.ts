@@ -114,7 +114,10 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
       localStorage.removeItem(PROFILE_KEY);
       return noContent();
     }
-    return json({ email: MOCK_EMAIL });
+    return json({ email: MOCK_EMAIL, role: "user" });
+  }
+  if (route === "/me/export") {
+    return json({ format: 1, exported_at: new Date().toISOString(), account: { email: MOCK_EMAIL }, profile: loadProfile() });
   }
 
   // ---- profile / onboarding ----

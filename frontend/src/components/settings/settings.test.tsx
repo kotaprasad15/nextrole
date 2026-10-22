@@ -8,7 +8,8 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
 const me = vi.fn();
 const deleteAccount = vi.fn();
 const logout = vi.fn();
-vi.mock("@/lib/api/endpoints", () => ({ api: { me: () => me(), deleteAccount: () => deleteAccount(), logout: () => logout() } }));
+const exportData = vi.fn();
+vi.mock("@/lib/api/endpoints", () => ({ api: { me: () => me(), deleteAccount: () => deleteAccount(), logout: () => logout(), exportData: () => exportData() } }));
 
 import { ApiError } from "@/lib/api/client";
 import { DisplayPrefsEffect } from "@/components/display-prefs-effect";
@@ -34,6 +35,31 @@ describe("Settings", () => {
   it("shows who is signed in", async () => {
     renderPage();
     expect(await screen.findByText("priya@example.com")).toBeInTheDocument();
+  });
+
+  it("downloads the user's data as a JSON file", async () => {
+    exportData.mockResolvedValue({ account: { email: "priya@example.com" }, profile: { name: "Priya" } });
+    const createObjectURL = vi.fn((_blob: Blob) => "blob:fake");
+    const revoke = vi.fn();
+    vi.stubGlobal("URL", Object.assign(URL, { createObjectURL, revokeObjectURL: revoke }));
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole("button", { name: /download my data/i }));
+    await waitFor(() => expect(click).toHaveBeenCalled());
+    expect(exportData).toHaveBeenCalledOnce();
+    const blob = createObjectURL.mock.calls[0][0];
+    expect(JSON.parse(await blob.text()).profile.name).toBe("Priya");
+    expect(revoke).toHaveBeenCalledWith("blob:fake");
+    click.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("offers the theme choice and keeps the stored value on screen", async () => {
+    renderPage();
+    expect(await screen.findByRole("radio", { name: /match my device/i })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /^light/i })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /^dark/i })).toBeInTheDocument();
   });
 
   it("'always reduce motion' is saved and applied to the page immediately", async () => {

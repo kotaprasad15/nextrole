@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from nextrole.config import Settings
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.common import HttpsUrl
 from nextrole.models.job import Job
 from nextrole.tools.fetch import fetch_page_text
@@ -67,8 +68,9 @@ class IngestAgent:
         if not text:
             text = await self._fetch(url)
         posting = await self.llm.complete_json(
-            agent="ingest", model=self.settings.model_fast, system=SYSTEM,
-            user=f"POSTING:\n{text[:MAX_POSTING_CHARS]}", schema=_Posting, max_tokens=2500)
+            agent="ingest", model=self.settings.model_fast, system=with_data_rule(SYSTEM),
+            user="Extract the job posting.\n\n" + wrap("job_posting", text, max_chars=MAX_POSTING_CHARS),
+            schema=_Posting, max_tokens=2500)
         if not posting.is_job_posting or not posting.title.strip():
             raise IngestError("That doesn't look like a single job posting. Try pasting the "
                               "posting text instead.")

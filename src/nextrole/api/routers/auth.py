@@ -3,6 +3,7 @@ import re
 import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from nextrole.api.deps import (
@@ -12,6 +13,7 @@ from nextrole.api.deps import (
     get_settings_dep,
     get_store,
     rate_limit_ip,
+    rate_limit_user,
     too_many,
 )
 from nextrole.auth.passwords import hash_password, verify_password
@@ -19,6 +21,7 @@ from nextrole.auth.policy import password_problems
 from nextrole.auth.sessions import end_session, start_session
 from nextrole.config import Settings
 from nextrole.db import repos
+from nextrole.export import build_export, delete_user_traces
 from nextrole.resume.storage import ResumeStore
 from nextrole.security.web import CSRF_COOKIE, new_csrf_token
 
@@ -120,6 +123,18 @@ def me(
     return {"email": row["email"], "role": row["role"]}
 
 
+@router.get("/me/export", dependencies=[rate_limit_user("export", 5, 3600)])
+def export_my_data(
+    user_id: int = Depends(current_user_id), conn: sqlite3.Connection = Depends(get_conn),
+    store: ResumeStore = Depends(get_store),
+) -> JSONResponse:
+    """Everything NextRole holds about the signed-in user, decrypted, as one JSON download."""
+    return JSONResponse(
+        build_export(conn, store, user_id),
+        headers={"Content-Disposition": 'attachment; filename="nextrole-export.json"'},
+    )
+
+
 @router.delete("/me", status_code=204)
 def delete_account(
     request: Request,
@@ -130,8 +145,11 @@ def delete_account(
 ) -> None:
     """User-initiated deletion: encrypted resume file, then the user row (cascades the rest)."""
     request.app.state.run_manager.cancel_user(user_id)
+    run_ids = repos.list_run_ids(conn, user_id)
     store.delete(repos.get_resume_path(conn, user_id))
-    repos.delete_user(conn, user_id)
+    repos.delete_user(conn, user_id)  # cascades profile, matches, drafts, feedback, runs, sessions
+    repos.delete_orphan_pasted_jobs(conn)
+    delete_user_traces(request.app.state.settings.trace_dir, run_ids)
     resp.delete_cookie(COOKIE)
     resp.delete_cookie(CSRF_COOKIE)
 

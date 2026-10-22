@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore, type ReactNode } from "react";
@@ -49,6 +49,19 @@ export function SettingsPage() {
   const [phrase, setPhrase] = useState("");
   const [alsoLocal, setAlsoLocal] = useState(true);
 
+  const download = useMutation({
+    mutationFn: () => api.exportData(),
+    onSuccess: (data) => {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "nextrole-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("Your data was downloaded", { variant: "success" });
+    },
+  });
+
   const remove = useMutation({
     mutationFn: () => api.deleteAccount(),
     onSuccess: async () => {
@@ -75,7 +88,7 @@ export function SettingsPage() {
           <Card className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-small text-muted">Signed in as</p>
-              {me.isPending ? <Skeleton className="mt-1 h-6 w-56" /> : <p className="font-medium">{me.data?.email ?? "Unknown"}</p>}
+              {me.isPending || !hydrated ? <Skeleton className="mt-1 h-6 w-56" /> : <p className="font-medium">{me.data?.email ?? "Unknown"}</p>}
             </div>
             <Button variant="secondary" disabled={logout.isPending} onClick={() => logout.mutate(undefined, { onSettled: () => router.replace("/") })}>
               {logout.isPending && <Loader2 className="size-4 animate-spin" aria-hidden />} Log out
@@ -117,7 +130,11 @@ export function SettingsPage() {
           <Card className="flex flex-col gap-5">
             <div>
               <CardTitle as="h3">What is stored on the server (your account)</CardTitle>
-              <CardDescription className="mt-1">Your profile, your resume file (encrypted), your matches, your outreach drafts and feedback notes, and your run history. Deleting your account removes all of it.</CardDescription>
+              <CardDescription className="mt-1">Your profile, your resume file, your matches, your outreach drafts and feedback notes, and your run history. Personal data is encrypted at rest. You can download all of it, and deleting your account removes all of it.</CardDescription>
+              <Button variant="secondary" size="sm" className="mt-3" disabled={download.isPending} onClick={() => download.mutate()}>
+                {download.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Download className="size-4" aria-hidden />} Download my data
+              </Button>
+              {download.error && <p role="alert" className="mt-2 text-small font-medium text-danger-ink">Could not prepare your download. Please try again.</p>}
             </div>
             <div>
               <CardTitle as="h3">What is stored only in this browser</CardTitle>
