@@ -24,8 +24,8 @@ const enc = encodeURIComponent;
 
 export const api = {
   // auth
-  signup: (email: string, password: string) =>
-    apiRequest("/auth/signup", { method: "POST", body: { email, password }, schema: MeSchema }),
+  signup: (email: string, password: string, confirmPassword: string) =>
+    apiRequest("/auth/signup", { method: "POST", body: { email, password, confirm_password: confirmPassword }, schema: MeSchema }),
   login: (email: string, password: string) =>
     apiRequest("/auth/login", { method: "POST", body: { email, password }, schema: MeSchema }),
   logout: () => apiRequest("/auth/logout", { method: "POST" }),

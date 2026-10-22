@@ -19,10 +19,10 @@ const buttonVariants = cva(
         primary: "bg-primary text-on-primary shadow-1 hover:bg-primary-hover hover:shadow-2",
         secondary: "border border-border-strong bg-surface text-ink shadow-1 hover:border-ink/40 hover:shadow-2",
         ghost: "text-ink hover:bg-ink/5",
-        danger: "bg-danger text-white shadow-1 hover:brightness-95",
+        danger: "bg-danger text-on-danger shadow-1 hover:brightness-95",
         // Tier fills use ink text: white on coral/teal fails WCAG AA.
-        startup: "bg-startup text-ink shadow-1 hover:brightness-95",
-        mid: "bg-mid text-ink shadow-1 hover:brightness-95",
+        startup: "bg-startup text-on-startup shadow-1 hover:brightness-95",
+        mid: "bg-mid text-on-mid shadow-1 hover:brightness-95",
         mnc: "bg-mnc text-white shadow-1 hover:brightness-95",
       },
       size: {
@@ -81,7 +81,6 @@ export function Button({ className, variant, size, asChild, magnetic, fx, type, 
     : children;
   const el = (
     <Comp
-      data-cursor="link"
       className={cn(buttonVariants({ variant, size }), fx && FX_CLASS[fx], className)}
       type={asChild ? undefined : (type ?? "button")}
       {...props}

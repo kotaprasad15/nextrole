@@ -34,7 +34,7 @@ export function Faq() {
         <div className="divide-y divide-border rounded-card border border-border bg-surface">
           {FAQS.map((f) => (
             <details key={f.q} className="group px-5 py-4 [&_summary::-webkit-details-marker]:hidden">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-control text-left font-semibold" data-cursor="link">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-control text-left font-semibold">
                 {f.q}
                 <ChevronDown className="size-5 shrink-0 text-muted transition-transform duration-200 group-open:rotate-180" aria-hidden />
               </summary>

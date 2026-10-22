@@ -67,6 +67,7 @@ export function HeroBackdrop() {
 
   return (
     <div ref={root} aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 dark:opacity-55">
       {ORBS.map((o) => (
         <div
           key={o.token}
@@ -98,6 +99,7 @@ export function HeroBackdrop() {
         <path d={BLOB_PATHS[0]} fill="url(#blob-a)">{morph("16s")}</path>
         <path d={BLOB_PATHS[1]} fill="url(#blob-b)" transform="translate(-60 60) scale(0.85)">{morph("20s", 1)}</path>
       </svg>
+      </div>
 
       <div
         className="absolute inset-0 [animation:grid-shimmer_9s_ease-in-out_infinite]"

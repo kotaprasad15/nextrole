@@ -375,7 +375,7 @@ def api(tmp_path):
 
 
 def signup(c, email="a@b.co"):
-    c.post("/auth/signup", json={"email": email, "password": "correct horse"})
+    c.post("/auth/signup", json={"email": email, "password": "Correct-horse9"})
     c.put("/profile", json=PROFILE.model_dump())
 
 
@@ -410,7 +410,7 @@ def test_runs_are_private_and_validated(api):
         assert c.post("/runs", json={"mode": "bogus"}).status_code == 422
         run_id = c.post("/runs", json={"mode": "recommend"}).json()["run_id"]
         sse_events(c, run_id)
-        other.post("/auth/signup", json={"email": "o@b.co", "password": "correct horse"})
+        other.post("/auth/signup", json={"email": "o@b.co", "password": "Correct-horse9"})
         assert other.get(f"/runs/{run_id}").status_code == 404
         assert other.get(f"/runs/{run_id}/events").status_code == 404
 

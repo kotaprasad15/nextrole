@@ -35,7 +35,7 @@ describe("rendered components keep their text colour and size", () => {
     for (const v of variants) {
       const { unmount } = render(<Button variant={v} size="sm">x-{v}</Button>);
       const cls = screen.getByRole("button", { name: `x-${v}` }).className;
-      expect(cls, v).toMatch(/text-(on-primary|ink|white)/);
+      expect(cls, v).toMatch(/text-(on-primary|on-danger|on-startup|on-mid|ink|white)/);
       expect(cls, v).toContain("text-small");
       unmount();
     }

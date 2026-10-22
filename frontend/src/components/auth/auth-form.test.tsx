@@ -44,14 +44,48 @@ describe("AuthForm", () => {
     expect(signup).not.toHaveBeenCalled();
   });
 
-  it("flags a short password on signup", async () => {
+  it("flags a weak password on signup and names what is missing", async () => {
     const user = userEvent.setup();
     renderForm("signup");
     await user.type(screen.getByLabelText("Email"), "a@b.co");
     await user.type(screen.getByLabelText("Password"), "short");
     await user.click(screen.getByRole("button", { name: "Create account" }));
-    expect(screen.getByText(/at least 8 characters/i, { selector: "p[role=alert]" })).toBeInTheDocument();
+    expect(screen.getByText(/still needs: at least 8 characters/i, { selector: "p[role=alert]" })).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toHaveFocus();
+    expect(signup).not.toHaveBeenCalled();
+  });
+
+  it("shows a live checklist that ticks off each rule as the password is typed", async () => {
+    const user = userEvent.setup();
+    renderForm("signup");
+    const list = screen.getByRole("list", { name: /password requirements/i });
+    const met = () => Array.from(list.querySelectorAll("li")).filter((li) => li.getAttribute("data-met") === "true").length;
+    expect(met()).toBe(0);
+    await user.type(screen.getByLabelText("Password"), "abcdefgh");
+    expect(met()).toBe(2); // length + lowercase
+    await user.type(screen.getByLabelText("Password"), "A");
+    expect(met()).toBe(3);
+    await user.type(screen.getByLabelText("Password"), "!");
+    expect(met()).toBe(4);
+    expect(list).toHaveTextContent(/one special character.*met/i);
+  });
+
+  it("requires the confirmation to match and focuses it", async () => {
+    const user = userEvent.setup();
+    renderForm("signup");
+    await user.type(screen.getByLabelText("Email"), "a@b.co");
+    await user.type(screen.getByLabelText("Password"), "Longenough1!");
+    await user.type(screen.getByLabelText("Confirm password"), "Longenough1?");
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+    expect(screen.getByText(/do not match/i, { selector: "p[role=alert]" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirm password")).toHaveFocus();
+    expect(signup).not.toHaveBeenCalled();
+  });
+
+  it("has no confirm field when logging in", () => {
+    renderForm("login");
+    expect(screen.queryByLabelText("Confirm password")).not.toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: /password requirements/i })).not.toBeInTheDocument();
   });
 
   it("sends new accounts to onboarding", async () => {
@@ -59,10 +93,11 @@ describe("AuthForm", () => {
     const user = userEvent.setup();
     renderForm("signup");
     await user.type(screen.getByLabelText("Email"), "a@b.co");
-    await user.type(screen.getByLabelText("Password"), "longenough1");
+    await user.type(screen.getByLabelText("Password"), "Longenough1!");
+    await user.type(screen.getByLabelText("Confirm password"), "Longenough1!");
     await user.click(screen.getByRole("button", { name: "Create account" }));
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/onboarding"));
-    expect(signup).toHaveBeenCalledWith("a@b.co", "longenough1");
+    expect(signup).toHaveBeenCalledWith("a@b.co", "Longenough1!", "Longenough1!");
   });
 
   it("shows 'already exists' on the email field", async () => {
@@ -70,7 +105,8 @@ describe("AuthForm", () => {
     const user = userEvent.setup();
     renderForm("signup");
     await user.type(screen.getByLabelText("Email"), "taken@example.com");
-    await user.type(screen.getByLabelText("Password"), "longenough1");
+    await user.type(screen.getByLabelText("Password"), "Longenough1!");
+    await user.type(screen.getByLabelText("Confirm password"), "Longenough1!");
     await user.click(screen.getByRole("button", { name: "Create account" }));
     expect(await screen.findByText(/already exists/i)).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toHaveFocus();

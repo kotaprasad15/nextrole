@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from nextrole.api.deps import COOKIE, current_user_id, get_conn, get_settings_dep, get_store
 from nextrole.auth.passwords import hash_password, verify_password
+from nextrole.auth.policy import password_problems
 from nextrole.auth.sessions import end_session, start_session
 from nextrole.config import Settings
 from nextrole.db import repos
@@ -18,7 +19,13 @@ _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 class Credentials(BaseModel):
     email: str = Field(max_length=254)
-    password: str = Field(min_length=8, max_length=256)
+    # Bounds only: login must accept any existing password. The composition rules apply at signup.
+    password: str = Field(min_length=1, max_length=1024)
+
+
+class SignupRequest(Credentials):
+    # Optional so API clients need not send it; when present it must match (typo guard, not security).
+    confirm_password: str | None = Field(default=None, max_length=1024)
 
 
 def _set_cookie(resp: Response, token: str, settings: Settings) -> None:
@@ -30,12 +37,17 @@ def _set_cookie(resp: Response, token: str, settings: Settings) -> None:
 
 @router.post("/auth/signup", status_code=201)
 def signup(
-    body: Credentials, resp: Response,
+    body: SignupRequest, resp: Response,
     conn: sqlite3.Connection = Depends(get_conn), settings: Settings = Depends(get_settings_dep),
 ) -> dict:
     email = body.email.strip().lower()
     if not _EMAIL.match(email):
         raise HTTPException(422, "invalid email")
+    problems = password_problems(body.password)
+    if problems:
+        raise HTTPException(422, "password needs " + ", ".join(problems))
+    if body.confirm_password is not None and body.confirm_password != body.password:
+        raise HTTPException(422, "passwords do not match")
     if repos.get_user_by_email(conn, email):
         raise HTTPException(409, "email already registered")
     user_id = repos.create_user(conn, email, hash_password(body.password))

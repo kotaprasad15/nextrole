@@ -54,7 +54,6 @@ function JobCard({ job }: { job?: FeaturedJob }) {
         href={job.apply_url}
         target="_blank"
         rel="noopener noreferrer"
-        data-cursor="link"
         className="mt-3 inline-flex items-center gap-1 text-small font-semibold text-primary hover:underline"
       >
         See the real posting

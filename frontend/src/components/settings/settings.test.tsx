@@ -36,15 +36,6 @@ describe("Settings", () => {
     expect(await screen.findByText("priya@example.com")).toBeInTheDocument();
   });
 
-  it("saves the cursor preference", async () => {
-    const user = userEvent.setup();
-    renderPage();
-    const toggle = await screen.findByRole("switch", { name: /custom cursor/i });
-    expect(toggle).toBeChecked();
-    await user.click(toggle);
-    expect(JSON.parse(localStorage.getItem("nextrole_display")!)).toMatchObject({ cursor: false });
-  });
-
   it("'always reduce motion' is saved and applied to the page immediately", async () => {
     const user = userEvent.setup();
     renderPage();
@@ -58,13 +49,13 @@ describe("Settings", () => {
   it("clears only browser data after confirmation, and keeps display settings", async () => {
     localStorage.setItem("nextrole_saved_jobs", JSON.stringify({ v: 1, ids: ["a"] }));
     localStorage.setItem("nextrole_tracker", JSON.stringify({ v: 1, jobs: [] }));
-    setDisplayPrefs({ cursor: false });
+    setDisplayPrefs({ motion: "reduced" });
     const user = userEvent.setup();
     renderPage();
     await user.click(await screen.findByRole("button", { name: /clear data stored in this browser/i }));
     await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Clear it" }));
     expect(JSON.parse(localStorage.getItem("nextrole_saved_jobs")!).ids).toEqual([]);
-    expect(JSON.parse(localStorage.getItem("nextrole_display")!).cursor).toBe(false);
+    expect(JSON.parse(localStorage.getItem("nextrole_display")!).motion).toBe("reduced");
     expect(deleteAccount).not.toHaveBeenCalled();
   });
 

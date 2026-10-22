@@ -59,6 +59,7 @@ export function TagInput({ value, onChange, max = 20, suggestions = [], noun = "
         ))}
         <input
           {...props}
+          data-edit-only
           type="text"
           value={draft}
           disabled={full || props.disabled}
@@ -79,7 +80,7 @@ export function TagInput({ value, onChange, max = 20, suggestions = [], noun = "
         />
       </div>
       {open.length > 0 && !full && (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5" aria-label={`Suggested ${noun}s`} role="group">
+        <div data-edit-only className="mt-2 flex flex-wrap items-center gap-1.5" aria-label={`Suggested ${noun}s`} role="group">
           <span className="text-caption text-muted">Try:</span>
           {open.map((s) => (
             <button
@@ -93,7 +94,7 @@ export function TagInput({ value, onChange, max = 20, suggestions = [], noun = "
           ))}
         </div>
       )}
-      {full && <p className="mt-2 text-caption text-muted">You can add up to {max}.</p>}
+      {full && <p data-edit-only className="mt-2 text-caption text-muted">You can add up to {max}.</p>}
     </div>
   );
 }

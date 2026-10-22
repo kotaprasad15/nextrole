@@ -53,7 +53,6 @@ export function SceneAgents() {
                   <button
                     type="button"
                     data-el="node"
-                    data-cursor="link"
                     aria-label={`${a.name}: ${a.text}`}
                     className="relative grid h-14 w-24 place-items-center rounded-control border border-border bg-surface px-2 text-small font-semibold shadow-2 transition-shadow hover:shadow-3 sm:h-[4.25rem] sm:w-32 sm:text-body"
                   >

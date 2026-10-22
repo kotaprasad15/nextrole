@@ -79,7 +79,6 @@ export function TierMarquee() {
             onClick={() => setPaused((p) => !p)}
             aria-pressed={paused}
             aria-label={paused ? "Play the scrolling band" : "Pause the scrolling band"}
-            data-cursor="link"
             className="glass absolute left-3 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full text-ink"
           >
             {paused ? <Play className="size-4" aria-hidden /> : <Pause className="size-4" aria-hidden />}

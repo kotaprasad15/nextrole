@@ -19,13 +19,41 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password."),
 });
 
-export const signupSchema = z.object({
-  email: emailSchema,
-  password: z
-    .string()
-    .min(8, "Use at least 8 characters.")
-    .max(256, "That password is too long (256 characters at most)."),
-});
+/**
+ * Password rules for NEW passwords. Mirrors src/nextrole/auth/policy.py (the server is the
+ * authority and re-checks everything). Login accepts any existing password.
+ */
+export const PASSWORD_MIN = 8;
+export const PASSWORD_MAX = 256;
+export const PASSWORD_RULES = [
+  { id: "length", label: `At least ${PASSWORD_MIN} characters`, test: (p: string) => p.length >= PASSWORD_MIN },
+  { id: "upper", label: "One uppercase letter", test: (p: string) => /\p{Lu}/u.test(p) },
+  { id: "lower", label: "One lowercase letter", test: (p: string) => /\p{Ll}/u.test(p) },
+  // Special = not a letter, digit or whitespace (same definition as the backend).
+  { id: "special", label: "One special character, like ! ? # %", test: (p: string) => /[^\p{L}\p{N}\s]/u.test(p) },
+] as const;
+
+export const unmetPasswordRules = (password: string) => PASSWORD_RULES.filter((r) => !r.test(password));
+
+export const signupSchema = z
+  .object({
+    email: emailSchema,
+    password: z.string().max(PASSWORD_MAX, `That password is too long (${PASSWORD_MAX} characters at most).`),
+    confirmPassword: z.string(),
+  })
+  .superRefine((v, ctx) => {
+    const unmet = unmetPasswordRules(v.password);
+    if (unmet.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["password"],
+        message: v.password ? `Your password still needs: ${unmet.map((r) => r.label.toLowerCase()).join(", ")}.` : "Choose a password.",
+      });
+    }
+    if (v.confirmPassword !== v.password) {
+      ctx.addIssue({ code: "custom", path: ["confirmPassword"], message: "The two passwords do not match." });
+    }
+  });
 
 export type FieldErrors<K extends string = string> = Partial<Record<K, string>>;
 
@@ -37,23 +65,4 @@ export function fieldErrors<K extends string>(error: z.ZodError): FieldErrors<K>
     if (!out[key]) out[key] = issue.message;
   }
   return out;
-}
-
-export type StrengthLevel = 0 | 1 | 2 | 3;
-
-/**
- * ADVISORY password strength (length and character variety). It never blocks submission beyond
- * the real 8-character rule, and is not a substitute for a breached-password check.
- */
-export function passwordStrength(pw: string): { level: StrengthLevel; label: string } {
-  if (!pw) return { level: 0, label: "" };
-  let score = 0;
-  if (pw.length >= 8) score++;
-  if (pw.length >= 12) score++;
-  const classes = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((r) => r.test(pw)).length;
-  if (classes >= 3) score++;
-  if (pw.length < 8) return { level: 1, label: "Too short" };
-  if (score <= 1) return { level: 1, label: "Weak" };
-  if (score === 2) return { level: 2, label: "Good" };
-  return { level: 3, label: "Strong" };
 }

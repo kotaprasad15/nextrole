@@ -1,8 +1,8 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
 import { useState, type ReactNode } from "react";
-import { Cursor } from "@/components/ui/cursor";
 import { DisplayPrefsEffect } from "@/components/display-prefs-effect";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,17 +21,20 @@ function makeQueryClient() {
   });
 }
 
-/** App-wide client providers: server-state cache, tooltips, toasts, the custom cursor and display preferences. */
+/** App-wide client providers: server-state cache, tooltips, toasts and display preferences. */
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(makeQueryClient);
   return (
-    <QueryClientProvider client={client}>
-      <TooltipProvider>
-        {children}
-        <Toaster />
-        <Cursor />
-        <DisplayPrefsEffect />
-      </TooltipProvider>
-    </QueryClientProvider>
+    // Theme: follow the OS by default, remember an explicit choice (localStorage `theme`). next-themes
+    // injects a tiny blocking script that sets the class before first paint, so there is no flash.
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <QueryClientProvider client={client}>
+        <TooltipProvider>
+          {children}
+          <Toaster />
+          <DisplayPrefsEffect />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

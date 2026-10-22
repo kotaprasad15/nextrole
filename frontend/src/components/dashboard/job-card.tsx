@@ -36,7 +36,7 @@ export function JobCard({ job, tier, draftStatus, saved, onToggleSave }: Props) 
   return (
     // "view" cursor over the card (links and buttons inside still show the link cursor); the tier glow
     // sits BEHIND the opaque card, so only its halo shows, and only opacity animates.
-    <div data-cursor="view" className="group relative isolate h-full">
+    <div className="group relative isolate h-full">
       <span
         aria-hidden
         style={{ background: TIER_META[tier].ring }}
@@ -48,7 +48,7 @@ export function JobCard({ job, tier, draftStatus, saved, onToggleSave }: Props) 
             <div className="min-w-0">
               <p className="truncate text-small font-medium text-muted">{job.company}</p>
               <h2 className="mt-0.5 text-h3 font-semibold leading-snug tracking-tight">
-                <Link href={`/jobs/${id}`} data-cursor="view" className="rounded-sm after:absolute after:inset-0 after:content-[''] focus-visible:after:rounded-card">
+                <Link href={`/jobs/${id}`} className="rounded-sm after:absolute after:inset-0 after:content-[''] focus-visible:after:rounded-card">
                   {job.title}
                 </Link>
               </h2>
@@ -96,7 +96,6 @@ export function JobCard({ job, tier, draftStatus, saved, onToggleSave }: Props) 
               onClick={() => onToggleSave(job.job_id)}
               aria-pressed={saved}
               aria-label={saved ? `Remove ${job.title} from saved jobs` : `Save ${job.title}`}
-              data-cursor="link"
               className={cn(
                 "ml-auto grid size-9 place-items-center rounded-control transition-colors hover:bg-ink/5",
                 saved ? "text-primary" : "text-muted hover:text-ink",

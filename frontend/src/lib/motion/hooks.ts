@@ -44,13 +44,6 @@ export function useReducedMotion() {
 /** The OS-level reduced-motion setting alone (Settings uses it to explain what applies). */
 export const useSystemReducedMotion = () => useMedia("(prefers-reduced-motion: reduce)", false);
 
-/** The custom cursor: fine pointer, motion allowed, and not switched off in Settings. */
-export function useCustomCursor() {
-  const rich = useRichMotion();
-  const { prefs } = useDisplayPrefs();
-  return rich && prefs.cursor;
-}
-
 /** Combined gate for decorative pointer-driven motion. */
 export function useRichMotion() {
   const fine = useFinePointer();

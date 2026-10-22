@@ -94,7 +94,10 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
     if (route === "/auth/signup" && email.toLowerCase() === "taken@example.com") return err("email already registered", 409);
     if (route === "/auth/login" && password === "wrong-password") return err("invalid email or password", 401);
     if (!email.includes("@")) return err("invalid email", 422);
-    if (password.length < 8) return err("String should have at least 8 characters", 422);
+    if (route === "/auth/signup" && (password.length < 8 || !/\p{Lu}/u.test(password) || !/\p{Ll}/u.test(password) || !/[^\p{L}\p{N}\s]/u.test(password))) {
+      return err("password needs at least 8 characters, an uppercase letter, a lowercase letter, a special character", 422);
+    }
+    if (password.length < 1) return err("password required", 422);
     setSession();
     if (route === "/auth/signup") saveProfileLocal(null); // new account: goes through onboarding
     else if (localStorage.getItem(PROFILE_KEY) === null) saveProfileLocal(PROFILE);

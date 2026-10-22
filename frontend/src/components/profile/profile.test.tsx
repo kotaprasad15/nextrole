@@ -37,19 +37,49 @@ beforeEach(() => {
   recommendations.mockResolvedValue(RECS);
 });
 
+const startEdit = async (user: ReturnType<typeof userEvent.setup>) => user.click(await screen.findByRole("button", { name: /edit profile/i }));
+
 describe("Profile editing", () => {
-  it("shows the saved profile and no save bar until something changes", async () => {
+  it("opens read-only: values are shown, nothing is editable, there is no save bar", async () => {
     renderPage();
-    expect(await screen.findByLabelText("Name")).toHaveValue("Priya Nair");
+    const name = await screen.findByLabelText("Name");
+    expect(name).toHaveValue("Priya Nair");
+    expect(name).toBeDisabled();
     expect(screen.getByLabelText("Company")).toHaveValue("Finlytics");
-    expect(screen.queryByRole("region", { name: /unsaved/i })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Company")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /add experience/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Edit profile" })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /unsaved|editing/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Save changes" })).not.toBeInTheDocument();
   });
 
-  it("saves edits (trimmed, blanks dropped) with PUT /profile", async () => {
+  it("preferences are read-only too until Edit is chosen", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByLabelText("Name");
+    await user.click(screen.getByRole("tab", { name: "Preferences" }));
+    expect(await screen.findByRole("switch", { name: /open to remote/i })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Edit profile" }));
+    expect(screen.getByRole("switch", { name: /open to remote/i })).toBeEnabled();
+  });
+
+  it("Edit switches to edit mode with Save and Cancel", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await startEdit(user);
+    expect(screen.getByLabelText("Name")).toBeEnabled();
+    expect(screen.getByRole("region", { name: /unsaved|editing/i })).toHaveTextContent("Editing your profile");
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled(); // nothing changed yet
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: "Edit profile" })).not.toBeInTheDocument();
+  });
+
+  it("saves edits (trimmed, blanks dropped) with PUT /profile and returns to read-only", async () => {
     saveProfile.mockImplementation(async (p) => p);
     const user = userEvent.setup();
     renderPage();
-    const name = await screen.findByLabelText("Name");
+    await startEdit(user);
+    const name = screen.getByLabelText("Name");
     await user.clear(name);
     await user.type(name, "  Priya N.  ");
     await user.click(screen.getByRole("button", { name: "Add a bullet" }));
@@ -59,12 +89,14 @@ describe("Profile editing", () => {
     const sent = saveProfile.mock.calls[0][0] as Profile;
     expect(sent.name).toBe("Priya N.");
     expect(sent.experience[0].bullets).toEqual(["Built APIs"]); // the empty new bullet was dropped
+    await waitFor(() => expect(screen.getByLabelText("Name")).toBeDisabled());
+    expect(screen.getByRole("button", { name: "Edit profile" })).toBeInTheDocument();
   });
 
   it("blocks saving invalid data and jumps to the tab with the problem", async () => {
     const user = userEvent.setup();
     renderPage();
-    await screen.findByLabelText("Name");
+    await startEdit(user);
     await user.click(screen.getByRole("tab", { name: "Preferences" }));
     await user.click(await screen.findByRole("button", { name: "Remove role Backend Engineer" }));
     await user.click(screen.getByRole("tab", { name: "Profile" }));
@@ -77,20 +109,38 @@ describe("Profile editing", () => {
     expect(await screen.findByText(/keep at least one role/i)).toBeInTheDocument();
   });
 
-  it("discards edits", async () => {
+  it("cancel with no changes leaves edit mode immediately", async () => {
     const user = userEvent.setup();
     renderPage();
-    const name = await screen.findByLabelText("Name");
-    await user.type(name, "x");
-    await user.click(screen.getByRole("button", { name: "Discard" }));
+    await startEdit(user);
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toBeDisabled();
+  });
+
+  it("cancel with unsaved changes asks first; keep editing preserves them, discard restores the saved profile", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await startEdit(user);
+    await user.type(screen.getByLabelText("Name"), "x");
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    const dialog = await screen.findByRole("dialog", { name: /discard your changes/i });
+    await user.click(within(dialog).getByRole("button", { name: "Keep editing" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(screen.getByLabelText("Name")).toHaveValue("Priya Nairx");
+    expect(screen.getByLabelText("Name")).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Discard changes" }));
+    await waitFor(() => expect(screen.getByLabelText("Name")).toBeDisabled());
     expect(screen.getByLabelText("Name")).toHaveValue("Priya Nair");
-    expect(screen.queryByRole("region", { name: /unsaved/i })).not.toBeInTheDocument();
+    expect(saveProfile).not.toHaveBeenCalled();
   });
 
   it("adds and removes an experience entry", async () => {
     const user = userEvent.setup();
     renderPage();
-    await screen.findByLabelText("Name");
+    await startEdit(user);
     await user.click(screen.getByRole("button", { name: /add experience/i }));
     expect(screen.getAllByLabelText("Company")).toHaveLength(2);
     await user.click(screen.getByRole("button", { name: "Remove experience Finlytics" }));

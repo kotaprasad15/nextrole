@@ -14,6 +14,7 @@ import { cn } from "@/lib/cn";
 import { useReducedMotion } from "@/lib/motion/hooks";
 import { spring } from "@/lib/motion/tokens";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 
 export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
@@ -74,7 +75,6 @@ export function AppNav({ email }: { email?: string }) {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  data-cursor="link"
                   className={cn(
                     "relative rounded-control px-3.5 py-2 text-small font-medium transition-colors",
                     active ? "text-ink" : "text-muted hover:text-ink",
@@ -96,10 +96,10 @@ export function AppNav({ email }: { email?: string }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Account menu"
-              data-cursor="link"
               className="grid size-10 place-items-center rounded-full border border-border bg-surface text-small font-semibold text-primary shadow-1 transition-shadow hover:shadow-2"
             >
               {email ? initials(email) : <Skeleton className="size-5 rounded-full" />}

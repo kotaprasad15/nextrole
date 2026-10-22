@@ -18,7 +18,7 @@ export function HomeBody({ hero }: { hero: ReactNode }) {
       <main id="main">
         {hero}
         <TierMarquee />
-        <div id="how-it-works" className="scroll-mt-16 pt-[var(--section-y)] lg:pt-0">
+        <div id="how-it-works" className="scroll-mt-16 pt-[var(--scene-gap)] lg:pt-0">
           <SceneResume />
           <SceneAgents />
           <SceneJobs />

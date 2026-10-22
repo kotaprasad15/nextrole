@@ -32,7 +32,6 @@ export function FeedbackCard({ draft, onSaved }: { draft: Outreach; onSaved: (d:
       type="button"
       aria-pressed={rating === value}
       onClick={() => setRating(value)}
-      data-cursor="link"
       className={cn(
         "inline-flex h-10 items-center gap-2 rounded-full border px-4 text-small font-medium transition-colors",
         rating === value ? "border-primary bg-primary-tint text-primary" : "border-border-strong bg-surface hover:border-ink/40",

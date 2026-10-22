@@ -77,12 +77,13 @@ describe("auth", () => {
 
   it("returns the real error messages for bad credentials, duplicates and weak passwords", async () => {
     expect(await (await post("/auth/login", { email: "a@b.co", password: "wrong-password" })).json()).toEqual({ detail: "invalid email or password" });
-    expect((await post("/auth/signup", { email: "taken@example.com", password: "password123" })).status).toBe(409);
-    expect((await post("/auth/login", { email: "a@b.co", password: "short" })).status).toBe(422);
+    expect((await post("/auth/signup", { email: "taken@example.com", password: "Password123!" })).status).toBe(409);
+    expect((await post("/auth/signup", { email: "a@b.co", password: "short" })).status).toBe(422);
+    expect((await post("/auth/signup", { email: "a@b.co", password: "alllowercase1" })).status).toBe(422);
   });
 
   it("signup starts a new account with no profile (so onboarding runs); login keeps the seeded one", async () => {
-    await post("/auth/signup", { email: "new@example.com", password: "password123" });
+    await post("/auth/signup", { email: "new@example.com", password: "Password123!" });
     expect((await call("/profile")).status).toBe(404);
     await signIn();
     // Logging in again must not conjure a profile: the account stays un-onboarded until a

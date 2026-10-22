@@ -4,7 +4,7 @@
  * is actually valid is confirmed by `GET /me` in the app shell (an expired cookie gets a 401,
  * which the shell turns into a redirect to /login).
  */
-export const PROTECTED_PREFIXES = ["/dashboard", "/onboarding", "/jobs", "/outreach", "/ats", "/profile", "/activity", "/settings"];
+export const PROTECTED_PREFIXES = ["/dashboard", "/admin", "/onboarding", "/jobs", "/outreach", "/ats", "/profile", "/activity", "/settings"];
 export const AUTH_PAGES = ["/login", "/signup"];
 
 const matches = (pathname: string, prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);

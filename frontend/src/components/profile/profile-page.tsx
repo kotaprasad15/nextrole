@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, UserRound } from "lucide-react";
+import { Loader2, Pencil, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
 import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,6 +54,9 @@ function ProfileTabs({ profile }: { profile: Profile }) {
   const [tab, setTab] = useState<Tab>("profile");
   const [draft, setDraft] = useState<Profile>(profile);
   const [errors, setErrors] = useState<ProfileErrors>({});
+  // View mode is the default: every field is read-only until the user chooses Edit.
+  const [editing, setEditing] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   // The saved profile changed under us (after a save): adopt it. Derived state, adjusted in render.
   const sig = JSON.stringify(profile);
@@ -75,6 +79,7 @@ function ProfileTabs({ profile }: { profile: Profile }) {
     mutationFn: (p: Profile) => api.saveProfile(p),
     onSuccess: (p) => {
       qc.setQueryData(keys.profile, p);
+      setEditing(false);
       toast("Profile saved", { description: "New searches will use it.", variant: "success" });
     },
   });
@@ -87,6 +92,17 @@ function ProfileTabs({ profile }: { profile: Profile }) {
     if (where) return setTab(where);
     save.mutate(cleaned);
   };
+
+  const startEditing = () => setEditing(true);
+  const stopEditing = () => {
+    setDraft(profile);
+    setErrors({});
+    setEditing(false);
+    setConfirmCancel(false);
+  };
+  // Cancel with nothing changed just leaves edit mode; with changes it asks first.
+  const onCancel = () => (dirty ? setConfirmCancel(true) : stopEditing());
+  const formTab = tab === "profile" || tab === "preferences";
 
   const trackedIds = new Set(tracker.jobs.map((j) => j.id));
   const trackerCount = tracker.jobs.length + [...savedJobs.ids].filter((id) => !trackedIds.has(id)).length;
@@ -101,25 +117,48 @@ function ProfileTabs({ profile }: { profile: Profile }) {
         <TabsTrigger value="tracker">Tracker <span className="tabular-nums text-muted">({trackerCount})</span></TabsTrigger>
       </TabsList>
 
-      <TabsContent value="profile"><ProfileSections draft={draft} onChange={setDraft} errors={errors} /></TabsContent>
-      <TabsContent value="preferences"><PreferencesSection draft={draft} onChange={setDraft} errors={errors} /></TabsContent>
+      {formTab && !editing && (
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <p className="text-small text-muted">This is what matching and your drafts use. Choose Edit to change it.</p>
+          <Button onClick={startEditing}><Pencil className="size-4" aria-hidden /> Edit profile</Button>
+        </div>
+      )}
+      {/* A disabled fieldset makes every control inside read-only at once (inputs, buttons, Radix switches). */}
+      <TabsContent value="profile">
+        <fieldset disabled={!editing} data-readonly={!editing} className="min-w-0"><legend className="sr-only">Profile details</legend><ProfileSections draft={draft} onChange={setDraft} errors={errors} /></fieldset>
+      </TabsContent>
+      <TabsContent value="preferences">
+        <fieldset disabled={!editing} data-readonly={!editing} className="min-w-0"><legend className="sr-only">Search preferences</legend><PreferencesSection draft={draft} onChange={setDraft} errors={errors} /></fieldset>
+      </TabsContent>
       <TabsContent value="saved"><SavedJobs /></TabsContent>
       <TabsContent value="tracker"><TrackerBoard /></TabsContent>
 
-      {(dirty || errorCount > 0) && (tab === "profile" || tab === "preferences") && (
+      {editing && formTab && (
         <div role="region" aria-label="Unsaved changes" className="sticky bottom-4 z-30 mt-8 flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface p-4 shadow-3">
           <div>
-            <p className="text-small font-semibold">{errorCount > 0 ? `Fix ${errorCount} ${errorCount === 1 ? "field" : "fields"} to save` : "You have unsaved changes"}</p>
+            <p className="text-small font-semibold">{errorCount > 0 ? `Fix ${errorCount} ${errorCount === 1 ? "field" : "fields"} to save` : dirty ? "You have unsaved changes" : "Editing your profile"}</p>
             {save.error && <p role="alert" className="text-caption font-medium text-danger">{save.error instanceof ApiError ? save.error.message : "Could not save. Please try again."}</p>}
           </div>
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => { setDraft(profile); setErrors({}); }}>Discard</Button>
+            <Button variant="ghost" onClick={onCancel}>Cancel</Button>
             <Button onClick={onSave} disabled={save.isPending || !dirty}>
               {save.isPending && <Loader2 className="size-4 animate-spin" aria-hidden />} Save changes
             </Button>
           </div>
         </div>
       )}
+      <Modal
+        open={confirmCancel}
+        onOpenChange={setConfirmCancel}
+        title="Discard your changes?"
+        description="You have edits that are not saved. Cancelling throws them away."
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setConfirmCancel(false)}>Keep editing</Button>
+            <Button variant="danger" onClick={stopEditing}>Discard changes</Button>
+          </>
+        }
+      />
     </Tabs>
   );
 }

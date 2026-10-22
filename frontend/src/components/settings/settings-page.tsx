@@ -2,8 +2,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
@@ -11,14 +12,13 @@ import { Field, Input } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { api } from "@/lib/api/endpoints";
 import { useLogout, useMe } from "@/lib/api/queries";
 import { useDisplayPrefs } from "@/lib/local/display-prefs";
 import { clearLocalData } from "@/lib/local/clear";
-import { useFinePointer, useSystemReducedMotion } from "@/lib/motion/hooks";
+import { useSystemReducedMotion } from "@/lib/motion/hooks";
 
 export const DELETE_PHRASE = "delete";
 
@@ -41,7 +41,9 @@ export function SettingsPage() {
   const me = useMe();
   const logout = useLogout();
   const { prefs, set } = useDisplayPrefs();
-  const fine = useFinePointer();
+  const { theme, setTheme } = useTheme();
+  // The stored theme is only known in the browser: show "system" until hydrated so server and client match.
+  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
   const systemReduced = useSystemReducedMotion();
   const [confirm, setConfirm] = useState<"local" | "delete" | null>(null);
   const [phrase, setPhrase] = useState("");
@@ -82,12 +84,20 @@ export function SettingsPage() {
         </Section>
 
         <Section title="Display" description="Saved in this browser.">
-          <Switch
-            checked={prefs.cursor}
-            onCheckedChange={(cursor) => set({ cursor })}
-            label="Custom cursor"
-            description={fine ? "A small dot and ring that follow your mouse. Text fields keep the normal cursor." : "Only used with a mouse or trackpad. This device does not have one, so it is off here."}
-          />
+          <fieldset>
+            <legend className="mb-2 text-small font-medium">Theme</legend>
+            <RadioCards
+              label="Theme"
+              value={hydrated ? (theme ?? "system") : "system"}
+              onValueChange={setTheme}
+              options={[
+                { value: "system", label: "Match my device", hint: "Light or dark, following your system setting." },
+                { value: "light", label: "Light", hint: "Warm paper background." },
+                { value: "dark", label: "Dark", hint: "Deep neutral background, easier at night." },
+              ]}
+              className="sm:grid-cols-3"
+            />
+          </fieldset>
           <fieldset>
             <legend className="mb-2 text-small font-medium">Motion</legend>
             <RadioCards
@@ -96,7 +106,7 @@ export function SettingsPage() {
               onValueChange={(v) => set({ motion: v as "system" | "reduced" })}
               options={[
                 { value: "system", label: "Follow my device", hint: "Use the reduced-motion setting from your system." },
-                { value: "reduced", label: "Always reduce motion", hint: "No animations, tilt or custom cursor, and no scroll story on the homepage." },
+                { value: "reduced", label: "Always reduce motion", hint: "No animations or tilt, and no scroll story on the homepage." },
               ]}
             />
             {systemReduced && <p className="mt-2 text-small text-muted">Your device already asks for reduced motion, so motion stays off whichever you pick.</p>}
