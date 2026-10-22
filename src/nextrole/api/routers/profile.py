@@ -4,7 +4,14 @@ import sqlite3
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from nextrole.agents.intake import run_intake
-from nextrole.api.deps import current_user_id, get_conn, get_llm, get_settings_dep, get_store
+from nextrole.api.deps import (
+    current_user_id,
+    get_conn,
+    get_llm,
+    get_settings_dep,
+    get_store,
+    rate_limit_user,
+)
 from nextrole.config import Settings
 from nextrole.db import repos
 from nextrole.llm.budget import BudgetExceeded
@@ -20,7 +27,7 @@ def _split(csv: str) -> list[str]:
     return [p.strip() for p in csv.split(",") if p.strip()]
 
 
-@router.post("/onboarding", response_model=Profile)
+@router.post("/onboarding", response_model=Profile, dependencies=[rate_limit_user("onboarding", 10, 3600)])
 async def onboarding(
     roles: str = Form(...),
     locations: str = Form(""),

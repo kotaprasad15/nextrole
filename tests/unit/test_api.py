@@ -152,7 +152,7 @@ def test_me_and_api_root(ctx):
     c = ctx.client
     assert c.get("/me").status_code == 401
     signup(c, email="Me@B.co")
-    assert c.get("/me").json() == {"email": "me@b.co"}
+    assert c.get("/me").json() == {"email": "me@b.co", "role": "user"}
     # The old bundled UI is gone: / only points at the docs and the Next.js app; nothing is served statically.
     root = c.get("/")
     assert root.status_code == 200 and root.json()["docs"] == "/docs"

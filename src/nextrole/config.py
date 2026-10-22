@@ -53,11 +53,32 @@ class Settings(BaseSettings):
 
     db_path: Path = Path("data/nextrole.db")
     upload_dir: Path = Path("data/uploads")
-    # Fernet key for encrypting stored resumes. Generate:
+    # AES-256-GCM keyring for field-level encryption of personal data: "id:key,id:key", FIRST entry
+    # encrypts, all entries decrypt. Generate with `python -m nextrole.security genkey`. Never commit it.
+    encryption_keys: str = ""
+    # Legacy Fernet key from the first release. Still read (and used to derive a decrypt key) so old
+    # data keeps working until `python -m nextrole.security encrypt-existing` has upgraded it.
+    # Fernet key for encrypting stored resumes (legacy). Generate:
     #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
     resume_encryption_key: str = ""
     session_ttl_hours: int = 24 * 7
     cookie_secure: bool = False  # set True behind HTTPS
+    # "production" forces Secure cookies and HSTS regardless of cookie_secure.
+    env: str = "development"
+    # CSRF: double-submit token + Origin check on every state-changing request (see security/web.py).
+    csrf_enabled: bool = True
+    # Browser origins allowed to call the API (the Next.js app, which proxies /api/*).
+    allowed_origins: str = "http://127.0.0.1:3100,http://localhost:3100"
+    rate_limit_enabled: bool = True
+    # How many reverse proxies sit in front of the API and append to X-Forwarded-For. 0 = trust
+    # nothing (use the socket address). Set 1 behind the Next.js proxy / a load balancer; setting
+    # it when the API is directly reachable lets clients spoof their IP.
+    trusted_proxy_hops: int = 0
+    login_max_failures: int = 5  # consecutive failures before the account locks
+    login_lockout_minutes: int = 15
+    # Comma-separated emails that get the admin role at startup. The ONLY way to become an admin:
+    # there is no API for granting it.
+    admin_emails: str = ""
     max_upload_mb: int = 5
 
 

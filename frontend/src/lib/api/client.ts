@@ -1,5 +1,5 @@
 import type { ZodType } from "zod";
-import { API_BASE, IS_MOCK } from "./config";
+import { API_BASE, CSRF_COOKIE, CSRF_HEADER, IS_MOCK } from "./config";
 
 /** Any non-2xx response, a network failure, or a response that fails schema validation. */
 export class ApiError extends Error {
@@ -43,6 +43,13 @@ async function fetcher(): Promise<Fetcher> {
   return realFetch;
 }
 
+/** The CSRF token the backend put in a cookie (it is readable on purpose; see security/web.py). */
+export function csrfToken(): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const hit = document.cookie.split("; ").find((c) => c.startsWith(`${CSRF_COOKIE}=`));
+  return hit ? decodeURIComponent(hit.slice(CSRF_COOKIE.length + 1)) : undefined;
+}
+
 export interface RequestOptions<T> {
   method?: "GET" | "POST" | "PUT" | "DELETE";
   /** JSON body, or FormData for multipart (never set content-type yourself for FormData). */
@@ -54,10 +61,15 @@ export interface RequestOptions<T> {
 
 export async function apiRequest<T = void>(path: string, opts: RequestOptions<T> = {}): Promise<T> {
   const isForm = typeof FormData !== "undefined" && opts.body instanceof FormData;
+  const method = opts.method ?? "GET";
+  const headers: Record<string, string> = {};
+  if (opts.body !== undefined && !isForm) headers["content-type"] = "application/json";
+  const csrf = method === "GET" ? undefined : csrfToken();
+  if (csrf) headers[CSRF_HEADER] = csrf; // every state-changing request proves it came from our own pages
   const init: RequestInit = {
-    method: opts.method ?? "GET",
+    method,
     signal: opts.signal,
-    headers: opts.body !== undefined && !isForm ? { "content-type": "application/json" } : undefined,
+    headers: Object.keys(headers).length ? headers : undefined,
     body: opts.body === undefined ? undefined : isForm ? (opts.body as FormData) : JSON.stringify(opts.body),
   };
 

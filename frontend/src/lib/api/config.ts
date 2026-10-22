@@ -7,3 +7,6 @@
 export const IS_MOCK = process.env.NEXT_PUBLIC_API_MODE === "mock";
 export const API_BASE = "/api";
 export const SESSION_COOKIE = "nextrole_session";
+/** Double-submit CSRF token: set by the backend at login, echoed back in a header on every write. */
+export const CSRF_COOKIE = "nextrole_csrf";
+export const CSRF_HEADER = "X-CSRF-Token";

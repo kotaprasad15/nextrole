@@ -4,7 +4,7 @@ import sqlite3
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from nextrole.api.deps import current_user_id, get_conn, get_llm, get_settings_dep
+from nextrole.api.deps import current_user_id, get_conn, get_llm, get_settings_dep, rate_limit_user
 from nextrole.config import Settings
 from nextrole.db import repos
 from nextrole.llm.client import LLMClient
@@ -53,7 +53,7 @@ def get_recommendations(
     return _grouped(conn, user_id)
 
 
-@router.post("/recommendations/refresh")
+@router.post("/recommendations/refresh", dependencies=[rate_limit_user("refresh", 20, 3600)])
 async def refresh(
     request: Request,
     user_id: int = Depends(current_user_id),

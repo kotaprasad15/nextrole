@@ -5,11 +5,14 @@ visible and the dependency list short. Foreign keys are enabled per connection b
 SQLite disables them by default (needed for cascade deletes).
 
 Schema changes: `schema.sql` only uses CREATE TABLE IF NOT EXISTS, which never alters an
-existing table, so columns added after a table first shipped are listed in COLUMN_MIGRATIONS
-and applied idempotently on connect. That keeps developers' existing databases working.
+existing table. Columns added before versioned migrations existed are listed in
+COLUMN_MIGRATIONS (kept for old databases); everything newer is a numbered migration in
+`db/migrate.py`, applied on connect with a backup of the existing file first.
 """
 import sqlite3
 from pathlib import Path
+
+from nextrole.db.migrate import run_migrations
 
 SCHEMA = Path(__file__).with_name("schema.sql")
 
@@ -28,11 +31,14 @@ def _migrate(conn: sqlite3.Connection) -> None:
 
 
 def connect(db_path: Path | str) -> sqlite3.Connection:
-    if str(db_path) != ":memory:":
+    on_disk = str(db_path) != ":memory:"
+    had_data = on_disk and Path(db_path).exists() and Path(db_path).stat().st_size > 0
+    if on_disk:
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     conn.executescript(SCHEMA.read_text(encoding="utf-8"))
     _migrate(conn)
+    run_migrations(conn, Path(db_path) if on_disk else None, had_data)
     return conn

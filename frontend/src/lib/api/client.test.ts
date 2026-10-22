@@ -6,7 +6,10 @@ const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
 
 beforeEach(() => setUnauthorizedHandler(null));
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  document.cookie = "nextrole_csrf=; path=/; max-age=0";
+});
 
 describe("errorMessage", () => {
   it("reads FastAPI string and validation-array details", () => {
@@ -30,6 +33,19 @@ describe("apiRequest", () => {
     expect(init.method).toBe("POST");
     expect(init.headers).toEqual({ "content-type": "application/json" });
     expect(init.credentials).toBe("same-origin");
+  });
+
+  it("echoes the CSRF cookie in a header on writes, never on reads, and never invents one", async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => json({}));
+    vi.stubGlobal("fetch", fetchMock);
+    document.cookie = "nextrole_csrf=tok%2Fen123; path=/";
+    await apiRequest("/profile", { method: "PUT", body: {}, schema: z.object({}) });
+    await apiRequest("/profile", { schema: z.object({}) });
+    expect(fetchMock.mock.calls[0][1].headers["X-CSRF-Token"]).toBe("tok/en123");
+    expect(fetchMock.mock.calls[1][1].headers?.["X-CSRF-Token"]).toBeUndefined();
+    document.cookie = "nextrole_csrf=; path=/; max-age=0";
+    await apiRequest("/profile", { method: "DELETE" });
+    expect(fetchMock.mock.calls[2][1].headers).toBeUndefined();
   });
 
   it("sends FormData untouched so the browser sets the multipart boundary", async () => {

@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from nextrole.api.deps import current_user_id, get_conn
+from nextrole.api.deps import current_user_id, get_conn, rate_limit_user
 from nextrole.db import repos
 from nextrole.models.outreach import Channel
 from nextrole.orchestrator.manager import RunConflict, RunManager
@@ -36,7 +36,7 @@ def _sse(data: dict, event_id: int | None = None) -> str:
     return f"{head}data: {json.dumps(data)}\n\n"
 
 
-@router.post("/runs", status_code=202)
+@router.post("/runs", status_code=202, dependencies=[rate_limit_user("runs", 30, 3600)])
 async def start_run(  # async: it creates a task, which needs the running event loop
     body: StartRun, request: Request, user_id: int = Depends(current_user_id),
     conn: sqlite3.Connection = Depends(get_conn),
