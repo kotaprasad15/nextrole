@@ -11,8 +11,9 @@ import { SESSION_COOKIE } from "../config";
 import type { Alert, AlertSettings, Company, JobCard, Outreach, Profile, Recommendations, SavedJob, SavedStatus, StartRunBody, Tier } from "../schemas";
 import { ALL_JOBS, MOCK_EMAIL, PAST_RUNS, PROFILE, RECOMMENDATIONS, draftFor } from "./data";
 import { getMockRun, startMockRun } from "./events";
+import { interviewRoutes } from "./interviews";
 
-interface Flags { delay?: number; empty?: boolean; fail?: string[]; speed?: number; expired?: boolean }
+interface Flags { delay?: number; empty?: boolean; fail?: string[]; speed?: number; expired?: boolean; admin?: boolean }
 
 function flags(): Flags {
   try {
@@ -318,7 +319,7 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
       localStorage.removeItem(PROFILE_KEY);
       return noContent();
     }
-    return json({ email: MOCK_EMAIL, role: "user" });
+    return json({ email: MOCK_EMAIL, role: f.admin ? "admin" : "user" });
   }
   if (route === "/me/export") {
     return json({ format: 1, exported_at: new Date().toISOString(), account: { email: MOCK_EMAIL }, profile: loadProfile() });
@@ -385,7 +386,8 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
     return past ? json(past) : err("run not found", 404);
   }
 
-  const savedResponse = savedRoutes(method, path, body) ?? alertRoutes(method, path, body);
+  const savedResponse = savedRoutes(method, path, body) ?? alertRoutes(method, path, body)
+    ?? interviewRoutes(method, path, body, { json, err, noContent, admin: Boolean(f.admin) });
   if (savedResponse) return savedResponse;
 
   // ---- outreach ----

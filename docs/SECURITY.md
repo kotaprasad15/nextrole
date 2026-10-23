@@ -104,6 +104,16 @@ secret (a token for one user cannot unsubscribe another); the public endpoint an
 changes state only on POST. Postings and wanted roles reach the verifying model only inside untrusted-data blocks, the
 model has no tools, and the reason it returns is stripped of links before storage. Tests: `tests/unit/test_alerts.py`.
 
+### User-generated content (interview experiences)
+Plain text only: validators strip tags, decode entities once, remove control and invisible characters and cap lengths;
+React renders text and a test bans raw HTML rendering, so a stored `<script>` or `<img onerror>` is inert in the page and
+in the data. Personal data (emails, phones, links, credential-like strings) is rejected before storage. Everything is
+screened by deterministic rules plus an LLM that sees the text only inside an untrusted-data block, has no tools and
+returns a validated schema; its verdict is advisory and a human admin approves every post before it is visible. Admin
+routes enforce the role on the server (404 for others). Submissions and edits are rate limited, pending posts are
+capped, reports are deduplicated per user and enough of them hide a post. Public responses never include user ids.
+Tests: `tests/unit/test_interviews.py`.
+
 ### Privacy rights
 `GET /me/export` returns everything held about the user (decrypted). `DELETE /me` removes the account
 and, by cascade, profile, matches, drafts, feedback, runs and sessions, plus the resume file, the user's

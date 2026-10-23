@@ -10,6 +10,8 @@ export const keys = {
   recommendations: ["recommendations"] as const,
   outreach: ["outreach"] as const,
   outreachByJob: (jobId: string) => ["outreach", "job", jobId] as const,
+  interviews: ["interviews"] as const,
+  moderation: ["moderation"] as const,
   alerts: ["alerts"] as const,
   alertSummary: ["alerts", "summary"] as const,
   alertSettings: ["alerts", "settings"] as const,
@@ -90,4 +92,20 @@ export function useAlertSummary() {
 
 export function useAlertSettings() {
   return useQuery({ queryKey: keys.alertSettings, queryFn: api.alertSettings });
+}
+
+export function useInterviews(params: Parameters<typeof api.interviews>[0]) {
+  return useQuery({ queryKey: [...keys.interviews, "browse", params], queryFn: () => api.interviews(params) });
+}
+
+export function useMyInterviews() {
+  return useQuery({ queryKey: [...keys.interviews, "mine"], queryFn: api.myInterviews });
+}
+
+export function useModerationQueue(status: string) {
+  return useQuery({ queryKey: [...keys.moderation, "queue", status], queryFn: () => api.moderationQueue(status), retry: false });
+}
+
+export function useModerationReports() {
+  return useQuery({ queryKey: [...keys.moderation, "reports"], queryFn: api.moderationReports, retry: false });
 }

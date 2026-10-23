@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from nextrole.llm.untrusted import CANARY
 from nextrole.security.injection import scan
 
-_SECRETS = [
+SECRET_PATTERNS = [
     re.compile(r"\bsk-(?:ant-)?[A-Za-z0-9_-]{16,}"),
     re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
     re.compile(r"\bgh[pousr]_[A-Za-z0-9]{30,}"),
@@ -49,7 +49,7 @@ class GuardReport:
 
 def check_text(text: str, *, allowed_urls: set[str] = frozenset(), allowed_contacts: set[str] = frozenset()) -> GuardReport:
     report = GuardReport()
-    if any(p.search(text) for p in _SECRETS):
+    if any(p.search(text) for p in SECRET_PATTERNS):
         report.problems.append("contains what looks like a secret or credential")
         report.critical = True
     if CANARY in text or any(sig in text for sig in _SYSTEM_SIGNATURES):

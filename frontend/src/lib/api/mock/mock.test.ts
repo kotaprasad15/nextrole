@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { SESSION_COOKIE } from "../config";
 import {
-  AlertCheckSchema, AlertSchema, AlertSettingsSchema, CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
+  AdminInterviewSchema, AlertCheckSchema, AlertSchema, AlertSettingsSchema, InterviewPageSchema, InterviewSchema, ReportRowSchema, SubmitResultSchema, CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
   RunDetailSchema, RunEventSchema, RunSummarySchema, StartRunResponseSchema, type RunEvent,
 } from "../schemas";
 import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, SAVED_JOBS, draftFor } from "./data";
@@ -282,5 +282,50 @@ describe("alerts (mock server)", () => {
   it("unsubscribe needs no session; a bad token is a 404", async () => {
     expect((await send("POST", "/alerts/unsubscribe?token=1.abc")).status).toBe(204);
     expect((await send("POST", "/alerts/unsubscribe?token=bad")).status).toBe(404);
+  });
+});
+
+describe("interview experiences (mock server)", () => {
+  const send = (method: string, path: string, body?: unknown) => call(path, { method, body: body === undefined ? undefined : JSON.stringify(body) });
+  const GOOD = {
+    company: "Acme", role: "SDE", level: "mid", interviewed_on: "2026-08", difficulty: 3, outcome: "offer", anonymous: true, tips: "Practise graphs.",
+    rounds: [{ type: "coding", difficulty: 3, notes: "Two graph problems." }],
+  };
+
+  it("browses only approved posts, filters, votes and reports with schema-valid responses", async () => {
+    await signIn();
+    const page = InterviewPageSchema.parse(await (await send("GET", "/interviews")).json());
+    expect(page.items.length).toBeGreaterThanOrEqual(3);
+    expect(page.items.every((i) => i.status === undefined || i.mine)).toBe(true); // pending posts of others never appear
+    expect(InterviewPageSchema.parse(await (await send("GET", "/interviews?company=lumen")).json()).items).toHaveLength(1);
+    expect(InterviewPageSchema.parse(await (await send("GET", "/interviews?difficulty=5")).json()).items.every((i) => i.difficulty === 5)).toBe(true);
+    const other = page.items.find((i) => !i.mine)!;
+    const voted = InterviewSchema.parse(await (await send("POST", `/interviews/${other.id}/upvote`)).json());
+    expect(voted.upvoted).toBe(true);
+    expect(InterviewSchema.parse(await (await send("DELETE", `/interviews/${other.id}/upvote`)).json()).upvoted).toBe(false);
+    expect((await send("POST", `/interviews/${other.id}/report`, { reason: "spam", detail: "" })).status).toBe(201);
+    expect((await send("POST", `/interviews/${other.id}/report`, { reason: "spam", detail: "" })).status).toBe(409);
+  });
+
+  it("submits for review, refuses personal data, and keeps the member's own post private until approved", async () => {
+    await signIn();
+    expect((await send("POST", "/interviews", { ...GOOD, tips: "mail jane@example.com" })).status).toBe(422);
+    const made = SubmitResultSchema.parse(await (await send("POST", "/interviews", GOOD)).json());
+    expect(made.status).toBe("pending");
+    const mine = z.array(InterviewSchema).parse(await (await send("GET", "/interviews/mine")).json());
+    expect(mine.find((i) => i.id === made.id)?.status).toBe("pending");
+    expect((await send("DELETE", `/interviews/${made.id}`)).status).toBe(204);
+  });
+
+  it("admin routes are 404 for members and work with the admin switch", async () => {
+    await signIn();
+    expect((await send("GET", "/admin/interviews")).status).toBe(404);
+    localStorage.setItem("nextrole_mock", JSON.stringify({ delay: 0, speed: 0.001, admin: true }));
+    expect(MeSchema.parse(await (await send("GET", "/me")).json()).role).toBe("admin");
+    const queue = z.array(AdminInterviewSchema).parse(await (await send("GET", "/admin/interviews")).json());
+    expect(queue.length).toBeGreaterThanOrEqual(1);
+    const approved = AdminInterviewSchema.parse(await (await send("POST", `/admin/interviews/${queue[0].id}/approve`, { note: "" })).json());
+    expect(approved.status).toBe("approved");
+    z.array(ReportRowSchema).parse(await (await send("GET", "/admin/reports")).json());
   });
 });

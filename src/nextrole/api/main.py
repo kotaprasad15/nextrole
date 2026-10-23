@@ -11,8 +11,10 @@ from nextrole.alerts.mailer import Mailer, get_mailer
 from nextrole.alerts.runner import run_alerts as run_alert_pass
 from nextrole.alerts.scheduler import AlertScheduler
 from nextrole.api.routers import (
+    admin,
     alerts,
     auth,
+    interviews,
     outreach,
     profile,
     public,
@@ -113,6 +115,8 @@ def create_app(
     app.include_router(public.router)
     app.include_router(saved.router)
     app.include_router(alerts.router)
+    app.include_router(interviews.router)
+    app.include_router(admin.router)
 
     @app.get("/health")
     def health() -> dict:

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, Bookmark, FileCheck2, LayoutGrid, LogOut, Mail, Menu, Settings, UserRound } from "lucide-react";
+import { Activity, Bookmark, FileCheck2, LayoutGrid, LogOut, Mail, Menu, MessagesSquare, Settings, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,6 +21,7 @@ export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
   { href: "/saved", label: "Saved", icon: Bookmark },
   { href: "/outreach", label: "Outreach", icon: Mail },
+  { href: "/interviews", label: "Interviews", icon: MessagesSquare },
   { href: "/ats", label: "ATS check", icon: FileCheck2 },
   { href: "/activity", label: "Activity", icon: Activity },
   { href: "/profile", label: "Profile", icon: UserRound },
@@ -48,7 +49,7 @@ export function NavFallback() {
   );
 }
 
-export function AppNav({ email }: { email?: string }) {
+export function AppNav({ email, role }: { email?: string; role?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const reduced = useReducedMotion();
@@ -119,6 +120,11 @@ export function AppNav({ email }: { email?: string }) {
               <DropdownMenuItem onSelect={() => router.push("/settings")}>
                 <Settings aria-hidden /> Settings
               </DropdownMenuItem>
+              {role === "admin" && (
+                <DropdownMenuItem onSelect={() => router.push("/admin/moderation")}>
+                  <ShieldCheck aria-hidden /> Moderation
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={signOut}>
                 <LogOut aria-hidden /> Sign out

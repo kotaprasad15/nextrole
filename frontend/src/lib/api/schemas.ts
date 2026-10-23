@@ -255,3 +255,58 @@ export const AlertSettingsSchema = z.object({
 export type AlertSettings = z.infer<typeof AlertSettingsSchema>;
 
 export const AlertCheckSchema = z.object({ created: z.number(), boards: z.number(), errors: z.number() });
+
+// ---- interview experiences ----
+export const RoundSchema = z.object({ type: z.string(), difficulty: z.number(), notes: z.string() });
+export const InterviewSchema = z.object({
+  id: z.number(),
+  company: z.string(),
+  role: z.string(),
+  level: z.string(),
+  interviewed_on: z.string(),
+  rounds: z.array(RoundSchema),
+  difficulty: z.number(),
+  outcome: z.string(),
+  tips: z.string(),
+  created_at: z.string(),
+  /** First name, only when the author chose to be named. */
+  author: z.string().nullable(),
+  mine: z.boolean(),
+  upvotes: z.number(),
+  upvoted: z.boolean(),
+  // Present only on the author's own posts:
+  status: z.enum(["pending", "approved", "rejected", "removed"]).optional(),
+  moderator_note: z.string().optional(),
+});
+export type Interview = z.infer<typeof InterviewSchema>;
+export const InterviewPageSchema = z.object({ items: z.array(InterviewSchema), total: z.number(), page: z.number(), page_size: z.number() });
+export const SubmitResultSchema = z.object({ id: z.number(), status: z.string(), message: z.string() });
+
+export const AutoCheckSchema = z.object({
+  flags: z.array(z.object({ code: z.string(), severity: z.string(), detail: z.string() })),
+  llm: z.object({ pii: z.boolean(), attack: z.boolean(), confidential: z.boolean(), risk: z.string(), reasons: z.array(z.string()) }).nullable(),
+  llm_status: z.string(),
+  risk: z.enum(["low", "medium", "high"]),
+});
+export const AdminInterviewSchema = InterviewSchema.extend({
+  author_id: z.number(),
+  auto_check: AutoCheckSchema,
+  open_reports: z.number(),
+});
+export type AdminInterview = z.infer<typeof AdminInterviewSchema>;
+export const ReportRowSchema = z.object({
+  id: z.number(), exp_id: z.number(), reason: z.string(), detail: z.string(), created_at: z.string(), company: z.string(), role: z.string(), exp_status: z.string(),
+});
+export type ReportRow = z.infer<typeof ReportRowSchema>;
+
+export interface InterviewInput {
+  company: string;
+  role: string;
+  level: string;
+  interviewed_on: string;
+  rounds: { type: string; difficulty: number; notes: string }[];
+  difficulty: number;
+  outcome: string;
+  tips: string;
+  anonymous: boolean;
+}

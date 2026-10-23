@@ -130,12 +130,68 @@ def _004_alerts(conn: sqlite3.Connection) -> None:
     )
 
 
+def _005_interview_experiences(conn: sqlite3.Connection) -> None:
+    """Interview experiences with moderation. New tables only. Deleting an account deletes its posts,
+    votes and reports (cascade); `moderation_log` keeps only aggregate-safe facts (no user ids)."""
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS interview_experiences (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            anonymous INTEGER NOT NULL DEFAULT 1,
+            company TEXT NOT NULL,
+            company_key TEXT NOT NULL,
+            role TEXT NOT NULL,
+            level TEXT NOT NULL,
+            interviewed_on TEXT NOT NULL,
+            rounds_json TEXT NOT NULL,
+            search_text TEXT NOT NULL DEFAULT '',     -- lowercased company, role, tips and round notes
+            difficulty INTEGER NOT NULL CHECK (difficulty BETWEEN 1 AND 5),
+            outcome TEXT NOT NULL,
+            tips TEXT NOT NULL DEFAULT '',
+            status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'removed')),
+            auto_check_json TEXT NOT NULL DEFAULT '{}',
+            moderator_note TEXT NOT NULL DEFAULT '',
+            reviewed_at TEXT,
+            created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_interviews_status ON interview_experiences(status, created_at);
+        CREATE INDEX IF NOT EXISTS idx_interviews_user ON interview_experiences(user_id);
+        CREATE TABLE IF NOT EXISTS interview_votes (
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            exp_id INTEGER NOT NULL REFERENCES interview_experiences(id) ON DELETE CASCADE,
+            created_at TEXT NOT NULL,
+            PRIMARY KEY (user_id, exp_id)
+        );
+        CREATE TABLE IF NOT EXISTS interview_reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            exp_id INTEGER NOT NULL REFERENCES interview_experiences(id) ON DELETE CASCADE,
+            reporter_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            reason TEXT NOT NULL,
+            detail TEXT NOT NULL DEFAULT '',
+            status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'dismissed')),
+            created_at TEXT NOT NULL,
+            UNIQUE (exp_id, reporter_id)
+        );
+        CREATE TABLE IF NOT EXISTS moderation_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            exp_id INTEGER NOT NULL REFERENCES interview_experiences(id) ON DELETE CASCADE,
+            actor TEXT NOT NULL,
+            action TEXT NOT NULL,
+            note TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL
+        );
+        """
+    )
+
+
 # (version, name, function). Append new migrations at the end.
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Connection], None]]] = [
     (1, "baseline", _001_baseline),
     (2, "user_security", _002_user_security),
     (3, "saved_jobs_and_companies", _003_saved_jobs_and_companies),
     (4, "alerts", _004_alerts),
+    (5, "interview_experiences", _005_interview_experiences),
 ]
 
 

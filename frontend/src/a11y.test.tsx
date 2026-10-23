@@ -54,6 +54,22 @@ vi.mock("@/lib/api/endpoints", () => ({
     approveOutreach: vi.fn(),
     deleteOutreach: vi.fn(),
     outreachFeedback: vi.fn(),
+    interviews: async () => ({ items: [{ id: 1, company: "Acme", role: "Software Engineer", level: "mid", interviewed_on: "2026-08", difficulty: 4, outcome: "offer",
+      rounds: [{ type: "coding", difficulty: 3, notes: "Two graph problems." }], tips: "Explain your trade-offs.", created_at: "2026-09-01T09:00:00+00:00",
+      author: "Sam", mine: false, upvotes: 2, upvoted: false }], total: 1, page: 1, page_size: 20 }),
+    myInterviews: async () => [],
+    submitInterview: vi.fn(),
+    editInterview: vi.fn(),
+    deleteInterview: vi.fn(),
+    upvoteInterview: vi.fn(),
+    reportInterview: vi.fn(),
+    moderationQueue: async () => [{ id: 3, company: "Globex", role: "Backend Engineer", level: "senior", interviewed_on: "2026-07", difficulty: 5, outcome: "rejected",
+      rounds: [{ type: "system_design", difficulty: 5, notes: "Distributed systems." }], tips: "Prepare.", created_at: "2026-09-02T09:00:00+00:00", author: null, mine: false,
+      upvotes: 0, upvoted: false, status: "pending", moderator_note: "", author_id: 9, open_reports: 1,
+      auto_check: { flags: [{ code: "attack", severity: "review", detail: "language that may be a personal attack" }], llm: null, llm_status: "unavailable", risk: "medium" } }],
+    moderate: vi.fn(),
+    moderationReports: async () => [],
+    dismissReport: vi.fn(),
     alerts: async () => [
       { id: 1, job_id: "j1", title: "Software Development Engineer II", company: "Stripe", location: "Remote", remote: true, apply_url: "https://boards.example.com/stripe/1",
         summary: "", role: "SDE", why: "Same kind of job as SDE.", confidence: 0.95, method: "taxonomy", created_at: "2026-10-20T08:00:00+00:00", read: false },
@@ -94,6 +110,9 @@ import { ProfilePage } from "@/components/profile/profile-page";
 import { SettingsPage } from "@/components/settings/settings-page";
 import { SavedPage } from "@/components/saved/saved-page";
 import { AlertsPage } from "@/components/alerts/alerts-page";
+import { ModerationPage } from "@/components/admin/moderation-page";
+import { ExperienceForm } from "@/components/interviews/experience-form";
+import { InterviewsPage } from "@/components/interviews/interviews-page";
 import { Unsubscribe } from "@/components/alerts/unsubscribe";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Hero } from "@/components/marketing/hero";
@@ -229,6 +248,29 @@ describe("accessibility (axe)", () => {
     window.history.pushState({}, "", "/unsubscribe?token=1.abc");
     const b = renderPage(<Unsubscribe />);
     await clean(b.container);
+  });
+
+  it("interview experiences: browse, my posts, and the share form with an error", async () => {
+    const user = userEvent.setup();
+    const a = renderPage(<InterviewsPage />);
+    await screen.findByRole("heading", { level: 2, name: "Acme" });
+    await clean(a.container);
+    await user.click(screen.getByRole("button", { name: "Report the post about Acme" }));
+    await screen.findByRole("dialog");
+    await clean(a.container);
+    a.unmount();
+    window.history.pushState({}, "", "/interviews/new");
+    const b = renderPage(<ExperienceForm />);
+    await screen.findByLabelText("Company");
+    await user.click(screen.getByRole("button", { name: "Submit for review" }));
+    await screen.findByText("Enter the company.");
+    await clean(b.container);
+  });
+
+  it("admin moderation queue", async () => {
+    const { container } = renderPage(<ModerationPage />);
+    await screen.findByRole("heading", { level: 2, name: "Globex" });
+    await clean(container);
   });
 
   it("activity list and a run's trace", async () => {

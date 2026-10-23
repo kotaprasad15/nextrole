@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from nextrole.alerts import store as alert_store
-from nextrole.db import repos, saved_repo
+from nextrole.db import interview_repo, repos, saved_repo
 from nextrole.resume.storage import ResumeStore
 from nextrole.security.crypto import DecryptionError
 
@@ -77,6 +77,11 @@ def _alerts(conn: sqlite3.Connection, user_id: int) -> dict:
     cfg = alert_store.get_settings_row(conn, user_id)
     return {"settings": {"in_app": bool(cfg["in_app"]), "email": bool(cfg["email"]), "frequency": cfg["frequency"]},
             "items": alert_store.list_alerts(conn, user_id, limit=1000)}
+
+
+@export_section("interview_experiences")
+def _interviews(conn: sqlite3.Connection, user_id: int) -> dict:
+    return interview_repo.export_for(conn, user_id)
 
 
 @export_section("runs")

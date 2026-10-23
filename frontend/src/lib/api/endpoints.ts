@@ -5,19 +5,25 @@
 import { z } from "zod";
 import { apiRequest } from "./client";
 import {
+  AdminInterviewSchema,
   AlertCheckSchema,
   AlertSchema,
   AlertSettingsSchema,
   CompanySchema,
+  InterviewPageSchema,
+  InterviewSchema,
+  type InterviewInput,
   ImportResultSchema,
   MeSchema,
   OutreachSchema,
   OutreachStatusRowSchema,
   ProfileSchema,
   RecommendationsSchema,
+  ReportRowSchema,
   ResolvedRoleSchema,
   RoleTaxonomySchema,
   SavedJobSchema,
+  SubmitResultSchema,
   type AlertSettings,
   type SavedStatus,
   RunDetailSchema,
@@ -92,6 +98,28 @@ export const api = {
   checkAlerts: () => apiRequest("/alerts/check", { method: "POST", schema: AlertCheckSchema }),
   /** Public (the email link): no session needed, the token is the credential. */
   unsubscribeAlerts: (token: string) => apiRequest(`/alerts/unsubscribe?token=${enc(token)}`, { method: "POST" }),
+
+  // interview experiences (members only; every post is reviewed before it is published)
+  interviews: (params: Record<string, string | number | undefined> = {}) => {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== "") qs.set(k, String(v));
+    return apiRequest(`/interviews${qs.size ? `?${qs}` : ""}`, { schema: InterviewPageSchema });
+  },
+  myInterviews: () => apiRequest("/interviews/mine", { schema: z.array(InterviewSchema) }),
+  submitInterview: (body: InterviewInput) => apiRequest("/interviews", { method: "POST", body, schema: SubmitResultSchema }),
+  editInterview: (id: number, body: InterviewInput) => apiRequest(`/interviews/${id}`, { method: "PUT", body, schema: SubmitResultSchema }),
+  deleteInterview: (id: number) => apiRequest(`/interviews/${id}`, { method: "DELETE" }),
+  upvoteInterview: (id: number, on: boolean) =>
+    apiRequest(`/interviews/${id}/upvote`, { method: on ? "POST" : "DELETE", schema: InterviewSchema }),
+  reportInterview: (id: number, reason: string, detail: string) =>
+    apiRequest(`/interviews/${id}/report`, { method: "POST", body: { reason, detail }, schema: z.object({ message: z.string() }) }),
+
+  // moderation (admins only: the server answers 404 to everyone else)
+  moderationQueue: (status = "pending") => apiRequest(`/admin/interviews?status=${enc(status)}`, { schema: z.array(AdminInterviewSchema) }),
+  moderate: (id: number, action: "approve" | "reject" | "remove", note = "") =>
+    apiRequest(`/admin/interviews/${id}/${action}`, { method: "POST", body: { note }, schema: AdminInterviewSchema }),
+  moderationReports: () => apiRequest("/admin/reports", { schema: z.array(ReportRowSchema) }),
+  dismissReport: (id: number) => apiRequest(`/admin/reports/${id}/dismiss`, { method: "POST" }),
 
   // outreach
   outreachList: () => apiRequest("/outreach", { schema: z.array(OutreachStatusRowSchema) }),
