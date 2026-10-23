@@ -4,11 +4,13 @@ revealed, and hiding a link in the UI is never the protection)."""
 import sqlite3
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from nextrole.api.deps import get_conn, rate_limit_user, require_admin
 from nextrole.db import interview_repo as repo
 from nextrole.interviews.schemas import ModerationNote
+from nextrole.metrics import build_metrics
+from nextrole.tracing import viewer
 
 router = APIRouter(prefix="/admin", dependencies=[Depends(require_admin), rate_limit_user("admin", 600, 3600)])
 
@@ -58,3 +60,25 @@ def reports(conn: sqlite3.Connection = Depends(get_conn)) -> list[dict]:
 def dismiss(report_id: int, conn: sqlite3.Connection = Depends(get_conn)) -> None:
     if not repo.dismiss_report(conn, report_id):
         raise HTTPException(404, "not found")
+
+
+@router.get("/metrics")
+def metrics(request: Request, days: int = Query(default=30, ge=1, le=365), conn: sqlite3.Connection = Depends(get_conn)) -> dict:
+    """TOTAL aggregates only: tokens, cost, cost by model, request counts, error rates, daily trends. There is no
+    per-user breakdown anywhere in this payload (a test asserts it)."""
+    request.app.state.http_counters.flush(conn)
+    return build_metrics(conn, days)
+
+
+@router.get("/traces")
+def traces(request: Request) -> list[dict]:
+    """Recent debugging traces (already scrubbed of personal data; no user is attached to a trace)."""
+    return viewer.list_traces(request.app.state.settings.trace_dir)
+
+
+@router.get("/traces/{run_id}")
+def trace(run_id: str, request: Request) -> list[dict]:
+    entries = viewer.read_trace(request.app.state.settings.trace_dir, run_id)
+    if entries is None:
+        raise HTTPException(404, "not found")
+    return entries

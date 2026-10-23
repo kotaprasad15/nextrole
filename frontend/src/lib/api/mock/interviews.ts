@@ -154,3 +154,45 @@ export function interviewRoutes(method: string, path: string, body: unknown, h: 
   }
   return null;
 }
+
+/** Sample aggregates for the admin dashboard in mock mode (only reachable with the admin switch). */
+export function adminRoutes(method: string, path: string, h: Helpers): Response | null {
+  const url = new URL(path, "http://mock");
+  if (!h.admin) return url.pathname.startsWith("/admin/") ? h.err("not found", 404) : null;
+  if (url.pathname === "/admin/metrics" && method === "GET") {
+    const days = Math.min(365, Math.max(1, Number(url.searchParams.get("days") ?? 30)));
+    const today = new Date("2026-10-20T00:00:00Z");
+    const series = Array.from({ length: days }, (_, i) => {
+      const d = new Date(today.getTime() - (days - 1 - i) * 86_400_000);
+      const requests = 40 + ((i * 37) % 90);
+      const errors = i % 7 === 0 ? 6 : i % 3;
+      return { day: d.toISOString().slice(0, 10), requests, errors, tokens: requests * 2400, cost_usd: Math.round(requests * 0.0112 * 1e6) / 1e6 };
+    });
+    const sum = (k: "requests" | "errors" | "tokens" | "cost_usd") => series.reduce((n, s) => n + s[k], 0);
+    const totals = { llm_requests: sum("requests"), llm_errors: sum("errors"), error_rate: sum("errors") / sum("requests"), tokens_in: Math.round(sum("tokens") * 0.8),
+      tokens_out: Math.round(sum("tokens") * 0.2), tokens: sum("tokens"), cost_usd: Math.round(sum("cost_usd") * 100) / 100, avg_latency_ms: 2140.5 };
+    const previous = { ...totals, llm_requests: Math.round(totals.llm_requests * 0.82), tokens: Math.round(totals.tokens * 0.85), cost_usd: Math.round(totals.cost_usd * 0.9 * 100) / 100, error_rate: totals.error_rate * 1.3 };
+    const model = (name: string, share: number) => ({ name, requests: Math.round(totals.llm_requests * share), errors: Math.round(totals.llm_errors * share), error_rate: totals.error_rate, tokens: Math.round(totals.tokens * share), cost_usd: Math.round(totals.cost_usd * share * 100) / 100 });
+    const stage = (name: string, share: number) => ({ ...model(name, share) });
+    return h.json({
+      range: { days, from: series[0].day, to: series[series.length - 1].day }, totals, previous,
+      by_model: [model("claude-sonnet-5-5", 0.7), model("claude-haiku-5-5", 0.3)],
+      by_stage: [stage("writer", 0.35), stage("critic", 0.3), stage("matcher", 0.25), stage("intake", 0.1)],
+      series,
+      runs: { total: 120, failed: 6, error_rate: 0.05, by_mode: [{ mode: "recommend", total: 60, failed: 2, completed: 58 }, { mode: "outreach", total: 50, failed: 3, completed: 47 }, { mode: "single_job", total: 10, failed: 1, completed: 9 }] },
+      http: { requests: 5400, client_errors: 210, server_errors: 12, error_rate: 12 / 5400, series: series.map((s) => ({ day: s.day, requests: s.requests * 4 })) },
+      alerts: { passes: 24, alerts_created: 31, emails_sent: 9, errors: 1 },
+      interviews: { pending: 3, approved: 18, rejected: 2, removed: 1, open_reports: 1 },
+      accounts: { total: 42 },
+    });
+  }
+  if (url.pathname === "/admin/traces" && method === "GET") return h.json([{ run_id: "a1b2c3d4e5f6", modified: "2026-10-20T10:00:00+00:00", size_bytes: 4096 }]);
+  const t = url.pathname.match(/^\/admin\/traces\/([A-Za-z0-9_-]{4,64})$/);
+  if (t && method === "GET") {
+    return h.json([
+      { run_id: t[1], ts: 1_760_000_000, agent: "matcher", inputs: { model: "claude-haiku-5-5", system: "<str len=900 sha=1a2b3c4d>" }, outputs: { text: "<redacted>" }, latency_ms: 812.4, input_tokens: 640, output_tokens: 120, cost_usd: 0.0037, error: null },
+      { run_id: t[1], ts: 1_760_000_003, agent: "writer", inputs: { model: "claude-sonnet-5-5" }, outputs: {}, latency_ms: 3120, input_tokens: 1800, output_tokens: 400, cost_usd: 0.0114, error: null },
+    ]);
+  }
+  return null;
+}

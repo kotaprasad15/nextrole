@@ -14,6 +14,7 @@ from nextrole.config import get_settings
 from nextrole.db.connection import connect
 from nextrole.llm.budget import Budget
 from nextrole.llm.client import LLMClient
+from nextrole.metrics import make_usage_sink
 from nextrole.security import crypto
 from nextrole.tracing.tracer import Tracer
 
@@ -28,7 +29,7 @@ def main() -> int:
     conn = connect(settings.db_path)
     stats = asyncio.run(run_alerts(
         conn=conn, settings=settings,
-        llm_factory=lambda: LLMClient(settings, Budget.from_settings(settings), Tracer(settings.trace_dir)),
+        llm_factory=lambda: LLMClient(settings, Budget.from_settings(settings), Tracer(settings.trace_dir), usage_sink=make_usage_sink(conn)),
         mailer=get_mailer(settings), embedder=get_embedder(settings.alert_embedder)))
     print(json.dumps(stats))
     return 0

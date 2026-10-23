@@ -28,6 +28,7 @@ from nextrole.db.connection import connect
 from nextrole.db.migrate import run_data_migrations
 from nextrole.llm.budget import Budget
 from nextrole.llm.client import LLMClient
+from nextrole.metrics import HttpCounters, MetricsMiddleware, make_usage_sink
 from nextrole.orchestrator.manager import RunManager
 from nextrole.resume.storage import ResumeStore
 from nextrole.security import crypto
@@ -63,6 +64,7 @@ def create_app(
         yield
         if scheduler is not None:
             await scheduler.stop()
+        app.state.http_counters.flush(app.state.conn)
 
     app = FastAPI(title="NextRole", docs_url="/docs" if docs_on else None, lifespan=lifespan,
                   redoc_url=None, openapi_url="/openapi.json" if docs_on else None)
@@ -78,8 +80,10 @@ def create_app(
     app.state.limiter = RateLimiter()
     app.state.store_factory = lambda: ResumeStore(
         settings.upload_dir, crypto.get_keyring(), settings.resume_encryption_key)
+    app.state.http_counters = HttpCounters()
+    usage_sink = make_usage_sink(app.state.conn)  # per-call totals for the admin dashboard (no user identity)
     app.state.llm_factory = llm_factory or (
-        lambda: LLMClient(settings, Budget.from_settings(settings), Tracer(settings.trace_dir))
+        lambda: LLMClient(settings, Budget.from_settings(settings), Tracer(settings.trace_dir), usage_sink=usage_sink)
     )
     app.state.discover = discover or discover_jobs  # injectable so tests never hit the network
     # HTTP client for researcher tools; injectable so tests never touch the network.
@@ -101,6 +105,7 @@ def create_app(
         app.state.conn, settings, app.state.llm_factory, app.state.http_factory,
         app.state.discover)
     production = settings.env == "production"
+    app.add_middleware(MetricsMiddleware, counters=app.state.http_counters)
     app.add_middleware(
         SecurityMiddleware,
         csrf_enabled=settings.csrf_enabled,

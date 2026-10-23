@@ -131,24 +131,9 @@ export type RunEvent = z.infer<typeof RunEventSchema>;
 export const RunModeSchema = z.enum(["recommend", "outreach", "single_job"]);
 export type RunMode = z.infer<typeof RunModeSchema>;
 
-export const RunSummarySchema = z.object({
-  id: z.string(),
-  mode: RunModeSchema,
-  status: z.enum(["running", "completed", "failed"]),
-  job_id: z.string().nullable(),
-  tokens: z.number(),
-  cost_usd: z.number(),
-  error: z.string().nullable(),
-  started_at: z.string(),
-  finished_at: z.string().nullable(),
-});
-export type RunSummary = z.infer<typeof RunSummarySchema>;
-
-export const RunDetailSchema = RunSummarySchema.extend({
-  result: z.record(z.string(), z.unknown()).default({}),
-  events: z.array(RunEventSchema).default([]),
-});
-export type RunDetail = z.infer<typeof RunDetailSchema>;
+/** Run history is internal (admins see aggregates only). Users can only ask whether a run is still going. */
+export const ActiveRunSchema = z.object({ run_id: z.string().nullable(), mode: RunModeSchema.nullable() });
+export type ActiveRun = z.infer<typeof ActiveRunSchema>;
 
 export const StartRunResponseSchema = z.object({ run_id: z.string() });
 
@@ -310,3 +295,38 @@ export interface InterviewInput {
   tips: string;
   anonymous: boolean;
 }
+
+// ---- admin dashboard: TOTAL aggregates only (the server never returns anything per user) ----
+const TotalsSchema = z.object({
+  llm_requests: z.number(), llm_errors: z.number(), error_rate: z.number(), tokens_in: z.number(), tokens_out: z.number(),
+  tokens: z.number(), cost_usd: z.number(), avg_latency_ms: z.number(),
+});
+const BreakdownSchema = z.object({ name: z.string(), requests: z.number(), errors: z.number(), error_rate: z.number(), tokens: z.number(), cost_usd: z.number() });
+export const MetricsSchema = z.object({
+  range: z.object({ days: z.number(), from: z.string(), to: z.string() }),
+  totals: TotalsSchema,
+  previous: TotalsSchema,
+  by_model: z.array(BreakdownSchema),
+  by_stage: z.array(BreakdownSchema),
+  series: z.array(z.object({ day: z.string(), requests: z.number(), errors: z.number(), tokens: z.number(), cost_usd: z.number() })),
+  runs: z.object({
+    total: z.number(), failed: z.number(), error_rate: z.number(),
+    by_mode: z.array(z.object({ mode: z.string(), total: z.number(), failed: z.number(), completed: z.number() })),
+  }),
+  http: z.object({
+    requests: z.number(), client_errors: z.number(), server_errors: z.number(), error_rate: z.number(),
+    series: z.array(z.object({ day: z.string(), requests: z.number() })),
+  }),
+  alerts: z.object({ passes: z.number(), alerts_created: z.number(), emails_sent: z.number(), errors: z.number() }),
+  interviews: z.object({ pending: z.number(), approved: z.number(), rejected: z.number(), removed: z.number(), open_reports: z.number() }),
+  accounts: z.object({ total: z.number() }),
+});
+export type Metrics = z.infer<typeof MetricsSchema>;
+
+export const TraceListSchema = z.array(z.object({ run_id: z.string(), modified: z.string(), size_bytes: z.number() }));
+export const TraceEntriesSchema = z.array(z.object({
+  run_id: z.string().nullable().optional(), ts: z.number().nullable().optional(), agent: z.string().nullable().optional(),
+  inputs: z.unknown().optional(), outputs: z.unknown().optional(), latency_ms: z.number().nullable().optional(),
+  input_tokens: z.number().nullable().optional(), output_tokens: z.number().nullable().optional(), cost_usd: z.number().nullable().optional(),
+  error: z.string().nullable().optional(),
+}));

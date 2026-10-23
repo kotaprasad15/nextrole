@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, Bookmark, FileCheck2, LayoutGrid, LogOut, Mail, Menu, MessagesSquare, Settings, ShieldCheck, UserRound } from "lucide-react";
+import { Bookmark, FileCheck2, LayoutGrid, LogOut, Mail, Menu, MessagesSquare, Settings, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -23,7 +23,6 @@ export const NAV_ITEMS = [
   { href: "/outreach", label: "Outreach", icon: Mail },
   { href: "/interviews", label: "Interviews", icon: MessagesSquare },
   { href: "/ats", label: "ATS check", icon: FileCheck2 },
-  { href: "/activity", label: "Activity", icon: Activity },
   { href: "/profile", label: "Profile", icon: UserRound },
 ] as const;
 
@@ -121,8 +120,8 @@ export function AppNav({ email, role }: { email?: string; role?: string }) {
                 <Settings aria-hidden /> Settings
               </DropdownMenuItem>
               {role === "admin" && (
-                <DropdownMenuItem onSelect={() => router.push("/admin/moderation")}>
-                  <ShieldCheck aria-hidden /> Moderation
+                <DropdownMenuItem onSelect={() => router.push("/admin")}>
+                  <ShieldCheck aria-hidden /> Admin
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />

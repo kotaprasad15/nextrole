@@ -185,6 +185,38 @@ def _005_interview_experiences(conn: sqlite3.Connection) -> None:
     )
 
 
+def _006_usage_metrics(conn: sqlite3.Connection) -> None:
+    """Aggregate usage for the admin dashboard. `usage_events` has NO user id on purpose: one row per model
+    call (model, stage, tokens, cost, outcome, latency). Existing `runs` are backfilled as coarse events
+    (total tokens and cost per run, model unknown) so the history is not empty on day one."""
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS usage_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts TEXT NOT NULL,
+            model TEXT NOT NULL,
+            agent TEXT NOT NULL,
+            input_tokens INTEGER NOT NULL DEFAULT 0,
+            output_tokens INTEGER NOT NULL DEFAULT 0,
+            cost_usd REAL NOT NULL DEFAULT 0,
+            status TEXT NOT NULL CHECK (status IN ('ok', 'error')),
+            latency_ms REAL NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_usage_ts ON usage_events(ts);
+        CREATE TABLE IF NOT EXISTS http_daily (
+            day TEXT NOT NULL,
+            status_class TEXT NOT NULL CHECK (status_class IN ('ok', 'client_error', 'server_error')),
+            count INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (day, status_class)
+        );
+        INSERT INTO usage_events (ts, model, agent, input_tokens, output_tokens, cost_usd, status, latency_ms)
+            SELECT replace(started_at, ' ', 'T'), 'historical (before tracking)', mode, tokens, 0, cost_usd,
+                   CASE WHEN status = 'failed' THEN 'error' ELSE 'ok' END, 0
+            FROM runs WHERE tokens > 0 AND NOT EXISTS (SELECT 1 FROM usage_events);
+        """
+    )
+
+
 # (version, name, function). Append new migrations at the end.
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Connection], None]]] = [
     (1, "baseline", _001_baseline),
@@ -192,6 +224,7 @@ MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Connection], None]]] = [
     (3, "saved_jobs_and_companies", _003_saved_jobs_and_companies),
     (4, "alerts", _004_alerts),
     (5, "interview_experiences", _005_interview_experiences),
+    (6, "usage_metrics", _006_usage_metrics),
 ]
 
 

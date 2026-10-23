@@ -12,6 +12,7 @@ export const keys = {
   outreachByJob: (jobId: string) => ["outreach", "job", jobId] as const,
   interviews: ["interviews"] as const,
   moderation: ["moderation"] as const,
+  admin: ["admin"] as const,
   alerts: ["alerts"] as const,
   alertSummary: ["alerts", "summary"] as const,
   alertSettings: ["alerts", "settings"] as const,
@@ -19,7 +20,6 @@ export const keys = {
   companies: ["companies"] as const,
   roleTaxonomy: ["roles", "taxonomy"] as const,
   runs: ["runs"] as const,
-  run: (id: string) => ["runs", id] as const,
 };
 
 /** Current user. A 401 here means "signed out": the shell redirects to /login. */
@@ -44,21 +44,12 @@ export function useOutreachList() {
   return useQuery({ queryKey: keys.outreach, queryFn: api.outreachList });
 }
 
-/** Run history. Polls every few seconds only while some run is still going. */
-export function useRuns() {
+/** The caller's running run, if any (no history is exposed). Polls only while one is running. */
+export function useActiveRun() {
   return useQuery({
-    queryKey: keys.runs,
-    queryFn: api.runs,
-    refetchInterval: (q) => (q.state.data?.some((r) => r.status === "running") ? 3000 : false),
-  });
-}
-
-/** One run with its stored events. Polls while running (the live view also streams over SSE). */
-export function useRun(runId: string) {
-  return useQuery({
-    queryKey: keys.run(runId),
-    queryFn: () => api.run(runId),
-    refetchInterval: (q) => (q.state.data?.status === "running" ? 3000 : false),
+    queryKey: [...keys.runs, "active"],
+    queryFn: api.activeRun,
+    refetchInterval: (q) => (q.state.data?.run_id ? 3000 : false),
   });
 }
 
@@ -108,4 +99,16 @@ export function useModerationQueue(status: string) {
 
 export function useModerationReports() {
   return useQuery({ queryKey: [...keys.moderation, "reports"], queryFn: api.moderationReports, retry: false });
+}
+
+export function useAdminMetrics(days: number) {
+  return useQuery({ queryKey: [...keys.admin, "metrics", days], queryFn: () => api.adminMetrics(days), retry: false, refetchInterval: 60_000 });
+}
+
+export function useAdminTraces() {
+  return useQuery({ queryKey: [...keys.admin, "traces"], queryFn: api.adminTraces, retry: false });
+}
+
+export function useAdminTrace(runId: string | null) {
+  return useQuery({ queryKey: [...keys.admin, "trace", runId], queryFn: () => api.adminTrace(runId!), enabled: runId !== null, retry: false });
 }

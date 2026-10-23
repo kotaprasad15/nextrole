@@ -1,4 +1,4 @@
-"""Orchestrated runs: start one (202), follow it live over SSE, read its history."""
+"""Orchestrated runs: start one (202), follow it live over SSE, see whether one is active."""
 import asyncio
 import json
 import sqlite3
@@ -62,24 +62,12 @@ async def start_run(  # async: it creates a task, which needs the running event 
     return {"run_id": run_id}
 
 
-@router.get("/runs")
-def list_runs(
-    user_id: int = Depends(current_user_id), conn: sqlite3.Connection = Depends(get_conn)
-) -> list[dict]:
-    return [dict(r) for r in repos.list_runs(conn, user_id)]
-
-
-@router.get("/runs/{run_id}")
-def get_run(
-    run_id: str, user_id: int = Depends(current_user_id),
-    conn: sqlite3.Connection = Depends(get_conn),
-) -> dict:
-    row = repos.get_run(conn, user_id, run_id)
-    if row is None:
-        raise HTTPException(404, "run not found")
-    return {**{k: row[k] for k in ("id", "mode", "status", "job_id", "tokens", "cost_usd",
-                                   "error", "started_at", "finished_at")},
-            "result": json.loads(row["result_json"]), "events": json.loads(row["events_json"])}
+@router.get("/runs/active")
+def active_run(user_id: int = Depends(current_user_id), conn: sqlite3.Connection = Depends(get_conn)) -> dict:
+    """Is one of MY runs still going? (So the dashboard can re-attach after a reload.) Run history is not
+    exposed to users; admins see only aggregates."""
+    run = repos.active_run(conn, user_id)
+    return {"run_id": run["id"], "mode": run["mode"]} if run else {"run_id": None, "mode": None}
 
 
 @router.get("/runs/{run_id}/events")

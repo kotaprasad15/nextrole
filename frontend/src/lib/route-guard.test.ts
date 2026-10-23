@@ -3,7 +3,7 @@ import { guard, safeNext } from "./route-guard";
 import { isActive } from "@/components/shell/app-nav";
 
 describe("guard", () => {
-  it.each(["/dashboard", "/dashboard/anything", "/onboarding", "/jobs/abc", "/jobs/abc/outreach", "/outreach", "/ats", "/profile", "/activity/run1", "/settings"])(
+  it.each(["/dashboard", "/dashboard/anything", "/onboarding", "/jobs/abc", "/jobs/abc/outreach", "/outreach", "/ats", "/profile", "/saved", "/interviews/new", "/settings"])(
     "sends signed-out visitors from %s to /login and remembers where they were going",
     (path) => {
       expect(guard(path, false)).toEqual({ action: "redirect", to: `/login?next=${encodeURIComponent(path)}` });
@@ -50,8 +50,8 @@ describe("nav active state", () => {
     expect(isActive("/dashboard", "/dashboard")).toBe(true);
   });
   it("matches nested routes and not lookalikes", () => {
-    expect(isActive("/activity/run1", "/activity")).toBe(true);
-    expect(isActive("/activityx", "/activity")).toBe(false);
+    expect(isActive("/saved/x", "/saved")).toBe(true);
+    expect(isActive("/savedx", "/saved")).toBe(false);
     expect(isActive("/profile", "/dashboard")).toBe(false);
   });
 });

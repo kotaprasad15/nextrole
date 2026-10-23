@@ -114,6 +114,14 @@ routes enforce the role on the server (404 for others). Submissions and edits ar
 capped, reports are deduplicated per user and enough of them hide a post. Public responses never include user ids.
 Tests: `tests/unit/test_interviews.py`.
 
+### Admin
+Every `/admin/*` route depends on `require_admin` (role read from the database per request; 404 for members, 401 for
+visitors). The usage dashboard returns totals only: the tables behind it contain no user id, no prompts and no
+responses, and a test asserts the payload has no per-user field. Debugging traces are scrubbed twice, are not linked to a
+user, and are readable only through the admin routes (run ids are validated, so no path outside the trace folder can be
+read). Users have no run history of their own any more, which also removes a place where run details could leak.
+Tests: `tests/unit/test_admin_metrics.py`.
+
 ### Privacy rights
 `GET /me/export` returns everything held about the user (decrypted). `DELETE /me` removes the account
 and, by cascade, profile, matches, drafts, feedback, runs and sessions, plus the resume file, the user's

@@ -375,6 +375,11 @@ def list_runs(conn: sqlite3.Connection, user_id: int, limit: int = 20) -> list[s
         (user_id, limit)).fetchall()
 
 
+def active_run(conn: sqlite3.Connection, user_id: int) -> sqlite3.Row | None:
+    return conn.execute("SELECT id, mode FROM runs WHERE user_id = ? AND status = 'running' ORDER BY started_at DESC, rowid DESC LIMIT 1",
+                        (user_id,)).fetchone()
+
+
 def list_run_ids(conn: sqlite3.Connection, user_id: int) -> list[str]:
     return [r["id"] for r in conn.execute("SELECT id FROM runs WHERE user_id = ?", (user_id,))]
 

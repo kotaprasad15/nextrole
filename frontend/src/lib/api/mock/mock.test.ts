@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { SESSION_COOKIE } from "../config";
 import {
-  AdminInterviewSchema, AlertCheckSchema, AlertSchema, AlertSettingsSchema, InterviewPageSchema, InterviewSchema, ReportRowSchema, SubmitResultSchema, CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
-  RunDetailSchema, RunEventSchema, RunSummarySchema, StartRunResponseSchema, type RunEvent,
+  AdminInterviewSchema, AlertCheckSchema, MetricsSchema, TraceEntriesSchema, TraceListSchema, AlertSchema, AlertSettingsSchema, InterviewPageSchema, InterviewSchema, ReportRowSchema, SubmitResultSchema, CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
+  ActiveRunSchema, RunEventSchema, StartRunResponseSchema, type RunEvent,
 } from "../schemas";
-import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, SAVED_JOBS, draftFor } from "./data";
+import { ALL_JOBS, PROFILE, RECOMMENDATIONS, SAVED_JOBS, draftFor } from "./data";
 import { MockEventSource } from "./events";
 import { mockFetch } from "./index";
 
@@ -39,13 +39,12 @@ beforeEach(() => {
 });
 
 describe("fixtures match the real API contract", () => {
-  it("profile, recommendations, drafts and past runs all satisfy the schemas", () => {
+  it("profile, recommendations and drafts all satisfy the schemas", () => {
     expect(ProfileSchema.safeParse(PROFILE).success).toBe(true);
     expect(RecommendationsSchema.safeParse(RECOMMENDATIONS).success).toBe(true);
     for (const status of ["draft", "critic_passed", "user_approved"] as const) {
       expect(OutreachSchema.safeParse(draftFor("s1", status, 1)).success).toBe(true);
     }
-    for (const run of PAST_RUNS) expect(RunDetailSchema.safeParse(run).success).toBe(true);
   });
 
   it("every job has a unique id and an https apply link (the app refuses anything else)", () => {
@@ -198,8 +197,7 @@ describe("runs", () => {
     const first = await runToCompletion(run_id);
     const late = await runToCompletion(run_id);
     expect(late).toEqual(first);
-    const detail = RunDetailSchema.parse(await (await call(`/runs/${run_id}`)).json());
-    expect(detail.status).toBe("completed");
+    expect(ActiveRunSchema.parse(await (await call("/runs/active")).json())).toEqual({ run_id: null, mode: null }); // it finished
   });
 
   it("an outreach run creates a draft for the job; a pasted job lands on the dashboard", async () => {
@@ -219,10 +217,11 @@ describe("runs", () => {
     expect(events.at(-1)!.data.status).toBe("failed");
   });
 
-  it("validates a pasted-job request and lists runs", async () => {
+  it("validates a pasted-job request; there is no run history, only 'is one active'", async () => {
     expect((await post("/runs", { mode: "single_job" })).status).toBe(422);
-    const rows = z.array(RunSummarySchema).parse(await (await call("/runs")).json());
-    expect(rows.length).toBeGreaterThanOrEqual(PAST_RUNS.length);
+    expect((await call("/runs")).status).not.toBe(200);
+    const { run_id } = StartRunResponseSchema.parse(await (await post("/runs", { mode: "recommend" })).json());
+    expect(ActiveRunSchema.parse(await (await call("/runs/active")).json())).toEqual({ run_id, mode: "recommend" });
   });
 });
 
@@ -327,5 +326,16 @@ describe("interview experiences (mock server)", () => {
     const approved = AdminInterviewSchema.parse(await (await send("POST", `/admin/interviews/${queue[0].id}/approve`, { note: "" })).json());
     expect(approved.status).toBe("approved");
     z.array(ReportRowSchema).parse(await (await send("GET", "/admin/reports")).json());
+  });
+
+  it("serves schema-valid aggregate metrics and traces to admins only", async () => {
+    await signIn();
+    expect((await send("GET", "/admin/metrics")).status).toBe(404);
+    localStorage.setItem("nextrole_mock", JSON.stringify({ delay: 0, speed: 0.001, admin: true }));
+    const m = MetricsSchema.parse(await (await send("GET", "/admin/metrics?days=7")).json());
+    expect(m.series).toHaveLength(7);
+    expect(JSON.stringify(m)).not.toMatch(/user_id|author|"email"/);
+    const traces = TraceListSchema.parse(await (await send("GET", "/admin/traces")).json());
+    expect(TraceEntriesSchema.parse(await (await send("GET", `/admin/traces/${traces[0].run_id}`)).json()).length).toBeGreaterThan(0);
   });
 });

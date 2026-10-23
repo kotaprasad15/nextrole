@@ -4,14 +4,15 @@
  * and no LLM. Dev switches (localStorage key `nextrole_mock`, JSON):
  *   { "delay": 250, "empty": true, "fail": ["recommendations"], "speed": 0.2, "expired": true }
  * `empty` shows empty states, `fail` makes a named route return 500, `speed` scales run timers,
+ * `admin` shows the admin pages (the member is otherwise a plain user);
  * `expired` makes every authenticated route return 401 even though a cookie is present
  * (simulates an expired session).
  */
 import { SESSION_COOKIE } from "../config";
 import type { Alert, AlertSettings, Company, JobCard, Outreach, Profile, Recommendations, SavedJob, SavedStatus, StartRunBody, Tier } from "../schemas";
-import { ALL_JOBS, MOCK_EMAIL, PAST_RUNS, PROFILE, RECOMMENDATIONS, draftFor } from "./data";
+import { ALL_JOBS, MOCK_EMAIL, PROFILE, RECOMMENDATIONS, draftFor } from "./data";
 import { getMockRun, startMockRun } from "./events";
-import { interviewRoutes } from "./interviews";
+import { adminRoutes, interviewRoutes } from "./interviews";
 
 interface Flags { delay?: number; empty?: boolean; fail?: string[]; speed?: number; expired?: boolean; admin?: boolean }
 
@@ -372,21 +373,13 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
     state.started.set(id, new Date().toISOString().slice(0, 19).replace("T", " "));
     return json({ run_id: id }, 202);
   }
-  if (method === "GET" && route === "/runs") {
-    const live = [...state.started].map(([id, at]) => getMockRun(id)!.detail(at));
-    const rows = [...live, ...PAST_RUNS].map((r) => ({ ...r, result: undefined, events: undefined }));
-    return json(f.empty ? [] : rows);
-  }
-  const runMatch = route.match(/^\/runs\/([^/]+)$/);
-  if (method === "GET" && runMatch) {
-    const id = runMatch[1];
-    const live = getMockRun(id);
-    if (live) return json(live.detail(state.started.get(id) ?? ""));
-    const past = PAST_RUNS.find((r) => r.id === id);
-    return past ? json(past) : err("run not found", 404);
+  if (method === "GET" && route === "/runs/active") {
+    const live = [...state.started.keys()].map((id) => ({ id, run: getMockRun(id) })).find((r) => r.run?.running);
+    return json({ run_id: live?.id ?? null, mode: live ? live.run!.mode : null });
   }
 
   const savedResponse = savedRoutes(method, path, body) ?? alertRoutes(method, path, body)
+    ?? adminRoutes(method, path, { json, err, noContent, admin: Boolean(f.admin) })
     ?? interviewRoutes(method, path, body, { json, err, noContent, admin: Boolean(f.admin) });
   if (savedResponse) return savedResponse;
 

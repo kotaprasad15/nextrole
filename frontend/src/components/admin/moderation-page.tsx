@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Flag, Loader2, ShieldCheck, X } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,12 @@ export function ModerationPage() {
   const [view, setView] = useState<View>("pending");
   return (
     <>
-      <PageHeader eyebrow="Admin" title="Moderation" description="Every interview post waits here until you approve it. Riskiest first." />
+      <PageHeader
+        eyebrow="Admin"
+        title="Moderation"
+        description="Every interview post waits here until you approve it. Riskiest first."
+        actions={<Button asChild variant="secondary"><Link href="/admin">Usage and cost</Link></Button>}
+      />
       <div className="mb-6">
         <Segmented<View> label="Queue" value={view} onValueChange={setView} options={[{ value: "pending", label: "To review" }, { value: "reports", label: "Reports" }, { value: "approved", label: "Published" }]} />
       </div>

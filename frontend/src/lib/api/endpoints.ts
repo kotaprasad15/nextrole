@@ -26,8 +26,10 @@ import {
   SubmitResultSchema,
   type AlertSettings,
   type SavedStatus,
-  RunDetailSchema,
-  RunSummarySchema,
+  ActiveRunSchema,
+  MetricsSchema,
+  TraceEntriesSchema,
+  TraceListSchema,
   StartRunResponseSchema,
   type Outreach,
   type Profile,
@@ -61,8 +63,8 @@ export const api = {
 
   // runs (orchestrated pipelines). Progress arrives over SSE, see sse.ts.
   startRun: (body: StartRunBody) => apiRequest("/runs", { method: "POST", body, schema: StartRunResponseSchema }),
-  runs: () => apiRequest("/runs", { schema: z.array(RunSummarySchema) }),
-  run: (id: string) => apiRequest(`/runs/${enc(id)}`, { schema: RunDetailSchema }),
+  /** Is one of my runs still going? (so the dashboard can re-attach after a reload) */
+  activeRun: () => apiRequest("/runs/active", { schema: ActiveRunSchema }),
 
   // saved jobs (server-side: snapshot, status, notes)
   savedJobs: (params: { status?: SavedStatus; tier?: string; listed?: boolean; q?: string; sort?: string } = {}) => {
@@ -113,6 +115,11 @@ export const api = {
     apiRequest(`/interviews/${id}/upvote`, { method: on ? "POST" : "DELETE", schema: InterviewSchema }),
   reportInterview: (id: number, reason: string, detail: string) =>
     apiRequest(`/interviews/${id}/report`, { method: "POST", body: { reason, detail }, schema: z.object({ message: z.string() }) }),
+
+  // admin dashboard (admins only: the server answers 404 to everyone else)
+  adminMetrics: (days: number) => apiRequest(`/admin/metrics?days=${days}`, { schema: MetricsSchema }),
+  adminTraces: () => apiRequest("/admin/traces", { schema: TraceListSchema }),
+  adminTrace: (runId: string) => apiRequest(`/admin/traces/${enc(runId)}`, { schema: TraceEntriesSchema }),
 
   // moderation (admins only: the server answers 404 to everyone else)
   moderationQueue: (status = "pending") => apiRequest(`/admin/interviews?status=${enc(status)}`, { schema: z.array(AdminInterviewSchema) }),

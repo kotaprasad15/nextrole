@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { api } from "@/lib/api/endpoints";
-import { keys, useOutreachList, useRecommendations, useRuns } from "@/lib/api/queries";
+import { keys, useActiveRun, useOutreachList, useRecommendations } from "@/lib/api/queries";
 import type { RunMode, StartRunBody, Tier } from "@/lib/api/schemas";
 import { useRunEvents } from "@/lib/api/sse";
 import { DEFAULT_FILTERS, filterJobs, type Filters } from "@/lib/dashboard/filters";
@@ -36,7 +36,7 @@ export function Dashboard() {
   const qc = useQueryClient();
   const recs = useRecommendations();
   const drafts = useOutreachList();
-  const runs = useRuns();
+  const active_ = useActiveRun();
   const saved = useSavedJobs();
   const reduced = useReducedMotion();
 
@@ -48,8 +48,8 @@ export function Dashboard() {
   const [dismissed, setDismissed] = useState<string | null>(null);
 
   // The run we show: one we just started, else one the server says is still running.
-  const running = runs.data?.find((r) => r.status === "running");
-  const active = started ?? (running && running.id !== dismissed ? { id: running.id, mode: running.mode } : null);
+  const running = active_.data?.run_id && active_.data.mode ? { id: active_.data.run_id, mode: active_.data.mode } : null;
+  const active = started ?? (running && running.id !== dismissed ? running : null);
   const stream = useRunEvents(active && active.id !== dismissed ? active.id : null);
   const shown = active && active.id !== dismissed ? active : null;
   const busy = !!shown && !stream.finished;

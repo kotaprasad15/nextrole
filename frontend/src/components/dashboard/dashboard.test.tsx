@@ -6,14 +6,14 @@ import type { JobCard, Recommendations } from "@/lib/api/schemas";
 
 const recommendations = vi.fn();
 const outreachList = vi.fn();
-const runs = vi.fn();
+const activeRun = vi.fn();
 const startRun = vi.fn();
 const savedJobs = vi.fn();
 const saveJob = vi.fn();
 const unsaveJob = vi.fn();
 vi.mock("@/lib/api/endpoints", () => ({
   api: {
-    recommendations: () => recommendations(), outreachList: () => outreachList(), runs: () => runs(), startRun: (b: unknown) => startRun(b),
+    recommendations: () => recommendations(), outreachList: () => outreachList(), activeRun: () => activeRun(), startRun: (b: unknown) => startRun(b),
     savedJobs: () => savedJobs(), saveJob: (id: string, status?: string) => saveJob(id, status), unsaveJob: (id: number) => unsaveJob(id),
   },
 }));
@@ -43,7 +43,7 @@ beforeEach(() => {
   localStorage.clear();
   recommendations.mockResolvedValue(RECS);
   outreachList.mockResolvedValue([{ id: 1, job_id: "s1", status: "critic_passed" }]);
-  runs.mockResolvedValue([]);
+  activeRun.mockResolvedValue({ run_id: null, mode: null });
   savedJobs.mockResolvedValue([]);
 });
 
@@ -100,6 +100,13 @@ describe("Dashboard", () => {
     unsaveJob.mockResolvedValue(undefined);
     await user.click(screen.getByRole("button", { name: "Remove Data Engineer from saved jobs" }));
     await waitFor(() => expect(unsaveJob).toHaveBeenCalledWith(5));
+  });
+
+  it("re-attaches to a run the server says is still going after a reload", async () => {
+    activeRun.mockResolvedValue({ run_id: "live1", mode: "recommend" });
+    renderDash();
+    expect(await screen.findByText("Finding your matches")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /activity|history/i })).not.toBeInTheDocument(); // no run history for users
   });
 
   it("starts a search run", async () => {
