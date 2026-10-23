@@ -13,6 +13,7 @@ from pathlib import Path
 
 import httpx
 
+from nextrole.models.company import normalize_company
 from nextrole.models.job import Job
 from nextrole.models.profile import Preferences
 from nextrole.roles.taxonomy import roles_match
@@ -55,6 +56,53 @@ def matches(job: Job, prefs: Preferences) -> bool:
     return True
 
 
+@dataclass
+class FetchResult:
+    """Everything the boards returned, unfiltered, grouped by company."""
+
+    by_company: dict[str, list[Job]] = field(default_factory=dict)  # normalized company name -> jobs
+    errors: dict[str, str] = field(default_factory=dict)
+    sources_checked: set[str] = field(default_factory=set)
+
+    @property
+    def all_jobs(self) -> list[Job]:
+        return [j for jobs in self.by_company.values() for j in jobs]
+
+
+async def fetch_boards(
+    boards: list[Board],
+    *,
+    timeout_s: float = 15.0,
+    concurrency: int = 8,
+    client: httpx.AsyncClient | None = None,
+) -> FetchResult:
+    """Fetch every board in parallel (bounded, with timeouts); a failing board is recorded, never fatal.
+    Shared by recommendation discovery and the alert job, so both see the same postings."""
+    result = FetchResult(sources_checked={b.source for b in boards})
+    sem = asyncio.Semaphore(concurrency)
+    own_client = client is None
+    client = client or httpx.AsyncClient(timeout=timeout_s, follow_redirects=True)
+
+    async def one(board: Board) -> tuple[Board, list[Job]]:
+        async with sem:
+            try:
+                return board, await asyncio.wait_for(
+                    SOURCES[board.source].fetch(client, board), timeout=timeout_s * 2
+                )
+            except Exception as exc:  # noqa: BLE001 - graceful fallback: record and continue
+                result.errors[f"{board.source}:{board.slug}"] = repr(exc)
+                return board, []
+
+    try:
+        batches = await asyncio.gather(*(one(b) for b in boards))
+    finally:
+        if own_client:
+            await client.aclose()
+    for board, jobs in batches:
+        result.by_company.setdefault(normalize_company(board.company), []).extend(jobs)
+    return result
+
+
 async def discover(
     boards: list[Board],
     prefs: Preferences,
@@ -63,27 +111,9 @@ async def discover(
     concurrency: int = 8,
     client: httpx.AsyncClient | None = None,
 ) -> DiscoveryResult:
-    result = DiscoveryResult()
-    sem = asyncio.Semaphore(concurrency)
-    own_client = client is None
-    client = client or httpx.AsyncClient(timeout=timeout_s, follow_redirects=True)
-
-    async def one(board: Board) -> list[Job]:
-        async with sem:
-            try:
-                return await asyncio.wait_for(
-                    SOURCES[board.source].fetch(client, board), timeout=timeout_s * 2
-                )
-            except Exception as exc:  # noqa: BLE001 - graceful fallback: record and continue
-                result.errors[f"{board.source}:{board.slug}"] = repr(exc)
-                return []
-
-    try:
-        batches = await asyncio.gather(*(one(b) for b in boards))
-    finally:
-        if own_client:
-            await client.aclose()
-    result.seen_ids = {j.id for batch in batches for j in batch}
-    result.sources_checked = {b.source for b in boards}
-    result.jobs = dedupe([j for batch in batches for j in batch if matches(j, prefs)])
-    return result
+    fetched = await fetch_boards(boards, timeout_s=timeout_s, concurrency=concurrency, client=client)
+    jobs = fetched.all_jobs
+    return DiscoveryResult(
+        jobs=dedupe([j for j in jobs if matches(j, prefs)]), errors=fetched.errors,
+        seen_ids={j.id for j in jobs}, sources_checked=fetched.sources_checked,
+    )

@@ -221,3 +221,37 @@ export const RoleTaxonomySchema = z.array(z.object({ canonical: z.string(), labe
 export type RoleTaxonomy = z.infer<typeof RoleTaxonomySchema>;
 
 export const ImportResultSchema = z.object({ imported: z.number(), skipped: z.array(z.string()) });
+
+// ---- alerts ----
+export const ALERT_FREQUENCIES = ["instant", "daily", "weekly", "off"] as const;
+export const AlertSchema = z.object({
+  id: z.number(),
+  job_id: z.string(),
+  title: z.string(),
+  company: z.string(),
+  location: z.string(),
+  remote: z.boolean(),
+  /** From the source record (https), rendered verbatim; the UI refuses anything else. */
+  apply_url: z.string().nullable(),
+  summary: z.string(),
+  /** Which of your wanted roles it matched. */
+  role: z.string(),
+  /** One short line: why this matched. */
+  why: z.string(),
+  confidence: z.number(),
+  method: z.enum(["taxonomy", "embedding", "llm"]),
+  created_at: z.string(),
+  read: z.boolean(),
+});
+export type Alert = z.infer<typeof AlertSchema>;
+
+export const AlertSettingsSchema = z.object({
+  in_app: z.boolean(),
+  email: z.boolean(),
+  frequency: z.enum(ALERT_FREQUENCIES),
+  /** false when the server has no SMTP configured: alerts stay in the app. */
+  email_available: z.boolean(),
+});
+export type AlertSettings = z.infer<typeof AlertSettingsSchema>;
+
+export const AlertCheckSchema = z.object({ created: z.number(), boards: z.number(), errors: z.number() });

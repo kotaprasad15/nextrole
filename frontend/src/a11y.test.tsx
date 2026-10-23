@@ -54,6 +54,18 @@ vi.mock("@/lib/api/endpoints", () => ({
     approveOutreach: vi.fn(),
     deleteOutreach: vi.fn(),
     outreachFeedback: vi.fn(),
+    alerts: async () => [
+      { id: 1, job_id: "j1", title: "Software Development Engineer II", company: "Stripe", location: "Remote", remote: true, apply_url: "https://boards.example.com/stripe/1",
+        summary: "", role: "SDE", why: "Same kind of job as SDE.", confidence: 0.95, method: "taxonomy", created_at: "2026-10-20T08:00:00+00:00", read: false },
+    ],
+    alertsSummary: async () => ({ unread: 1 }),
+    alertSettings: async () => ({ in_app: true, email: true, frequency: "daily", email_available: true }),
+    saveAlertSettings: vi.fn(),
+    readAlert: vi.fn(),
+    readAllAlerts: vi.fn(),
+    dismissAlert: vi.fn(),
+    checkAlerts: vi.fn(),
+    unsubscribeAlerts: vi.fn(),
     savedJobs: async () => SAVED_JOBS,
     saveJob: vi.fn(),
     updateSavedJob: vi.fn(),
@@ -81,6 +93,8 @@ import { OutreachPage } from "@/components/outreach/outreach-page";
 import { ProfilePage } from "@/components/profile/profile-page";
 import { SettingsPage } from "@/components/settings/settings-page";
 import { SavedPage } from "@/components/saved/saved-page";
+import { AlertsPage } from "@/components/alerts/alerts-page";
+import { Unsubscribe } from "@/components/alerts/unsubscribe";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Hero } from "@/components/marketing/hero";
 import { HomeBody } from "@/components/marketing/home-body";
@@ -204,6 +218,17 @@ describe("accessibility (axe)", () => {
     await screen.findByRole("heading", { level: 2, name: "Platform Engineer" });
     expect(screen.getByText("No longer listed", { selector: "span" })).toBeInTheDocument();
     await clean(container);
+  });
+
+  it("alerts page (settings with email on, one unread alert) and the unsubscribe page", async () => {
+    const a = renderPage(<AlertsPage />);
+    await screen.findByRole("heading", { level: 2, name: "Software Development Engineer II" });
+    await screen.findByLabelText(/how often/i);
+    await clean(a.container);
+    a.unmount();
+    window.history.pushState({}, "", "/unsubscribe?token=1.abc");
+    const b = renderPage(<Unsubscribe />);
+    await clean(b.container);
   });
 
   it("activity list and a run's trace", async () => {

@@ -74,11 +74,68 @@ def _003_saved_jobs_and_companies(conn: sqlite3.Connection) -> None:
     )
 
 
+def _004_alerts(conn: sqlite3.Connection) -> None:
+    """Alerts: per-user delivery settings, deduplicated alerts, remembered decisions, cached embeddings,
+    and an aggregate run log (no user ids). New tables only."""
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS alert_settings (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            in_app INTEGER NOT NULL DEFAULT 1,
+            email INTEGER NOT NULL DEFAULT 0,        -- opt-in
+            frequency TEXT NOT NULL DEFAULT 'daily' CHECK (frequency IN ('instant', 'daily', 'weekly', 'off')),
+            unsubscribe_secret TEXT NOT NULL,
+            last_email_at TEXT,
+            created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            job_id TEXT NOT NULL,
+            company_key TEXT NOT NULL,
+            role_text TEXT NOT NULL,                 -- encrypted
+            score REAL NOT NULL,
+            confidence REAL NOT NULL,
+            method TEXT NOT NULL CHECK (method IN ('taxonomy', 'embedding', 'llm')),
+            why TEXT NOT NULL,                       -- encrypted
+            snapshot_json TEXT NOT NULL,             -- encrypted
+            created_at TEXT NOT NULL,
+            read_at TEXT,
+            emailed_at TEXT,
+            UNIQUE (user_id, job_id)                 -- the dedup guarantee: never alert the same job twice
+        );
+        CREATE INDEX IF NOT EXISTS idx_alerts_user ON alerts(user_id, created_at);
+        CREATE TABLE IF NOT EXISTS alert_checked (
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            job_id TEXT NOT NULL,
+            checked_at TEXT NOT NULL,
+            PRIMARY KEY (user_id, job_id)
+        );
+        CREATE TABLE IF NOT EXISTS job_embeddings (
+            job_id TEXT NOT NULL,
+            model TEXT NOT NULL,
+            vec BLOB NOT NULL,
+            created_at TEXT NOT NULL,
+            PRIMARY KEY (job_id, model)
+        );
+        CREATE TABLE IF NOT EXISTS alert_runs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            started_at TEXT NOT NULL,
+            finished_at TEXT NOT NULL,
+            users INTEGER NOT NULL, boards INTEGER NOT NULL, jobs_fetched INTEGER NOT NULL,
+            candidates INTEGER NOT NULL, verified INTEGER NOT NULL, alerts_created INTEGER NOT NULL,
+            emails_sent INTEGER NOT NULL, errors INTEGER NOT NULL
+        );
+        """
+    )
+
+
 # (version, name, function). Append new migrations at the end.
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Connection], None]]] = [
     (1, "baseline", _001_baseline),
     (2, "user_security", _002_user_security),
     (3, "saved_jobs_and_companies", _003_saved_jobs_and_companies),
+    (4, "alerts", _004_alerts),
 ]
 
 

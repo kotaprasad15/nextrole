@@ -10,6 +10,9 @@ export const keys = {
   recommendations: ["recommendations"] as const,
   outreach: ["outreach"] as const,
   outreachByJob: (jobId: string) => ["outreach", "job", jobId] as const,
+  alerts: ["alerts"] as const,
+  alertSummary: ["alerts", "summary"] as const,
+  alertSettings: ["alerts", "settings"] as const,
   saved: ["saved"] as const,
   companies: ["companies"] as const,
   roleTaxonomy: ["roles", "taxonomy"] as const,
@@ -74,4 +77,17 @@ export function useCompanies() {
 /** The role synonym list used for suggestions (static on the server, so cache it for the session). */
 export function useRoleTaxonomy() {
   return useQuery({ queryKey: keys.roleTaxonomy, queryFn: api.roleTaxonomy, staleTime: Infinity });
+}
+
+export function useAlerts() {
+  return useQuery({ queryKey: [...keys.alerts, "list"], queryFn: () => api.alerts() });
+}
+
+/** Unread count for the nav bell. Refreshed every minute while the app is open. */
+export function useAlertSummary() {
+  return useQuery({ queryKey: keys.alertSummary, queryFn: api.alertsSummary, refetchInterval: 60_000, staleTime: 30_000 });
+}
+
+export function useAlertSettings() {
+  return useQuery({ queryKey: keys.alertSettings, queryFn: api.alertSettings });
 }

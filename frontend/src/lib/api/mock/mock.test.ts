@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { SESSION_COOKIE } from "../config";
 import {
-  CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
+  AlertCheckSchema, AlertSchema, AlertSettingsSchema, CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
   RunDetailSchema, RunEventSchema, RunSummarySchema, StartRunResponseSchema, type RunEvent,
 } from "../schemas";
 import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, SAVED_JOBS, draftFor } from "./data";
@@ -257,5 +257,30 @@ describe("saved jobs, companies and roles (mock server)", () => {
     expect((await send("DELETE", `/companies/${stripe.id}`)).status).toBe(204);
     const roles = z.array(ResolvedRoleSchema).parse(await (await send("POST", "/roles/resolve", { roles: ["SDE", "growth marketer"] })).json());
     expect(roles.map((r) => r.canonical)).toEqual(["software_engineer", null]);
+  });
+});
+
+describe("alerts (mock server)", () => {
+  const send = (method: string, path: string, body?: unknown) => call(path, { method, body: body === undefined ? undefined : JSON.stringify(body) });
+
+  it("serves schema-valid alerts, unread counts, read/dismiss and settings", async () => {
+    await signIn();
+    const list = z.array(AlertSchema).parse(await (await send("GET", "/alerts")).json());
+    expect(list.length).toBeGreaterThanOrEqual(2);
+    const unread = (await (await send("GET", "/alerts/summary")).json()).unread;
+    expect(unread).toBe(list.filter((a) => !a.read).length);
+    const first = list.find((a) => !a.read)!;
+    expect(AlertSchema.parse(await (await send("POST", `/alerts/${first.id}/read`)).json()).read).toBe(true);
+    expect((await (await send("GET", "/alerts/summary")).json()).unread).toBe(unread - 1);
+    expect((await send("DELETE", `/alerts/${first.id}`)).status).toBe(204);
+    expect((await send("DELETE", `/alerts/${first.id}`)).status).toBe(404);
+    const s = AlertSettingsSchema.parse(await (await send("PUT", "/alerts/settings", { in_app: true, email: true, frequency: "weekly" })).json());
+    expect(s.frequency).toBe("weekly");
+    AlertCheckSchema.parse(await (await send("POST", "/alerts/check")).json());
+  });
+
+  it("unsubscribe needs no session; a bad token is a 404", async () => {
+    expect((await send("POST", "/alerts/unsubscribe?token=1.abc")).status).toBe(204);
+    expect((await send("POST", "/alerts/unsubscribe?token=bad")).status).toBe(404);
   });
 });

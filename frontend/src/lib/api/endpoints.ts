@@ -5,6 +5,9 @@
 import { z } from "zod";
 import { apiRequest } from "./client";
 import {
+  AlertCheckSchema,
+  AlertSchema,
+  AlertSettingsSchema,
   CompanySchema,
   ImportResultSchema,
   MeSchema,
@@ -15,6 +18,7 @@ import {
   ResolvedRoleSchema,
   RoleTaxonomySchema,
   SavedJobSchema,
+  type AlertSettings,
   type SavedStatus,
   RunDetailSchema,
   RunSummarySchema,
@@ -75,6 +79,19 @@ export const api = {
   removeCompany: (id: number) => apiRequest(`/companies/${id}`, { method: "DELETE" }),
   roleTaxonomy: () => apiRequest("/roles/taxonomy", { schema: RoleTaxonomySchema }),
   resolveRoles: (roles: string[]) => apiRequest("/roles/resolve", { method: "POST", body: { roles }, schema: z.array(ResolvedRoleSchema) }),
+
+  // alerts (watched companies x wanted roles)
+  alerts: (unread = false) => apiRequest(`/alerts${unread ? "?unread=true" : ""}`, { schema: z.array(AlertSchema) }),
+  alertsSummary: () => apiRequest("/alerts/summary", { schema: z.object({ unread: z.number() }) }),
+  readAlert: (id: number) => apiRequest(`/alerts/${id}/read`, { method: "POST", schema: AlertSchema }),
+  readAllAlerts: () => apiRequest("/alerts/read-all", { method: "POST", schema: z.object({ updated: z.number() }) }),
+  dismissAlert: (id: number) => apiRequest(`/alerts/${id}`, { method: "DELETE" }),
+  alertSettings: () => apiRequest("/alerts/settings", { schema: AlertSettingsSchema }),
+  saveAlertSettings: (s: Omit<AlertSettings, "email_available">) =>
+    apiRequest("/alerts/settings", { method: "PUT", body: s, schema: AlertSettingsSchema }),
+  checkAlerts: () => apiRequest("/alerts/check", { method: "POST", schema: AlertCheckSchema }),
+  /** Public (the email link): no session needed, the token is the credential. */
+  unsubscribeAlerts: (token: string) => apiRequest(`/alerts/unsubscribe?token=${enc(token)}`, { method: "POST" }),
 
   // outreach
   outreachList: () => apiRequest("/outreach", { schema: z.array(OutreachStatusRowSchema) }),

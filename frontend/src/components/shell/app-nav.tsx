@@ -13,6 +13,7 @@ import { useLogout } from "@/lib/api/queries";
 import { cn } from "@/lib/cn";
 import { useReducedMotion } from "@/lib/motion/hooks";
 import { spring } from "@/lib/motion/tokens";
+import { AlertsBell } from "./alerts-bell";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -97,6 +98,7 @@ export function AppNav({ email }: { email?: string }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <AlertsBell />
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger

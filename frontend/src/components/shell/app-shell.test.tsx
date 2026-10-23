@@ -14,6 +14,10 @@ import { AppShell } from "./app-shell";
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
 
+/** /me and the bell's unread count answer differently; each call gets its own Response. */
+const signedIn = (email: string, unread = 0) =>
+  vi.fn(async (url: string) => (url.includes("/alerts/summary") ? json({ unread }) : json({ email })));
+
 function renderShell() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
@@ -33,16 +37,17 @@ beforeEach(() => {
 
 describe("AppShell", () => {
   it("renders the skip link, main landmark, navigation and the page", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ email: "priya.nair@example.com" })));
+    vi.stubGlobal("fetch", signedIn("priya.nair@example.com", 3));
     renderShell();
     expect(screen.getByRole("link", { name: /skip to main content/i })).toHaveAttribute("href", "#main");
     expect(screen.getByRole("main")).toHaveTextContent("page content");
     expect(screen.getByRole("navigation", { name: "Main" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Alerts, 3 unread" })).toHaveAttribute("href", "/alerts"); // the bell
     await waitFor(() => expect(screen.getByRole("button", { name: "Account menu" })).toHaveTextContent("PN"));
   });
 
   it("marks the current section in the nav (aria-current)", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ email: "a@b.co" })));
+    vi.stubGlobal("fetch", signedIn("a@b.co"));
     renderShell();
     expect(screen.getByRole("link", { name: "Outreach" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Dashboard" })).not.toHaveAttribute("aria-current");

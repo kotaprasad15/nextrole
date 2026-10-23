@@ -97,6 +97,13 @@ Teredo unwrapped or refused), redirects re-validated per hop and capped at 3, si
 text content types only, and the connection is pinned to the validated address so DNS rebinding cannot
 swap in an internal one. Tests: `tests/security/test_ssrf.py`.
 
+### Alerts and email
+Email alerts are opt-in, go only to the account address, honour the chosen frequency, are capped per user per day, and
+carry an unsubscribe link and `List-Unsubscribe` one-click headers. The unsubscribe token is an HMAC keyed by a per-user
+secret (a token for one user cannot unsubscribe another); the public endpoint answers 404 for anything invalid and
+changes state only on POST. Postings and wanted roles reach the verifying model only inside untrusted-data blocks, the
+model has no tools, and the reason it returns is stripped of links before storage. Tests: `tests/unit/test_alerts.py`.
+
 ### Privacy rights
 `GET /me/export` returns everything held about the user (decrypted). `DELETE /me` removes the account
 and, by cascade, profile, matches, drafts, feedback, runs and sessions, plus the resume file, the user's

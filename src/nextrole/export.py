@@ -11,6 +11,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 
+from nextrole.alerts import store as alert_store
 from nextrole.db import repos, saved_repo
 from nextrole.resume.storage import ResumeStore
 from nextrole.security.crypto import DecryptionError
@@ -69,6 +70,13 @@ def _saved_jobs(conn: sqlite3.Connection, user_id: int) -> list[dict]:
 @export_section("watched_companies")
 def _companies(conn: sqlite3.Connection, user_id: int) -> list[str]:
     return [c["display_name"] for c in saved_repo.list_companies(conn, user_id)]
+
+
+@export_section("alerts")
+def _alerts(conn: sqlite3.Connection, user_id: int) -> dict:
+    cfg = alert_store.get_settings_row(conn, user_id)
+    return {"settings": {"in_app": bool(cfg["in_app"]), "email": bool(cfg["email"]), "frequency": cfg["frequency"]},
+            "items": alert_store.list_alerts(conn, user_id, limit=1000)}
 
 
 @export_section("runs")

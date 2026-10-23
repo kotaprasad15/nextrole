@@ -26,3 +26,4 @@ os.environ.setdefault("CSRF_ENABLED", "false")
 os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
 # Parsing in a child process costs ~1 s per upload; the isolation path has its own test.
 os.environ.setdefault("RESUME_ISOLATION", "false")
+os.environ.setdefault("ALERTS_ENABLED", "false")  # no background scheduler in tests

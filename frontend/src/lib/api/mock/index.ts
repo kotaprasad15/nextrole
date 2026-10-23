@@ -8,7 +8,7 @@
  * (simulates an expired session).
  */
 import { SESSION_COOKIE } from "../config";
-import type { Company, JobCard, Outreach, Profile, Recommendations, SavedJob, SavedStatus, StartRunBody, Tier } from "../schemas";
+import type { Alert, AlertSettings, Company, JobCard, Outreach, Profile, Recommendations, SavedJob, SavedStatus, StartRunBody, Tier } from "../schemas";
 import { ALL_JOBS, MOCK_EMAIL, PAST_RUNS, PROFILE, RECOMMENDATIONS, draftFor } from "./data";
 import { getMockRun, startMockRun } from "./events";
 
@@ -72,6 +72,66 @@ function savedFromCard(card: JobCard, tier: Tier, status: SavedStatus, id: numbe
     title: card.title, company: card.company, location: card.location, remote: card.remote, apply_url: card.apply_url,
     summary: card.rationale, source: card.pasted ? "pasted" : "greenhouse",
   };
+}
+
+const ALERTS_KEY = "nextrole_mock_alerts";
+const ALERT_SETTINGS_KEY = "nextrole_mock_alert_settings";
+const DEMO_ALERTS: Alert[] = [
+  {
+    id: 1, job_id: "al1", title: "Software Development Engineer II", company: "Stripe", location: "Remote (EU)", remote: true,
+    apply_url: "https://boards.example.com/stripe/101", summary: "Build and operate payment APIs.", role: "SDE",
+    why: "\u201cSoftware Development Engineer II\u201d is a Software Engineer role, the same kind of job as your wanted role \u201cSDE\u201d.",
+    confidence: 0.95, method: "taxonomy", created_at: "2026-10-20T08:00:00+00:00", read: false,
+  },
+  {
+    id: 2, job_id: "al2", title: "Customer Solutions Engineer", company: "Figma", location: "London", remote: false,
+    apply_url: "https://boards.example.com/figma/7", summary: "Work with enterprise customers on integrations.", role: "Forward Deployed Engineer",
+    why: "Customer Solutions Engineer is hands-on customer engineering, close to your forward deployed engineer target.",
+    confidence: 0.82, method: "llm", created_at: "2026-10-19T08:00:00+00:00", read: true,
+  },
+];
+const loadAlerts = () => read<Alert[]>(ALERTS_KEY, DEMO_ALERTS);
+const storeAlerts = (rows: Alert[]) => localStorage.setItem(ALERTS_KEY, JSON.stringify(rows));
+const loadAlertSettings = () => read<AlertSettings>(ALERT_SETTINGS_KEY, { in_app: true, email: false, frequency: "daily", email_available: true });
+
+function alertRoutes(method: string, path: string, body: unknown): Response | null {
+  const url = new URL(path, "http://mock");
+  const route = url.pathname;
+  if (route === "/alerts" && method === "GET") {
+    const rows = [...loadAlerts()].sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return json(url.searchParams.get("unread") === "true" ? rows.filter((a) => !a.read) : rows);
+  }
+  if (route === "/alerts/summary" && method === "GET") return json({ unread: loadAlerts().filter((a) => !a.read).length });
+  if (route === "/alerts/settings" && method === "GET") return json(loadAlertSettings());
+  if (route === "/alerts/settings" && method === "PUT") {
+    const next = { ...loadAlertSettings(), ...(body as Partial<AlertSettings>) };
+    localStorage.setItem(ALERT_SETTINGS_KEY, JSON.stringify(next));
+    return json(next);
+  }
+  if (route === "/alerts/read-all" && method === "POST") {
+    const rows = loadAlerts();
+    const updated = rows.filter((a) => !a.read).length;
+    storeAlerts(rows.map((a) => ({ ...a, read: true })));
+    return json({ updated });
+  }
+  if (route === "/alerts/check" && method === "POST") return json({ created: 0, boards: loadCompanies().filter((c) => c.monitored).length, errors: 0 });
+  if (route === "/alerts/unsubscribe" && method === "POST") return url.searchParams.get("token") === "bad" ? err("link not valid", 404) : noContent();
+  const one = route.match(/^\/alerts\/(\d+)(\/read)?$/);
+  if (one) {
+    const rows = loadAlerts();
+    const i = rows.findIndex((a) => a.id === Number(one[1]));
+    if (i < 0) return err("alert not found", 404);
+    if (method === "DELETE") {
+      storeAlerts(rows.filter((_, j) => j !== i));
+      return noContent();
+    }
+    if (method === "POST" && one[2]) {
+      rows[i] = { ...rows[i], read: true };
+      storeAlerts(rows);
+      return json(rows[i]);
+    }
+  }
+  return null;
 }
 
 function savedRoutes(method: string, path: string, body: unknown): Response | null {
@@ -250,6 +310,7 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
     clearSession();
     return noContent();
   }
+  if (method === "POST" && route === "/alerts/unsubscribe") return alertRoutes(method, path, body)!; // public: the token is the credential
   if (!hasSession() || f.expired) return err("not authenticated", 401);
   if (route === "/me") {
     if (method === "DELETE") {
@@ -324,7 +385,7 @@ export async function mockFetch(path: string, init: RequestInit = {}): Promise<R
     return past ? json(past) : err("run not found", 404);
   }
 
-  const savedResponse = savedRoutes(method, path, body);
+  const savedResponse = savedRoutes(method, path, body) ?? alertRoutes(method, path, body);
   if (savedResponse) return savedResponse;
 
   // ---- outreach ----

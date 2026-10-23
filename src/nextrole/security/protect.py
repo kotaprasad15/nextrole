@@ -22,6 +22,9 @@ ENCRYPTED_COLUMNS = [
     ("feedback", "note"),
     ("saved_jobs", "notes"),
     ("saved_jobs", "snapshot_json"),
+    ("alerts", "role_text"),
+    ("alerts", "why"),
+    ("alerts", "snapshot_json"),
 ]
 
 
