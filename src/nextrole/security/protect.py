@@ -20,6 +20,8 @@ ENCRYPTED_COLUMNS = [
     ("outreach", "critic_json"),
     ("outreach", "recipient_email"),
     ("feedback", "note"),
+    ("saved_jobs", "notes"),
+    ("saved_jobs", "snapshot_json"),
 ]
 
 

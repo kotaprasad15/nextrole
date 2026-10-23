@@ -51,7 +51,7 @@ export function csrfToken(): string | undefined {
 }
 
 export interface RequestOptions<T> {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   /** JSON body, or FormData for multipart (never set content-type yourself for FormData). */
   body?: unknown;
   /** Validates and types the response. Omit for endpoints that return no body. */

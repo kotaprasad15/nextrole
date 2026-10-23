@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { SESSION_COOKIE } from "../config";
 import {
-  MeSchema, OutreachSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
+  CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
   RunDetailSchema, RunEventSchema, RunSummarySchema, StartRunResponseSchema, type RunEvent,
 } from "../schemas";
-import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, draftFor } from "./data";
+import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, SAVED_JOBS, draftFor } from "./data";
 import { MockEventSource } from "./events";
 import { mockFetch } from "./index";
 
@@ -223,5 +223,39 @@ describe("runs", () => {
     expect((await post("/runs", { mode: "single_job" })).status).toBe(422);
     const rows = z.array(RunSummarySchema).parse(await (await call("/runs")).json());
     expect(rows.length).toBeGreaterThanOrEqual(PAST_RUNS.length);
+  });
+});
+
+describe("saved jobs, companies and roles (mock server)", () => {
+  const send = (method: string, path: string, body?: unknown) => call(path, { method, body: body === undefined ? undefined : JSON.stringify(body) });
+
+  it("saves from the stored record, updates, filters and removes, with schema-valid responses", async () => {
+    await signIn();
+    for (const s of SAVED_JOBS) SavedJobSchema.parse(s);
+    const job = RECOMMENDATIONS.startup[0];
+    expect((await send("POST", "/saved-jobs", { job_id: "nope" })).status).toBe(404);
+    const created = SavedJobSchema.parse(await (await send("POST", "/saved-jobs", { job_id: job.job_id, apply_url: "https://evil.example" })).json());
+    expect(created.apply_url).toBe(job.apply_url); // from our record, not the request
+    const patched = SavedJobSchema.parse(await (await send("PATCH", `/saved-jobs/${created.id}`, { status: "offer", notes: "<b>hi</b>" })).json());
+    expect(patched.status).toBe("offer");
+    expect(patched.notes).toBe("hi");
+    expect((await (await send("GET", "/saved-jobs?status=offer")).json())).toHaveLength(1);
+    expect((await (await send("GET", "/saved-jobs?status=applied")).json())).toHaveLength(0);
+    expect((await send("DELETE", `/saved-jobs/${created.id}`)).status).toBe(204);
+    expect((await send("DELETE", `/saved-jobs/${created.id}`)).status).toBe(404);
+  });
+
+  it("imports only known jobs, and manages companies and roles", async () => {
+    await signIn();
+    const job = RECOMMENDATIONS.mid[0];
+    const res = ImportResultSchema.parse(await (await send("POST", "/saved-jobs/import", { items: [{ job_id: job.job_id, status: "applied", notes: "" }, { job_id: "zzz", status: "saved", notes: "" }] })).json());
+    expect(res).toEqual({ imported: 1, skipped: ["zzz"] });
+    const stripe = CompanySchema.parse(await (await send("POST", "/companies", { name: "Stripe" })).json());
+    expect(stripe.monitored).toBe(true);
+    expect(CompanySchema.parse(await (await send("POST", "/companies", { name: "Tiny Co" })).json()).monitored).toBe(false);
+    expect(await (await send("GET", "/companies/suggestions?q=str")).json()).toEqual([]); // already added
+    expect((await send("DELETE", `/companies/${stripe.id}`)).status).toBe(204);
+    const roles = z.array(ResolvedRoleSchema).parse(await (await send("POST", "/roles/resolve", { roles: ["SDE", "growth marketer"] })).json());
+    expect(roles.map((r) => r.canonical)).toEqual(["software_engineer", null]);
   });
 });

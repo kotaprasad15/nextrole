@@ -16,16 +16,13 @@ import { ApiError } from "@/lib/api/client";
 import { api } from "@/lib/api/endpoints";
 import { keys } from "@/lib/api/queries";
 import type { Profile } from "@/lib/api/schemas";
-import { useSavedJobs } from "@/lib/local/saved-jobs";
-import { useTracker } from "@/lib/local/tracker";
 import { cleanProfile, errorTab, isDirty, validateProfile, type ProfileErrors } from "@/lib/profile-form";
-import { SavedJobs } from "./saved-jobs";
 import { PreferencesSection, ProfileSections } from "./profile-sections";
-import { TrackerBoard } from "./tracker-board";
+import { RoleReading, WatchedCompanies } from "./watch-section";
 
-type Tab = "profile" | "preferences" | "saved" | "tracker";
+type Tab = "profile" | "preferences";
 
-/** `/profile`: the parsed profile and search preferences (saved to the account), plus the local saved jobs and tracker. */
+/** `/profile`: the parsed profile and search preferences (saved to the account) and the companies to watch. */
 export function ProfilePage() {
   const q = useQuery({ queryKey: keys.profile, queryFn: api.profile });
   const notOnboarded = q.error instanceof ApiError && q.error.status === 404;
@@ -41,7 +38,7 @@ export function ProfilePage() {
 
   return (
     <>
-      <PageHeader eyebrow="Profile" title="You, as we see you" description="What matching and your outreach drafts are built from. Saved jobs and the tracker live here too." />
+      <PageHeader eyebrow="Profile" title="You, as we see you" description="What matching and your outreach drafts are built from. Saved jobs live on their own page." />
       {body}
     </>
   );
@@ -49,8 +46,6 @@ export function ProfilePage() {
 
 function ProfileTabs({ profile }: { profile: Profile }) {
   const qc = useQueryClient();
-  const savedJobs = useSavedJobs();
-  const tracker = useTracker();
   const [tab, setTab] = useState<Tab>("profile");
   const [draft, setDraft] = useState<Profile>(profile);
   const [errors, setErrors] = useState<ProfileErrors>({});
@@ -104,8 +99,6 @@ function ProfileTabs({ profile }: { profile: Profile }) {
   const onCancel = () => (dirty ? setConfirmCancel(true) : stopEditing());
   const formTab = tab === "profile" || tab === "preferences";
 
-  const trackedIds = new Set(tracker.jobs.map((j) => j.id));
-  const trackerCount = tracker.jobs.length + [...savedJobs.ids].filter((id) => !trackedIds.has(id)).length;
   const errorCount = Object.keys(errors).length;
 
   return (
@@ -113,8 +106,6 @@ function ProfileTabs({ profile }: { profile: Profile }) {
       <TabsList aria-label="Profile sections">
         <TabsTrigger value="profile">Profile</TabsTrigger>
         <TabsTrigger value="preferences">Preferences</TabsTrigger>
-        <TabsTrigger value="saved">Saved jobs <span className="tabular-nums text-muted">({savedJobs.ids.size})</span></TabsTrigger>
-        <TabsTrigger value="tracker">Tracker <span className="tabular-nums text-muted">({trackerCount})</span></TabsTrigger>
       </TabsList>
 
       {formTab && !editing && (
@@ -129,9 +120,9 @@ function ProfileTabs({ profile }: { profile: Profile }) {
       </TabsContent>
       <TabsContent value="preferences">
         <fieldset disabled={!editing} data-readonly={!editing} className="min-w-0"><legend className="sr-only">Search preferences</legend><PreferencesSection draft={draft} onChange={setDraft} errors={errors} /></fieldset>
+        <div className="mt-6"><RoleReading roles={draft.preferences.roles} /></div>
+        <WatchedCompanies />
       </TabsContent>
-      <TabsContent value="saved"><SavedJobs /></TabsContent>
-      <TabsContent value="tracker"><TrackerBoard /></TabsContent>
 
       {editing && formTab && (
         <div role="region" aria-label="Unsaved changes" className="sticky bottom-4 z-30 mt-8 flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface p-4 shadow-3">

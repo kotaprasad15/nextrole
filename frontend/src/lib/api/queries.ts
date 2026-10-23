@@ -10,6 +10,9 @@ export const keys = {
   recommendations: ["recommendations"] as const,
   outreach: ["outreach"] as const,
   outreachByJob: (jobId: string) => ["outreach", "job", jobId] as const,
+  saved: ["saved"] as const,
+  companies: ["companies"] as const,
+  roleTaxonomy: ["roles", "taxonomy"] as const,
   runs: ["runs"] as const,
   run: (id: string) => ["runs", id] as const,
 };
@@ -57,4 +60,18 @@ export function useRun(runId: string) {
 /** The draft for one job. A 404 means "no draft yet" (not an error the user needs to see). */
 export function useDraft(jobId: string) {
   return useQuery({ queryKey: keys.outreachByJob(jobId), queryFn: () => api.outreachByJob(jobId) });
+}
+
+/** The caller's saved jobs (filters are applied server-side; `{}` = all, used for the bookmark state). */
+export function useSavedList(params: Parameters<typeof api.savedJobs>[0] = {}) {
+  return useQuery({ queryKey: [...keys.saved, params], queryFn: () => api.savedJobs(params) });
+}
+
+export function useCompanies() {
+  return useQuery({ queryKey: keys.companies, queryFn: api.companies });
+}
+
+/** The role synonym list used for suggestions (static on the server, so cache it for the session). */
+export function useRoleTaxonomy() {
+  return useQuery({ queryKey: keys.roleTaxonomy, queryFn: api.roleTaxonomy, staleTime: Infinity });
 }

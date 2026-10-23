@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, FileCheck2, LayoutGrid, LogOut, Mail, Menu, Settings, UserRound } from "lucide-react";
+import { Activity, Bookmark, FileCheck2, LayoutGrid, LogOut, Mail, Menu, Settings, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,6 +18,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+  { href: "/saved", label: "Saved", icon: Bookmark },
   { href: "/outreach", label: "Outreach", icon: Mail },
   { href: "/ats", label: "ATS check", icon: FileCheck2 },
   { href: "/activity", label: "Activity", icon: Activity },

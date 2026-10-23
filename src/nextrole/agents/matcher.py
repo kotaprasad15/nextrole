@@ -24,6 +24,7 @@ from nextrole.models.company import CompanyTier, normalize_company
 from nextrole.models.job import Job
 from nextrole.models.match import MatchResult, MatchScore
 from nextrole.models.profile import Profile
+from nextrole.roles.taxonomy import roles_match
 
 log = logging.getLogger(__name__)
 
@@ -68,12 +69,11 @@ def _tokens(text: str) -> set[str]:
 def prefilter(jobs: list[Job], profile: Profile, limit: int, per_company_cap: int) -> list[Job]:
     """Rank by cheap keyword overlap, cap per company, keep the top `limit`."""
     skills = {s.lower() for s in profile.skills}
-    roles = [r.lower() for r in profile.preferences.roles]
+    roles = profile.preferences.roles
 
     def score(job: Job) -> int:
-        title = job.title.lower()
         hits = len(skills & _tokens(f"{job.title} {job.description}"))
-        role_hit = 5 if any(r in title for r in roles) else 0
+        role_hit = 5 if roles_match(job.title, roles) else 0
         return hits + role_hit + _level_adjust(job.title, profile.preferences.experience_level)
 
     ranked = sorted(jobs, key=score, reverse=True)

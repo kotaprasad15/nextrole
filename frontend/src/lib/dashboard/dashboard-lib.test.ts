@@ -103,16 +103,24 @@ describe("buildRunSteps", () => {
   });
 });
 
-describe("saved jobs store", () => {
+describe("legacy browser-only saves", () => {
   beforeEach(() => localStorage.clear());
-  it("persists toggles in a versioned shape and ignores corrupt data", async () => {
-    const { toggleSavedJob } = await import("@/lib/local/saved-jobs");
-    toggleSavedJob("x");
-    expect(JSON.parse(localStorage.getItem("nextrole_saved_jobs")!)).toEqual({ v: 1, ids: ["x"] });
-    toggleSavedJob("x");
-    expect(JSON.parse(localStorage.getItem("nextrole_saved_jobs")!).ids).toEqual([]);
+  it("reads old saved ids and tracker entries (tracker wins), ignoring corrupt data", async () => {
+    const { readLegacySaves, removeLegacy } = await import("@/lib/local/legacy-saves");
+    expect(readLegacySaves()).toEqual([]);
+    localStorage.setItem("nextrole_saved_jobs", JSON.stringify({ v: 1, ids: ["a", "b"] }));
+    localStorage.setItem("nextrole_tracker", JSON.stringify({ v: 1, jobs: [{ id: "b", status: "interview", note: "call Sam" }, { id: "c", status: "bogus" }, { nope: 1 }] }));
+    expect(readLegacySaves()).toEqual([
+      { job_id: "a", status: "saved", notes: "" },
+      { job_id: "b", status: "interview", notes: "call Sam" },
+      { job_id: "c", status: "saved", notes: "" },
+    ]);
+    removeLegacy(["a", "b"]);
+    expect(readLegacySaves().map((i) => i.job_id)).toEqual(["c"]);
+    removeLegacy(["c"]);
+    expect(localStorage.getItem("nextrole_saved_jobs")).toBeNull();
+    expect(localStorage.getItem("nextrole_tracker")).toBeNull();
     localStorage.setItem("nextrole_saved_jobs", "{not json");
-    expect(() => toggleSavedJob("y")).not.toThrow();
-    expect(JSON.parse(localStorage.getItem("nextrole_saved_jobs")!).ids).toEqual(["y"]);
+    expect(readLegacySaves()).toEqual([]);
   });
 });

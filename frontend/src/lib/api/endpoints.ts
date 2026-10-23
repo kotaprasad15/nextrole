@@ -5,11 +5,17 @@
 import { z } from "zod";
 import { apiRequest } from "./client";
 import {
+  CompanySchema,
+  ImportResultSchema,
   MeSchema,
   OutreachSchema,
   OutreachStatusRowSchema,
   ProfileSchema,
   RecommendationsSchema,
+  ResolvedRoleSchema,
+  RoleTaxonomySchema,
+  SavedJobSchema,
+  type SavedStatus,
   RunDetailSchema,
   RunSummarySchema,
   StartRunResponseSchema,
@@ -47,6 +53,28 @@ export const api = {
   startRun: (body: StartRunBody) => apiRequest("/runs", { method: "POST", body, schema: StartRunResponseSchema }),
   runs: () => apiRequest("/runs", { schema: z.array(RunSummarySchema) }),
   run: (id: string) => apiRequest(`/runs/${enc(id)}`, { schema: RunDetailSchema }),
+
+  // saved jobs (server-side: snapshot, status, notes)
+  savedJobs: (params: { status?: SavedStatus; tier?: string; listed?: boolean; q?: string; sort?: string } = {}) => {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
+    return apiRequest(`/saved-jobs${qs.size ? `?${qs}` : ""}`, { schema: z.array(SavedJobSchema) });
+  },
+  saveJob: (jobId: string, status: SavedStatus = "saved") =>
+    apiRequest("/saved-jobs", { method: "POST", body: { job_id: jobId, status }, schema: SavedJobSchema }),
+  updateSavedJob: (id: number, body: { status?: SavedStatus; notes?: string }) =>
+    apiRequest(`/saved-jobs/${id}`, { method: "PATCH", body, schema: SavedJobSchema }),
+  unsaveJob: (id: number) => apiRequest(`/saved-jobs/${id}`, { method: "DELETE" }),
+  importSavedJobs: (items: { job_id: string; status: SavedStatus; notes: string }[]) =>
+    apiRequest("/saved-jobs/import", { method: "POST", body: { items }, schema: ImportResultSchema }),
+
+  // watched companies and roles
+  companies: () => apiRequest("/companies", { schema: z.array(CompanySchema) }),
+  companySuggestions: (q: string) => apiRequest(`/companies/suggestions?q=${enc(q)}`, { schema: z.array(z.string()) }),
+  addCompany: (name: string) => apiRequest("/companies", { method: "POST", body: { name }, schema: CompanySchema }),
+  removeCompany: (id: number) => apiRequest(`/companies/${id}`, { method: "DELETE" }),
+  roleTaxonomy: () => apiRequest("/roles/taxonomy", { schema: RoleTaxonomySchema }),
+  resolveRoles: (roles: string[]) => apiRequest("/roles/resolve", { method: "POST", body: { roles }, schema: z.array(ResolvedRoleSchema) }),
 
   // outreach
   outreachList: () => apiRequest("/outreach", { schema: z.array(OutreachStatusRowSchema) }),

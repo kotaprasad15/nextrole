@@ -12,7 +12,7 @@ from nextrole.agents.matcher import MatcherAgent, select_candidates
 from nextrole.agents.output_guard import WITHHELD, check_text
 from nextrole.agents.tiering import TieringAgent
 from nextrole.agents.writer import WriterAgent
-from nextrole.db import repos
+from nextrole.db import repos, saved_repo
 from nextrole.memory import build_style_memory
 from nextrole.models.match import MatchResult
 from nextrole.orchestrator.state import Deps, RunState
@@ -28,6 +28,8 @@ class Steps:
     async def discover(self, s: RunState) -> tuple[dict, str]:
         boards = self.d.boards_loader()
         found = await self.d.discover(boards, s["profile"].preferences)
+        failed = {k.split(":", 1)[0] for k in found.errors}
+        saved_repo.update_listing(self.d.conn, found.seen_ids, found.sources_checked, failed)
         down = f" ({len(found.errors)} unavailable)" if found.errors else ""
         return {"found": found}, f"{len(found.jobs)} openings from {len(boards)} boards{down}"
 

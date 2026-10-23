@@ -23,7 +23,7 @@ vi.mock("gsap", () => {
 vi.mock("gsap/ScrollTrigger", () => ({ ScrollTrigger: { create: () => ({}), update: () => {}, refresh: () => {} } }));
 vi.mock("lenis", () => ({ default: class { on() {} raf() {} destroy() {} } }));
 
-import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, draftFor } from "@/lib/api/mock/data";
+import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, SAVED_JOBS, draftFor } from "@/lib/api/mock/data";
 import { ApiError } from "@/lib/api/client";
 import { RunDetailSchema, RunSummarySchema } from "@/lib/api/schemas";
 
@@ -54,6 +54,16 @@ vi.mock("@/lib/api/endpoints", () => ({
     approveOutreach: vi.fn(),
     deleteOutreach: vi.fn(),
     outreachFeedback: vi.fn(),
+    savedJobs: async () => SAVED_JOBS,
+    saveJob: vi.fn(),
+    updateSavedJob: vi.fn(),
+    unsaveJob: vi.fn(),
+    importSavedJobs: vi.fn(),
+    companies: async () => [{ id: 1, name: "Stripe", monitored: true }, { id: 2, name: "Tiny Co", monitored: false }],
+    companySuggestions: async () => ["Airbnb", "Figma"],
+    addCompany: vi.fn(),
+    removeCompany: vi.fn(),
+    resolveRoles: async (roles: string[]) => roles.map((text) => ({ text, canonical: null, label: null, also_matches: [] })),
   },
 }));
 vi.mock("@/lib/api/sse", () => ({ useRunEvents: () => ({ events: [], status: "idle", finished: null }) }));
@@ -70,6 +80,7 @@ import { DraftsList } from "@/components/outreach/drafts-list";
 import { OutreachPage } from "@/components/outreach/outreach-page";
 import { ProfilePage } from "@/components/profile/profile-page";
 import { SettingsPage } from "@/components/settings/settings-page";
+import { SavedPage } from "@/components/saved/saved-page";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Hero } from "@/components/marketing/hero";
 import { HomeBody } from "@/components/marketing/home-body";
@@ -175,17 +186,24 @@ describe("accessibility (axe)", () => {
   });
 
   it("profile: every tab", async () => {
-    localStorage.setItem("nextrole_saved_jobs", JSON.stringify({ v: 1, ids: ["s1"] }));
     const user = userEvent.setup();
     const { container } = renderPage(<ProfilePage />);
     await screen.findByLabelText("Name");
     await clean(container);
-    for (const name of [/Preferences/, /Saved jobs/, /Tracker/]) {
+    for (const name of [/Preferences/]) {
       await user.click(screen.getByRole("tab", { name }));
       await waitFor(() => expect(screen.getByRole("tab", { name })).toHaveAttribute("aria-selected", "true"));
       await screen.findByRole("tabpanel");
       await clean(container);
     }
+  });
+
+  it("saved jobs page, including a posting that is no longer listed", async () => {
+    localStorage.setItem("nextrole_saved_jobs", JSON.stringify({ v: 1, ids: ["old1"] })); // shows the import banner too
+    const { container } = renderPage(<SavedPage />);
+    await screen.findByRole("heading", { level: 2, name: "Platform Engineer" });
+    expect(screen.getByText("No longer listed", { selector: "span" })).toBeInTheDocument();
+    await clean(container);
   });
 
   it("activity list and a run's trace", async () => {

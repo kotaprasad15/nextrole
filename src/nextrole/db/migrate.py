@@ -40,10 +40,45 @@ def _002_user_security(conn: sqlite3.Connection) -> None:
     add_column(conn, "users", "last_login_at", "TEXT")
 
 
+def _003_saved_jobs_and_companies(conn: sqlite3.Connection) -> None:
+    """Server-side saved jobs (snapshot + status + notes) and watched companies. New tables only."""
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS saved_jobs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            job_id TEXT NOT NULL,
+            source TEXT NOT NULL DEFAULT '',
+            tier TEXT NOT NULL DEFAULT 'mid',
+            status TEXT NOT NULL DEFAULT 'saved'
+                CHECK (status IN ('saved', 'applied', 'interview', 'offer', 'rejected')),
+            notes TEXT NOT NULL DEFAULT '',          -- encrypted
+            snapshot_json TEXT NOT NULL,             -- encrypted
+            listed INTEGER NOT NULL DEFAULT 1,
+            delisted_at TEXT,
+            saved_at TEXT NOT NULL,
+            status_updated_at TEXT NOT NULL,
+            last_seen_at TEXT,
+            UNIQUE (user_id, job_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_saved_jobs_user ON saved_jobs(user_id, status);
+        CREATE TABLE IF NOT EXISTS user_companies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            company_key TEXT NOT NULL,
+            display_name TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            UNIQUE (user_id, company_key)
+        );
+        """
+    )
+
+
 # (version, name, function). Append new migrations at the end.
 MIGRATIONS: list[tuple[int, str, Callable[[sqlite3.Connection], None]]] = [
     (1, "baseline", _001_baseline),
     (2, "user_security", _002_user_security),
+    (3, "saved_jobs_and_companies", _003_saved_jobs_and_companies),
 ]
 
 

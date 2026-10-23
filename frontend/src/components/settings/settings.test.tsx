@@ -39,7 +39,7 @@ describe("Settings", () => {
 
   it("downloads the user's data as a JSON file", async () => {
     exportData.mockResolvedValue({ account: { email: "priya@example.com" }, profile: { name: "Priya" } });
-    const createObjectURL = vi.fn((_blob: Blob) => "blob:fake");
+    const createObjectURL = vi.fn<(b: Blob) => string>(() => "blob:fake");
     const revoke = vi.fn();
     vi.stubGlobal("URL", Object.assign(URL, { createObjectURL, revokeObjectURL: revoke }));
     const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
@@ -80,7 +80,8 @@ describe("Settings", () => {
     renderPage();
     await user.click(await screen.findByRole("button", { name: /clear data stored in this browser/i }));
     await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "Clear it" }));
-    expect(JSON.parse(localStorage.getItem("nextrole_saved_jobs")!).ids).toEqual([]);
+    expect(localStorage.getItem("nextrole_saved_jobs")).toBeNull();
+    expect(localStorage.getItem("nextrole_tracker")).toBeNull();
     expect(JSON.parse(localStorage.getItem("nextrole_display")!).motion).toBe("reduced");
     expect(deleteAccount).not.toHaveBeenCalled();
   });
@@ -110,7 +111,7 @@ describe("Settings", () => {
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
     expect(deleteAccount).toHaveBeenCalledTimes(1);
     expect(logout).toHaveBeenCalled();
-    expect(JSON.parse(localStorage.getItem("nextrole_saved_jobs")!).ids).toEqual([]);
+    expect(localStorage.getItem("nextrole_saved_jobs")).toBeNull();
   });
 
   it("keeps the user here and explains when deletion fails", async () => {

@@ -15,6 +15,7 @@ import httpx
 
 from nextrole.models.job import Job
 from nextrole.models.profile import Preferences
+from nextrole.roles.taxonomy import roles_match
 from nextrole.sources.ashby import AshbySource
 from nextrole.sources.base import Board, BoardSource
 from nextrole.sources.dedupe import dedupe
@@ -33,14 +34,17 @@ def load_boards(path: Path = BOARDS_FILE) -> list[Board]:
 class DiscoveryResult:
     jobs: list[Job] = field(default_factory=list)
     errors: dict[str, str] = field(default_factory=dict)  # "source:slug" -> error
+    # Every job id returned by boards that answered, BEFORE preference filtering. Saved jobs whose
+    # id is missing here (and whose source had no errors) are no longer listed by their employer.
+    seen_ids: set[str] = field(default_factory=set)
+    sources_checked: set[str] = field(default_factory=set)
 
 
 def matches(job: Job, prefs: Preferences) -> bool:
-    """Keep jobs whose title matches any desired role and whose location fits."""
-    if prefs.roles:
-        title = job.title.lower()
-        if not any(r.lower() in title for r in prefs.roles):
-            return False
+    """Keep jobs whose title matches any desired role (through the role taxonomy, so SDE ==
+    Software Development Engineer) and whose location fits."""
+    if prefs.roles and not roles_match(job.title, prefs.roles):
+        return False
     if prefs.locations or prefs.remote_ok:
         loc = job.location.lower()
         wanted = [x.lower() for x in prefs.locations]
@@ -79,5 +83,7 @@ async def discover(
     finally:
         if own_client:
             await client.aclose()
+    result.seen_ids = {j.id for batch in batches for j in batch}
+    result.sources_checked = {b.source for b in boards}
     result.jobs = dedupe([j for batch in batches for j in batch if matches(j, prefs)])
     return result

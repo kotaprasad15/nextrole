@@ -18,7 +18,7 @@ import type { RunMode, StartRunBody, Tier } from "@/lib/api/schemas";
 import { useRunEvents } from "@/lib/api/sse";
 import { DEFAULT_FILTERS, filterJobs, type Filters } from "@/lib/dashboard/filters";
 import { runFailure } from "@/lib/dashboard/run-steps";
-import { useSavedJobs } from "@/lib/local/saved-jobs";
+import { useSavedJobs } from "@/lib/saved/use-saved-jobs";
 import { useReducedMotion } from "@/lib/motion/hooks";
 import { duration, ease } from "@/lib/motion/tokens";
 import { TIERS, TIER_META } from "@/lib/tier";

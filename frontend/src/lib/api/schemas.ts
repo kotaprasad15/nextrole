@@ -177,3 +177,47 @@ export const FeaturedJobSchema = z.object({
   apply_url: z.string().startsWith("https://"),
 });
 export type FeaturedJob = z.infer<typeof FeaturedJobSchema>;
+
+// ---- saved jobs, watched companies, roles ----
+export const SAVED_STATUSES = ["saved", "applied", "interview", "offer", "rejected"] as const;
+export const SavedStatusSchema = z.enum(SAVED_STATUSES);
+export type SavedStatus = z.infer<typeof SavedStatusSchema>;
+
+export const SavedJobSchema = z.object({
+  id: z.number(),
+  job_id: z.string(),
+  tier: TierSchema,
+  status: SavedStatusSchema,
+  notes: z.string(),
+  saved_at: z.string(),
+  status_updated_at: z.string(),
+  /** false = the employer no longer lists this posting. */
+  listed: z.boolean(),
+  delisted_at: z.string().nullable(),
+  // Snapshot taken at save time, so the entry outlives the posting.
+  title: z.string(),
+  company: z.string(),
+  location: z.string(),
+  remote: z.boolean(),
+  /** From the source record (https), rendered verbatim; the UI refuses anything else. */
+  apply_url: z.string().nullable(),
+  summary: z.string(),
+  source: z.string(),
+});
+export type SavedJob = z.infer<typeof SavedJobSchema>;
+
+export const CompanySchema = z.object({ id: z.number(), name: z.string(), monitored: z.boolean() });
+export type Company = z.infer<typeof CompanySchema>;
+
+export const ResolvedRoleSchema = z.object({
+  text: z.string(),
+  canonical: z.string().nullable(),
+  label: z.string().nullable(),
+  also_matches: z.array(z.string()),
+});
+export type ResolvedRole = z.infer<typeof ResolvedRoleSchema>;
+
+export const RoleTaxonomySchema = z.array(z.object({ canonical: z.string(), label: z.string(), aliases: z.array(z.string()) }));
+export type RoleTaxonomy = z.infer<typeof RoleTaxonomySchema>;
+
+export const ImportResultSchema = z.object({ imported: z.number(), skipped: z.array(z.string()) });

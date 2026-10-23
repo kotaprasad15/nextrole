@@ -11,7 +11,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 
-from nextrole.db import repos
+from nextrole.db import repos, saved_repo
 from nextrole.resume.storage import ResumeStore
 from nextrole.security.crypto import DecryptionError
 
@@ -59,6 +59,16 @@ def _outreach(conn: sqlite3.Connection, user_id: int) -> list[dict]:
             "feedback": feedback, "updated_at": row["updated_at"],
         })
     return out
+
+
+@export_section("saved_jobs")
+def _saved_jobs(conn: sqlite3.Connection, user_id: int) -> list[dict]:
+    return saved_repo.list_saved(conn, user_id)
+
+
+@export_section("watched_companies")
+def _companies(conn: sqlite3.Connection, user_id: int) -> list[str]:
+    return [c["display_name"] for c in saved_repo.list_companies(conn, user_id)]
 
 
 @export_section("runs")

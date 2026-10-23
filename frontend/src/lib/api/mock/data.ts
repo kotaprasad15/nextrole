@@ -2,7 +2,7 @@
  * Realistic sample data for mock mode. Companies are fictional on purpose: these are demo
  * fixtures, not real postings. Apply URLs are https (the app refuses anything else).
  */
-import type { JobCard, Outreach, Profile, Recommendations, RunDetail, RunEvent } from "../schemas";
+import type { JobCard, Outreach, Profile, Recommendations, RunDetail, RunEvent, SavedJob } from "../schemas";
 
 export const MOCK_EMAIL = "priya.nair@example.com";
 
@@ -179,4 +179,18 @@ export const PAST_RUNS: RunDetail[] = [
   ], 14820, null, "s1"),
   pastRun("c3d4e5f6a1b2", "single_job", "failed", "2026-10-20 09:15:02", [["ingest", "NextRole doesn't read LinkedIn, Indeed or Naukri pages. Paste the posting text instead (you can keep the link too).", 1]], 0,
     "NextRole doesn't read LinkedIn, Indeed or Naukri pages. Paste the posting text instead (you can keep the link too)."),
+];
+
+/** Saved-jobs fixtures: one live posting and one the employer has removed. Held to SavedJobSchema by tests. */
+export const SAVED_JOBS: SavedJob[] = [
+  {
+    id: 11, job_id: "s1", tier: "startup", status: "applied", notes: "Referred by Dana.", saved_at: "2026-10-02T09:00:00+00:00",
+    status_updated_at: "2026-10-05T09:00:00+00:00", listed: true, delisted_at: null, title: "Platform Engineer", company: "Lumen Labs",
+    location: "Remote", remote: true, apply_url: "https://boards.example.com/lumen/1", summary: "Build the internal platform used by every product team.", source: "greenhouse",
+  },
+  {
+    id: 12, job_id: "gone1", tier: "mid", status: "saved", notes: "", saved_at: "2026-09-20T09:00:00+00:00",
+    status_updated_at: "2026-09-20T09:00:00+00:00", listed: false, delisted_at: "2026-10-01T09:00:00+00:00", title: "Backend Engineer", company: "Orbit",
+    location: "Berlin", remote: false, apply_url: "https://boards.example.com/orbit/9", summary: "Own the payments API.", source: "lever",
+  },
 ];
