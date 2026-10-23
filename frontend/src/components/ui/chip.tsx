@@ -30,6 +30,7 @@ export function Chip({ className, tone = "plain", onRemove, removeLabel, childre
       {onRemove && (
         <button
           type="button"
+          data-edit-only
           onClick={onRemove}
           aria-label={removeLabel ?? "Remove"}
           className="-mr-1 rounded-full p-0.5 text-muted transition-colors hover:bg-ink/10 hover:text-ink"

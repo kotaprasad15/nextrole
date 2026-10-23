@@ -4,7 +4,7 @@ export interface MappedAuthError {
   /** Message to show. */
   message: string;
   /** Attach it to this field when the server's message is about that field; otherwise form-level. */
-  field?: "email" | "password";
+  field?: "email" | "password" | "confirmPassword";
 }
 
 /**
@@ -26,7 +26,10 @@ export function mapAuthError(mode: "login" | "signup", err: unknown): MappedAuth
   if (err.status === 429) return { message: "Too many attempts. Wait a moment and try again." };
   if (err.status === 422) {
     if (/email/i.test(err.message)) return { field: "email", message: "Enter a valid email address." };
-    if (/password|character/i.test(err.message)) return { field: "password", message: "Use at least 8 characters." };
+    if (/do not match/i.test(err.message)) return { field: "confirmPassword", message: "The two passwords do not match." };
+    const needs = err.message.match(/^password needs (.+)$/i);
+    if (needs) return { field: "password", message: `Your password still needs: ${needs[1]}.` };
+    if (/password|character/i.test(err.message)) return { field: "password", message: "Choose a stronger password: 8+ characters with upper and lower case and a special character." };
   }
   return { message: err.message || (mode === "login" ? "Could not log in." : "Could not create your account.") };
 }

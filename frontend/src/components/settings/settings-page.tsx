@@ -1,9 +1,10 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
@@ -11,14 +12,13 @@ import { Field, Input } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { RadioCards } from "@/components/ui/radio-cards";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api/client";
 import { api } from "@/lib/api/endpoints";
 import { useLogout, useMe } from "@/lib/api/queries";
 import { useDisplayPrefs } from "@/lib/local/display-prefs";
 import { clearLocalData } from "@/lib/local/clear";
-import { useFinePointer, useSystemReducedMotion } from "@/lib/motion/hooks";
+import { useSystemReducedMotion } from "@/lib/motion/hooks";
 
 export const DELETE_PHRASE = "delete";
 
@@ -41,11 +41,26 @@ export function SettingsPage() {
   const me = useMe();
   const logout = useLogout();
   const { prefs, set } = useDisplayPrefs();
-  const fine = useFinePointer();
+  const { theme, setTheme } = useTheme();
+  // The stored theme is only known in the browser: show "system" until hydrated so server and client match.
+  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
   const systemReduced = useSystemReducedMotion();
   const [confirm, setConfirm] = useState<"local" | "delete" | null>(null);
   const [phrase, setPhrase] = useState("");
   const [alsoLocal, setAlsoLocal] = useState(true);
+
+  const download = useMutation({
+    mutationFn: () => api.exportData(),
+    onSuccess: (data) => {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "nextrole-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("Your data was downloaded", { variant: "success" });
+    },
+  });
 
   const remove = useMutation({
     mutationFn: () => api.deleteAccount(),
@@ -73,7 +88,7 @@ export function SettingsPage() {
           <Card className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-small text-muted">Signed in as</p>
-              {me.isPending ? <Skeleton className="mt-1 h-6 w-56" /> : <p className="font-medium">{me.data?.email ?? "Unknown"}</p>}
+              {me.isPending || !hydrated ? <Skeleton className="mt-1 h-6 w-56" /> : <p className="font-medium">{me.data?.email ?? "Unknown"}</p>}
             </div>
             <Button variant="secondary" disabled={logout.isPending} onClick={() => logout.mutate(undefined, { onSettled: () => router.replace("/") })}>
               {logout.isPending && <Loader2 className="size-4 animate-spin" aria-hidden />} Log out
@@ -82,12 +97,20 @@ export function SettingsPage() {
         </Section>
 
         <Section title="Display" description="Saved in this browser.">
-          <Switch
-            checked={prefs.cursor}
-            onCheckedChange={(cursor) => set({ cursor })}
-            label="Custom cursor"
-            description={fine ? "A small dot and ring that follow your mouse. Text fields keep the normal cursor." : "Only used with a mouse or trackpad. This device does not have one, so it is off here."}
-          />
+          <fieldset>
+            <legend className="mb-2 text-small font-medium">Theme</legend>
+            <RadioCards
+              label="Theme"
+              value={hydrated ? (theme ?? "system") : "system"}
+              onValueChange={setTheme}
+              options={[
+                { value: "system", label: "Match my device", hint: "Light or dark, following your system setting." },
+                { value: "light", label: "Light", hint: "Warm paper background." },
+                { value: "dark", label: "Dark", hint: "Deep neutral background, easier at night." },
+              ]}
+              className="sm:grid-cols-3"
+            />
+          </fieldset>
           <fieldset>
             <legend className="mb-2 text-small font-medium">Motion</legend>
             <RadioCards
@@ -96,7 +119,7 @@ export function SettingsPage() {
               onValueChange={(v) => set({ motion: v as "system" | "reduced" })}
               options={[
                 { value: "system", label: "Follow my device", hint: "Use the reduced-motion setting from your system." },
-                { value: "reduced", label: "Always reduce motion", hint: "No animations, tilt or custom cursor, and no scroll story on the homepage." },
+                { value: "reduced", label: "Always reduce motion", hint: "No animations or tilt, and no scroll story on the homepage." },
               ]}
             />
             {systemReduced && <p className="mt-2 text-small text-muted">Your device already asks for reduced motion, so motion stays off whichever you pick.</p>}
@@ -107,7 +130,11 @@ export function SettingsPage() {
           <Card className="flex flex-col gap-5">
             <div>
               <CardTitle as="h3">What is stored on the server (your account)</CardTitle>
-              <CardDescription className="mt-1">Your profile, your resume file (encrypted), your matches, your outreach drafts and feedback notes, and your run history. Deleting your account removes all of it.</CardDescription>
+              <CardDescription className="mt-1">Your profile, your resume file, your matches, your outreach drafts and feedback notes, and your run history. Personal data is encrypted at rest. You can download all of it, and deleting your account removes all of it.</CardDescription>
+              <Button variant="secondary" size="sm" className="mt-3" disabled={download.isPending} onClick={() => download.mutate()}>
+                {download.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Download className="size-4" aria-hidden />} Download my data
+              </Button>
+              {download.error && <p role="alert" className="mt-2 text-small font-medium text-danger-ink">Could not prepare your download. Please try again.</p>}
             </div>
             <div>
               <CardTitle as="h3">What is stored only in this browser</CardTitle>

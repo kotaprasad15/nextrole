@@ -375,7 +375,7 @@ def api(tmp_path):
 
 
 def signup(c, email="a@b.co"):
-    c.post("/auth/signup", json={"email": email, "password": "correct horse"})
+    c.post("/auth/signup", json={"email": email, "password": "Correct-horse9"})
     c.put("/profile", json=PROFILE.model_dump())
 
 
@@ -394,9 +394,11 @@ def test_run_recommend_streams_events_and_records_history(api):
         assert [e["step"] for e in events if e["type"] == "step_finished"] == PLANS["recommend"]
         assert events[-1]["data"]["status"] == "completed" and events[-1]["data"]["result"]["matched"] == 3
 
-        row = c.get(f"/runs/{run_id}").json()
-        assert row["status"] == "completed" and row["tokens"] > 0 and row["events"][-1]["type"] == "run_finished"
-        assert [r["id"] for r in c.get("/runs").json()] == [run_id]
+        # Run history is internal now (no list/detail routes for users); the row is still stored for replay and budgets.
+        assert c.get("/runs").status_code in (404, 405) and c.get(f"/runs/{run_id}").status_code == 404
+        row = api.app.state.conn.execute("SELECT status, tokens, events_json FROM runs WHERE id = ?", (run_id,)).fetchone()
+        assert row["status"] == "completed" and row["tokens"] > 0 and json.loads(row["events_json"])[-1]["type"] == "run_finished"
+        assert c.get("/runs/active").json() == {"run_id": None, "mode": None}
         assert sse_events(c, run_id) == events  # finished runs replay from history
         assert sum(len(v) for v in c.get("/recommendations").json().values()) == 3
 
@@ -410,8 +412,7 @@ def test_runs_are_private_and_validated(api):
         assert c.post("/runs", json={"mode": "bogus"}).status_code == 422
         run_id = c.post("/runs", json={"mode": "recommend"}).json()["run_id"]
         sse_events(c, run_id)
-        other.post("/auth/signup", json={"email": "o@b.co", "password": "correct horse"})
-        assert other.get(f"/runs/{run_id}").status_code == 404
+        other.post("/auth/signup", json={"email": "o@b.co", "password": "Correct-horse9"})
         assert other.get(f"/runs/{run_id}/events").status_code == 404
 
 

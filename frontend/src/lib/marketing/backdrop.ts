@@ -26,6 +26,9 @@ export const BLOBS = [
  * them over the page background (the worst case: they never all overlap at full strength, but they
  * might) and requires AA for the text colours used on the hero.
  */
+/** Dark theme dims the orbs and blobs (class `dark:opacity-55` in hero-backdrop.tsx; a test keeps them in sync). */
+export const DARK_WASH = 0.55;
+
 export const WORST_CASE_LAYERS: [string, number][] = [
   ...ORBS.map((o) => [o.token, o.alpha] as [string, number]),
   ...BLOBS.map((b) => [b.from, b.fromAlpha] as [string, number]),

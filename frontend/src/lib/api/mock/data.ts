@@ -2,7 +2,7 @@
  * Realistic sample data for mock mode. Companies are fictional on purpose: these are demo
  * fixtures, not real postings. Apply URLs are https (the app refuses anything else).
  */
-import type { JobCard, Outreach, Profile, Recommendations, RunDetail, RunEvent } from "../schemas";
+import type { JobCard, Outreach, Profile, Recommendations, SavedJob } from "../schemas";
 
 export const MOCK_EMAIL = "priya.nair@example.com";
 
@@ -136,47 +136,16 @@ export function draftFor(jobId: string, status: Outreach["status"], id: number):
   };
 }
 
-/** [step, detail, latency ms, attempt?]. Timestamps accumulate from the latencies, like a real run. */
-type PastStep = [string, string, number, number?];
-
-function pastRun(
-  id: string, mode: RunDetail["mode"], status: RunDetail["status"], started: string, steps: PastStep[], tokens: number,
-  error: string | null = null, jobId: string | null = null,
-): RunDetail {
-  const t0 = Date.parse(`${started.replace(" ", "T")}Z`) / 1000;
-  let clock = t0;
-  const events: RunEvent[] = [];
-  const push = (type: RunEvent["type"], fields: Partial<RunEvent> = {}) => {
-    events.push({ seq: events.length, ts: clock, type, step: "", detail: "", latency_ms: 0, tokens: 0, cost_usd: 0, data: {}, ...fields });
-  };
-  push("run_started", { data: { mode } });
-  push("plan", { data: { steps: [...new Set(steps.map((s) => s[0]))] } });
-  const per = tokens / Math.max(steps.length, 1);
-  steps.forEach(([step, detail, ms, attempt], i) => {
-    const data = attempt ? { attempt } : {};
-    clock += 0.25;
-    push("step_started", { step, data });
-    clock += ms / 1000;
-    const used = Math.round(per * (i + 1));
-    const failed = !!error && i === steps.length - 1;
-    push(failed ? "step_failed" : "step_finished", { step, detail, latency_ms: ms, tokens: used, cost_usd: used * 0.0000045, data });
-  });
-  clock += 0.1;
-  push("run_finished", { detail: status, tokens, cost_usd: tokens * 0.0000045, data: { status, result: {}, error } });
-  const finished = new Date(clock * 1000).toISOString().slice(0, 19).replace("T", " ");
-  return { id, mode, status, job_id: jobId, tokens, cost_usd: tokens * 0.0000045, error, started_at: started, finished_at: finished, result: {}, events };
-}
-
-export const PAST_RUNS: RunDetail[] = [
-  pastRun("a1b2c3d4e5f6", "recommend", "completed", "2026-10-19 18:30:10", [
-    ["discover", "1,284 openings from 40 boards", 30900], ["tier", "37 companies classified", 2800],
-    ["select", "40 candidates picked from 1,284 openings", 650], ["match", "scored 40 of 40 candidates", 12100], ["save", "saved 40 recommendations", 40],
-  ], 33755),
-  pastRun("b2c3d4e5f6a1", "outreach", "completed", "2026-10-19 19:02:44", [
-    ["research", "6 sourced facts about Lumen Labs", 5200], ["facts", "26 facts available to the writer", 12], ["write", "draft attempt 1 (131 words)", 7400, 1],
-    ["critic", "score 71/100, needs revision", 5100, 1], ["write", "draft attempt 2 (118 words)", 6900, 2], ["critic", "score 90/100, passed", 4800, 2],
-    ["save", "draft saved (critic_passed)", 30],
-  ], 14820, null, "s1"),
-  pastRun("c3d4e5f6a1b2", "single_job", "failed", "2026-10-20 09:15:02", [["ingest", "NextRole doesn't read LinkedIn, Indeed or Naukri pages. Paste the posting text instead (you can keep the link too).", 1]], 0,
-    "NextRole doesn't read LinkedIn, Indeed or Naukri pages. Paste the posting text instead (you can keep the link too)."),
+/** Saved-jobs fixtures: one live posting and one the employer has removed. Held to SavedJobSchema by tests. */
+export const SAVED_JOBS: SavedJob[] = [
+  {
+    id: 11, job_id: "s1", tier: "startup", status: "applied", notes: "Referred by Dana.", saved_at: "2026-10-02T09:00:00+00:00",
+    status_updated_at: "2026-10-05T09:00:00+00:00", listed: true, delisted_at: null, title: "Platform Engineer", company: "Lumen Labs",
+    location: "Remote", remote: true, apply_url: "https://boards.example.com/lumen/1", summary: "Build the internal platform used by every product team.", source: "greenhouse",
+  },
+  {
+    id: 12, job_id: "gone1", tier: "mid", status: "saved", notes: "", saved_at: "2026-09-20T09:00:00+00:00",
+    status_updated_at: "2026-09-20T09:00:00+00:00", listed: false, delisted_at: "2026-10-01T09:00:00+00:00", title: "Backend Engineer", company: "Orbit",
+    location: "Berlin", remote: false, apply_url: "https://boards.example.com/orbit/9", summary: "Own the payments API.", source: "lever",
+  },
 ];

@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from "vitest";
 import {
-  MeSchema, OutreachSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema, RunDetailSchema, RunSummarySchema,
+  MeSchema, OutreachSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema, ActiveRunSchema,
 } from "./schemas";
 import { z } from "zod";
 
@@ -49,15 +49,10 @@ describe.skipIf(!base)("backend contract (live)", () => {
     }
   });
 
-  it("GET /runs and GET /runs/{id}", async () => {
-    const list = await get("/runs");
-    expect(list.status).toBe(200);
-    const rows = z.array(RunSummarySchema).parse(list.body);
-    if (rows.length) {
-      const one = await get(`/runs/${rows[0].id}`);
-      expect(one.status).toBe(200);
-      RunDetailSchema.parse(one.body);
-    }
+  it("GET /runs/active", async () => {
+    const res = await get("/runs/active");
+    expect(res.status).toBe(200);
+    ActiveRunSchema.parse(res.body);
   });
 
   it("error bodies use FastAPI's {detail}", async () => {

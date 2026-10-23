@@ -39,7 +39,7 @@ function Section({ title, description, children, action }: { title: string; desc
 function ItemCard({ label, onRemove, children }: { label: string; onRemove: () => void; children: ReactNode }) {
   return (
     <Card className="relative">
-      <Button variant="ghost" size="sm" className="absolute right-3 top-3 text-danger-ink" onClick={onRemove} aria-label={`Remove ${label}`}>
+      <Button variant="ghost" size="sm" data-edit-only className="absolute right-3 top-3 text-danger-ink" onClick={onRemove} aria-label={`Remove ${label}`}>
         <Trash2 className="size-4" aria-hidden /> Remove
       </Button>
       <div className="grid gap-4 pt-8 sm:grid-cols-2 sm:pt-0">{children}</div>
@@ -70,7 +70,7 @@ export function ProfileSections({ draft, onChange, errors }: Props) {
       <Section
         title="Experience"
         description="Drafts can only mention what is written here."
-        action={<Button variant="secondary" size="sm" onClick={() => set({ experience: [...draft.experience, blankExperience()] })}><Plus className="size-4" aria-hidden /> Add experience</Button>}
+        action={<Button variant="secondary" size="sm" data-edit-only onClick={() => set({ experience: [...draft.experience, blankExperience()] })}><Plus className="size-4" aria-hidden /> Add experience</Button>}
       >
         {draft.experience.length === 0 ? (
           <p className="text-small text-muted">No experience yet. Add internships, jobs or volunteering.</p>
@@ -100,13 +100,13 @@ export function ProfileSections({ draft, onChange, errors }: Props) {
                           value={b}
                           onChange={(e) => set({ experience: replaceAt(draft.experience, i, { ...x, bullets: replaceAt(x.bullets, bi, e.target.value) }) })}
                         />
-                        <Button variant="ghost" size="icon" aria-label={`Remove bullet ${bi + 1}`} onClick={() => set({ experience: replaceAt(draft.experience, i, { ...x, bullets: removeAt(x.bullets, bi) }) })}>
+                        <Button variant="ghost" size="icon" data-edit-only aria-label={`Remove bullet ${bi + 1}`} onClick={() => set({ experience: replaceAt(draft.experience, i, { ...x, bullets: removeAt(x.bullets, bi) }) })}>
                           <X className="size-4" aria-hidden />
                         </Button>
                       </li>
                     ))}
                   </ul>
-                  <Button variant="ghost" size="sm" className="mt-2" onClick={() => set({ experience: replaceAt(draft.experience, i, { ...x, bullets: [...x.bullets, ""] }) })}>
+                  <Button variant="ghost" size="sm" data-edit-only className="mt-2" onClick={() => set({ experience: replaceAt(draft.experience, i, { ...x, bullets: [...x.bullets, ""] }) })}>
                     <Plus className="size-4" aria-hidden /> Add a bullet
                   </Button>
                 </div>
@@ -118,7 +118,7 @@ export function ProfileSections({ draft, onChange, errors }: Props) {
 
       <Section
         title="Projects"
-        action={<Button variant="secondary" size="sm" onClick={() => set({ projects: [...draft.projects, blankProject()] })}><Plus className="size-4" aria-hidden /> Add project</Button>}
+        action={<Button variant="secondary" size="sm" data-edit-only onClick={() => set({ projects: [...draft.projects, blankProject()] })}><Plus className="size-4" aria-hidden /> Add project</Button>}
       >
         {draft.projects.length === 0 ? (
           <p className="text-small text-muted">No projects yet.</p>
@@ -143,7 +143,7 @@ export function ProfileSections({ draft, onChange, errors }: Props) {
 
       <Section
         title="Education"
-        action={<Button variant="secondary" size="sm" onClick={() => set({ education: [...draft.education, blankEducation()] })}><Plus className="size-4" aria-hidden /> Add education</Button>}
+        action={<Button variant="secondary" size="sm" data-edit-only onClick={() => set({ education: [...draft.education, blankEducation()] })}><Plus className="size-4" aria-hidden /> Add education</Button>}
       >
         {draft.education.length === 0 ? (
           <p className="text-small text-muted">No education yet.</p>

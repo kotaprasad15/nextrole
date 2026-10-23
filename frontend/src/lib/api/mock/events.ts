@@ -3,7 +3,7 @@
  * streams (run_started, plan, step_started/finished, run_finished), on timers, so the live UI,
  * timelines and history can be developed and demoed without any LLM call.
  */
-import type { RunDetail, RunEvent, RunMode } from "../schemas";
+import type { RunEvent, RunMode } from "../schemas";
 
 const PLANS: Record<RunMode, [string, string, number][]> = {
   recommend: [
@@ -67,13 +67,8 @@ class MockRun {
     this.listeners.add(l);
     return () => this.listeners.delete(l);
   }
-  detail(startedAt: string): RunDetail {
-    const last = this.events[this.events.length - 1];
-    return {
-      id: this.id, mode: this.mode, status: this.done ? ((last?.data as { status?: string })?.status === "failed" ? "failed" : "completed") : "running",
-      job_id: null, tokens: last?.tokens ?? 0, cost_usd: last?.cost_usd ?? 0, error: null, started_at: startedAt,
-      finished_at: this.done ? startedAt : null, result: {}, events: this.events,
-    };
+  get running() {
+    return !this.done;
   }
 }
 

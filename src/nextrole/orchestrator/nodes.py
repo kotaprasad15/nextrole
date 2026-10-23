@@ -9,9 +9,10 @@ from nextrole.agents.critic import CriticAgent
 from nextrole.agents.factsheet import build_fact_sheet
 from nextrole.agents.ingest import IngestAgent
 from nextrole.agents.matcher import MatcherAgent, select_candidates
+from nextrole.agents.output_guard import WITHHELD, check_text
 from nextrole.agents.tiering import TieringAgent
 from nextrole.agents.writer import WriterAgent
-from nextrole.db import repos
+from nextrole.db import repos, saved_repo
 from nextrole.memory import build_style_memory
 from nextrole.models.match import MatchResult
 from nextrole.orchestrator.state import Deps, RunState
@@ -27,6 +28,8 @@ class Steps:
     async def discover(self, s: RunState) -> tuple[dict, str]:
         boards = self.d.boards_loader()
         found = await self.d.discover(boards, s["profile"].preferences)
+        failed = {k.split(":", 1)[0] for k in found.errors}
+        saved_repo.update_listing(self.d.conn, found.seen_ids, found.sources_checked, failed)
         down = f" ({len(found.errors)} unavailable)" if found.errors else ""
         return {"found": found}, f"{len(found.jobs)} openings from {len(boards)} boards{down}"
 
@@ -116,6 +119,11 @@ class Steps:
 
         draft, report = s["best"]
         warnings = list(s.get("warnings", []))
+        if check_text(f"{draft.subject}\n{draft.body}").critical:
+            # A secret or our own instructions in the text: never show it, whatever the Critic said.
+            draft.subject, draft.body, draft.claims = "", WITHHELD, []
+            warnings.append("The draft was withheld because it contained content that must not be shown.")
+            report.verdict = "revise"
         if report.verdict == "pass":
             draft.status = "critic_passed"
         else:

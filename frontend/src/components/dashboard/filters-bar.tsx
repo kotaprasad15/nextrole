@@ -12,7 +12,6 @@ function Toggle({ pressed, onClick, children }: { pressed: boolean; onClick: () 
       type="button"
       aria-pressed={pressed}
       onClick={onClick}
-      data-cursor="link"
       className={cn(
         "h-10 rounded-full border px-4 text-small font-medium transition-colors",
         pressed ? "border-primary bg-primary-tint text-primary" : "border-border-strong bg-surface text-ink hover:border-ink/40",

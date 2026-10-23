@@ -13,10 +13,11 @@ import { api } from "@/lib/api/endpoints";
 import { mapAuthError } from "@/lib/auth-errors";
 import { safeNext } from "@/lib/route-guard";
 import { fieldErrors, loginSchema, signupSchema, type FieldErrors } from "@/lib/validation";
-import { PasswordStrength } from "./password-strength";
+import { PasswordChecklist } from "./password-checklist";
 
 type Mode = "login" | "signup";
-type Errors = FieldErrors<"email" | "password">;
+type FieldName = "email" | "password" | "confirmPassword";
+type Errors = FieldErrors<FieldName>;
 
 const COPY = {
   login: { title: "Welcome back", sub: "Log in to see your matches.", cta: "Log in", pending: "Logging in...", altText: "New to NextRole?", altLink: "Create an account", altHref: "/signup" },
@@ -46,21 +47,23 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const c = COPY[mode];
   const schema = mode === "login" ? loginSchema : signupSchema;
 
-  const [values, setValues] = useState({ email: "", password: "" });
+  const [values, setValues] = useState({ email: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string>();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
+  const refFor = (f: FieldName) => (f === "email" ? emailRef : f === "password" ? passwordRef : confirmRef);
 
-  const validateField = (name: "email" | "password", next = values) => {
+  const validateField = (name: FieldName, next = values) => {
     const result = schema.safeParse(next);
-    const message = result.success ? undefined : fieldErrors<"email" | "password">(result.error)[name];
+    const message = result.success ? undefined : fieldErrors<FieldName>(result.error)[name];
     setErrors((e) => ({ ...e, [name]: message }));
     return message;
   };
 
   const submit = useMutation({
-    mutationFn: () => (mode === "login" ? api.login(values.email.trim(), values.password) : api.signup(values.email.trim(), values.password)),
+    mutationFn: () => (mode === "login" ? api.login(values.email.trim(), values.password) : api.signup(values.email.trim(), values.password, values.confirmPassword)),
     onSuccess: async () => {
       qc.clear();
       if (mode === "signup") return router.replace(safeNext(nextParam(), "/onboarding"));
@@ -72,7 +75,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       const mapped = mapAuthError(mode, err);
       if (mapped.field) {
         setErrors((e) => ({ ...e, [mapped.field!]: mapped.message }));
-        (mapped.field === "email" ? emailRef : passwordRef).current?.focus();
+        refFor(mapped.field).current?.focus();
       } else setFormError(mapped.message);
     },
   });
@@ -82,9 +85,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setFormError(undefined);
     const result = schema.safeParse(values);
     if (!result.success) {
-      const errs = fieldErrors<"email" | "password">(result.error);
+      const errs = fieldErrors<FieldName>(result.error);
       setErrors(errs);
-      (errs.email ? emailRef : passwordRef).current?.focus(); // first invalid field
+      refFor((["email", "password", "confirmPassword"] as const).find((f) => errs[f]) ?? "email").current?.focus(); // first invalid field
       return;
     }
     setErrors({});
@@ -114,7 +117,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           />
         </Field>
 
-        <Field label="Password" error={errors.password} hint={mode === "signup" ? "At least 8 characters." : undefined}>
+        <Field label="Password" error={errors.password}>
           <PasswordInput
             ref={passwordRef}
             name="password"
@@ -127,7 +130,24 @@ export function AuthForm({ mode }: { mode: Mode }) {
             onBlur={() => mode === "signup" && values.password && validateField("password")}
           />
         </Field>
-        {mode === "signup" && <PasswordStrength password={values.password} />}
+        {mode === "signup" && (
+          <>
+            <PasswordChecklist password={values.password} />
+            <Field label="Confirm password" error={errors.confirmPassword}>
+              <PasswordInput
+                ref={confirmRef}
+                name="confirmPassword"
+                autoComplete="new-password"
+                value={values.confirmPassword}
+                onChange={(e) => {
+                  setValues((v) => ({ ...v, confirmPassword: e.target.value }));
+                  if (errors.confirmPassword) setErrors((er) => ({ ...er, confirmPassword: undefined }));
+                }}
+                onBlur={() => values.confirmPassword && validateField("confirmPassword")}
+              />
+            </Field>
+          </>
+        )}
 
         {formError && (
           <p role="alert" className="rounded-control bg-danger-tint px-3.5 py-3 text-small font-medium text-danger-ink">

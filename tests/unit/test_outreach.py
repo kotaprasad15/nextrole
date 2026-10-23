@@ -318,7 +318,7 @@ def ctx(tmp_path):
 def user_with_match(ctx, email="a@b.co"):
     """Sign up in a fresh client, give them a profile and one recommended job."""
     c = TestClient(ctx.app)
-    c.post("/auth/signup", json={"email": email, "password": "correct horse"})
+    c.post("/auth/signup", json={"email": email, "password": "Correct-horse9"})
     c.put("/profile", json=PROFILE.model_dump())
     uid = repos.get_user_by_email(ctx.conn, email)["id"]
     j = job()
@@ -329,11 +329,11 @@ def user_with_match(ctx, email="a@b.co"):
 
 def test_outreach_requires_auth_profile_and_ownership(ctx):
     assert ctx.client.post("/outreach", json={"job_id": "x"}).status_code == 401
-    ctx.client.post("/auth/signup", json={"email": "n@b.co", "password": "correct horse"})
+    ctx.client.post("/auth/signup", json={"email": "n@b.co", "password": "Correct-horse9"})
     assert ctx.client.post("/outreach", json={"job_id": "x"}).status_code == 409  # no profile
     owner, j = user_with_match(ctx)
     other = TestClient(ctx.app)
-    other.post("/auth/signup", json={"email": "o@b.co", "password": "correct horse"})
+    other.post("/auth/signup", json={"email": "o@b.co", "password": "Correct-horse9"})
     other.put("/profile", json=PROFILE.model_dump())
     assert other.post("/outreach", json={"job_id": j.id}).status_code == 404  # not their job
     assert owner.post("/outreach", json={"job_id": j.id}).status_code == 200
@@ -367,7 +367,7 @@ def test_other_users_cannot_touch_a_draft(ctx):
     owner, j = user_with_match(ctx)
     oid = owner.post("/outreach", json={"job_id": j.id}).json()["id"]
     other = TestClient(ctx.app)
-    other.post("/auth/signup", json={"email": "o@b.co", "password": "correct horse"})
+    other.post("/auth/signup", json={"email": "o@b.co", "password": "Correct-horse9"})
     assert other.post(f"/outreach/{oid}/approve").status_code == 404
     assert other.put(f"/outreach/{oid}", json={"body": "x"}).status_code == 404
     assert other.delete(f"/outreach/{oid}").status_code == 404

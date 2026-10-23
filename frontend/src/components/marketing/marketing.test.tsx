@@ -133,11 +133,25 @@ describe("spacing rules", () => {
   const css = readFileSync(path.resolve(__dirname, "../../app/globals.css"), "utf-8");
 
   it("scenes are compact by default and only become viewport-tall stages where the pin runs", () => {
-    expect(css).toMatch(/\.scene \{\s*padding-bottom: var\(--section-y\);/);
+    expect(css).toMatch(/\.scene \{\s*padding-bottom: var\(--scene-gap\);/);
     expect(css).toMatch(/@media \(min-width: 1024px\) and \(prefers-reduced-motion: no-preference\) \{\s*html:not\(\[data-motion="reduced"\]\) \.scene \{\s*min-height: 100svh;/);
     const { container } = render(<TooltipProvider><SceneResume /></TooltipProvider>);
     expect(container.querySelector("[data-scene]")!.className).toMatch(/\bscene\b/);
     expect(container.querySelector("[data-scene]")!.className).not.toMatch(/min-h-/);
+  });
+
+  it("the gap between chapters is 24-32px on phones and at most 56px on desktop", () => {
+    const m = css.match(/--scene-gap:\s*clamp\(([\d.]+)rem,\s*([\d.]+)rem \+ ([\d.]+)vw,\s*([\d.]+)rem\)/)!;
+    const [min, base, vw, max] = [Number(m[1]) * 16, Number(m[2]) * 16, Number(m[3]), Number(m[4]) * 16];
+    const at = (w: number) => Math.min(max, Math.max(min, base + (w * vw) / 100));
+    for (const w of [360, 390, 430, 600, 767]) {
+      expect(at(w), `${w}px`).toBeGreaterThanOrEqual(24);
+      expect(at(w), `${w}px`).toBeLessThanOrEqual(32);
+    }
+    for (const w of [1024, 1280, 1920, 3840]) {
+      expect(at(w), `${w}px`).toBeGreaterThanOrEqual(32);
+      expect(at(w), `${w}px`).toBeLessThanOrEqual(56);
+    }
   });
 
   it("the vertical rhythm never exceeds 64px on phones and 96px on desktop", () => {

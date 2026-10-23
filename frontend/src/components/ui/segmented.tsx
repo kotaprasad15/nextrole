@@ -47,7 +47,6 @@ export function Segmented<T extends string>({
           <ToggleGroup.Item
             key={o.value}
             value={o.value}
-            data-cursor="link"
             className="relative inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] px-3.5 text-small font-medium text-muted transition-colors hover:text-ink data-[state=on]:text-ink"
           >
             {active && (

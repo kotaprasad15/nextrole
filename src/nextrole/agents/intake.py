@@ -10,7 +10,9 @@ Design decisions:
 from pydantic import BaseModel, Field
 
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.profile import Education, Experience, Preferences, Profile, Project
+from nextrole.security.text import scrub_unverified_links
 
 MAX_RESUME_CHARS = 20_000
 
@@ -37,9 +39,12 @@ async def run_intake(
     extracted = await llm.complete_json(
         agent="intake",
         model=model,
-        system=SYSTEM,
-        user=f"RESUME:\n{resume_text[:MAX_RESUME_CHARS]}",
+        system=with_data_rule(SYSTEM),
+        user="Extract the profile from this resume.\n\n" + wrap("resume", resume_text, max_chars=MAX_RESUME_CHARS),
         schema=ExtractedProfile,
         max_tokens=3000,
     )
-    return Profile(**extracted.model_dump(), preferences=preferences)
+    # The model restates untrusted text. Any link or email it produced that is not literally in the resume
+    # was invented (or injected) and is removed: links come only from source data.
+    clean = scrub_unverified_links(extracted.model_dump(), resume_text)
+    return Profile(**clean, preferences=preferences)

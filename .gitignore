@@ -7,3 +7,7 @@ data/uploads/
 traces/
 .pytest_cache/
 .ruff_cache/
+
+data/backups/
+*.enc
+dev-server.log

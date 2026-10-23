@@ -175,13 +175,13 @@ def ctx(tmp_path):
 
 
 def signup_with_profile(c):
-    c.post("/auth/signup", json={"email": "a@b.co", "password": "correct horse"})
+    c.post("/auth/signup", json={"email": "a@b.co", "password": "Correct-horse9"})
     c.put("/profile", json=PROFILE.model_dump())
 
 
 def test_recommendations_require_auth_and_profile(ctx):
     assert ctx.client.get("/recommendations").status_code == 401
-    ctx.client.post("/auth/signup", json={"email": "a@b.co", "password": "correct horse"})
+    ctx.client.post("/auth/signup", json={"email": "a@b.co", "password": "Correct-horse9"})
     assert ctx.client.post("/recommendations/refresh").status_code == 409
 
 

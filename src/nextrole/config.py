@@ -53,12 +53,55 @@ class Settings(BaseSettings):
 
     db_path: Path = Path("data/nextrole.db")
     upload_dir: Path = Path("data/uploads")
-    # Fernet key for encrypting stored resumes. Generate:
+    # AES-256-GCM keyring for field-level encryption of personal data: "id:key,id:key", FIRST entry
+    # encrypts, all entries decrypt. Generate with `python -m nextrole.security genkey`. Never commit it.
+    encryption_keys: str = ""
+    # Legacy Fernet key from the first release. Still read (and used to derive a decrypt key) so old
+    # data keeps working until `python -m nextrole.security encrypt-existing` has upgraded it.
+    # Fernet key for encrypting stored resumes (legacy). Generate:
     #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
     resume_encryption_key: str = ""
     session_ttl_hours: int = 24 * 7
     cookie_secure: bool = False  # set True behind HTTPS
+    # "production" forces Secure cookies and HSTS regardless of cookie_secure.
+    env: str = "development"
+    # CSRF: double-submit token + Origin check on every state-changing request (see security/web.py).
+    csrf_enabled: bool = True
+    # Browser origins allowed to call the API (the Next.js app, which proxies /api/*).
+    allowed_origins: str = "http://127.0.0.1:3100,http://localhost:3100"
+    rate_limit_enabled: bool = True
+    # How many reverse proxies sit in front of the API and append to X-Forwarded-For. 0 = trust
+    # nothing (use the socket address). Set 1 behind the Next.js proxy / a load balancer; setting
+    # it when the API is directly reachable lets clients spoof their IP.
+    trusted_proxy_hops: int = 0
+    login_max_failures: int = 5  # consecutive failures before the account locks
+    login_lockout_minutes: int = 15
+    # Alerts (watched companies x wanted roles). See alerts/ and docs in CLAUDE.md.
+    alerts_enabled: bool = True  # in-process scheduler; false = run `python -m nextrole.alerts_job` from cron
+    alerts_interval_hours: float = 6.0
+    alerts_first_run_delay_s: float = 120.0
+    alert_embedder: str = "hash"  # "hash" (built in) or "fastembed" (optional package)
+    alert_auto_threshold: float = 0.80  # similarity at/above which a posting is accepted without the LLM
+    alert_verify_threshold: float = 0.55  # below this it is dropped; between the two the LLM decides
+    alert_min_confidence: float = 0.70  # the verifier must be at least this sure
+    alert_daily_cap: int = 10  # alerts per user per 24 h
+    alert_max_verify_per_user: int = 15  # LLM-verified postings per user per pass
+    # Where links in emails point (the Next.js app, which proxies /api/*).
+    public_base_url: str = "http://127.0.0.1:3100"
+    smtp_host: str = ""  # empty = email disabled, alerts stay in-app
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_starttls: bool = True
+    # Comma-separated emails that get the admin role at startup. The ONLY way to become an admin:
+    # there is no API for granting it.
+    admin_emails: str = ""
     max_upload_mb: int = 5
+    max_resume_pages: int = 10
+    # Parse uploads in a child process with a timeout (resume/sandbox.py). Disable only for debugging.
+    resume_isolation: bool = True
+    resume_parse_timeout_s: float = 20.0
 
 
 @lru_cache

@@ -4,6 +4,7 @@ import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { ScrollRing } from "@/components/marketing/scroll-ring";
 import { Logo } from "@/components/shell/logo";
 import { SkipLink } from "@/components/shell/skip-link";
+import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 // Public marketing pages. Smooth scroll and the scroll story are added per page by <ScrollStory>.
@@ -16,6 +17,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
           <Logo />
           <MarketingNav />
           <nav aria-label="Account" className="flex items-center gap-2">
+            <ThemeToggle className="size-9" />
             <Button asChild variant="ghost" size="sm">
               <Link href="/login">Log in</Link>
             </Button>

@@ -5,6 +5,7 @@ followed manually so each hop is re-validated, the body is size-capped while str
 only text-like content types are read. `allow_host` lets callers add their own policy (the
 researcher only fetches hosts it has already seen; a user-pasted URL has no such limit).
 """
+import ipaddress
 import re
 from collections.abc import Callable
 from urllib.parse import urlparse
@@ -13,11 +14,19 @@ import httpx
 
 from nextrole.text import html_to_text
 from nextrole.tools.cache import HostRateLimiter
-from nextrole.tools.netguard import Resolver, UnsafeURL, check_public_https, system_resolver
+from nextrole.tools.netguard import Resolver, UnsafeURL, resolve_public, system_resolver
 
 MAX_PAGE_BYTES = 1_500_000
 MAX_REDIRECTS = 3
 _NOISE = re.compile(r"<(script|style|noscript)[^>]*>.*?</\1>", re.DOTALL | re.IGNORECASE)
+
+
+def _is_ip_host(host: str) -> bool:
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return True
 
 
 async def fetch_page_text(
@@ -28,13 +37,21 @@ async def fetch_page_text(
     """Return (final_url, readable_text). Raises UnsafeURL / httpx errors / ValueError."""
     current = url
     for _ in range(MAX_REDIRECTS + 1):
-        await check_public_https(current, resolver)
+        ips = await resolve_public(current, resolver)
         host = urlparse(current).hostname or ""
         if allow_host is not None and not allow_host(host):
             raise UnsafeURL(f"host {host} is not allowed; only hosts seen in earlier results")
         if limiter:
             await limiter.wait(host)
-        async with client.stream("GET", current, timeout=timeout, follow_redirects=False) as resp:
+        # Pin the connection to the address we just validated (closes DNS rebinding). With an injected
+        # test resolver there is no real DNS, so the URL is left alone.
+        target, headers, extensions = current, {}, {}
+        if resolver is system_resolver and not _is_ip_host(host):
+            ip = ips[0]
+            target = str(httpx.URL(current).copy_with(host=f"[{ip}]" if ":" in ip else ip))
+            headers, extensions = {"Host": host}, {"sni_hostname": host}
+        async with client.stream("GET", target, headers=headers, extensions=extensions, timeout=timeout,
+                                 follow_redirects=False) as resp:
             if resp.is_redirect and (location := resp.headers.get("location")):
                 current = str(httpx.URL(current).join(location))
                 continue
@@ -47,6 +64,6 @@ async def fetch_page_text(
                 body += chunk
                 if len(body) > MAX_PAGE_BYTES:
                     break
-        text = html_to_text(_NOISE.sub(" ", body.decode("utf-8", errors="replace")))
+        text = html_to_text(_NOISE.sub(" ", body[:MAX_PAGE_BYTES].decode("utf-8", errors="replace")))
         return current, text
     raise ValueError("too many redirects")

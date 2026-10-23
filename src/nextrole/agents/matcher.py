@@ -19,10 +19,12 @@ from itertools import zip_longest
 from nextrole.config import Settings
 from nextrole.llm.budget import BudgetExceeded
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.company import CompanyTier, normalize_company
 from nextrole.models.job import Job
 from nextrole.models.match import MatchResult, MatchScore
 from nextrole.models.profile import Profile
+from nextrole.roles.taxonomy import roles_match
 
 log = logging.getLogger(__name__)
 
@@ -67,12 +69,11 @@ def _tokens(text: str) -> set[str]:
 def prefilter(jobs: list[Job], profile: Profile, limit: int, per_company_cap: int) -> list[Job]:
     """Rank by cheap keyword overlap, cap per company, keep the top `limit`."""
     skills = {s.lower() for s in profile.skills}
-    roles = [r.lower() for r in profile.preferences.roles]
+    roles = profile.preferences.roles
 
     def score(job: Job) -> int:
-        title = job.title.lower()
         hits = len(skills & _tokens(f"{job.title} {job.description}"))
-        role_hit = 5 if any(r in title for r in roles) else 0
+        role_hit = 5 if roles_match(job.title, roles) else 0
         return hits + role_hit + _level_adjust(job.title, profile.preferences.experience_level)
 
     ranked = sorted(jobs, key=score, reverse=True)
@@ -117,11 +118,13 @@ class MatcherAgent:
 
     async def score_one(self, profile: Profile, job: Job) -> MatchResult:
         user = (
-            f"CANDIDATE PROFILE:\n{_profile_for_prompt(profile)}\n\n"
-            f"JOB: {job.title} at {job.company} ({job.location})\n{job.description[:2500]}"
+            "Score this job for this candidate.\n\n"
+            + wrap("candidate_profile", _profile_for_prompt(profile)) + "\n\n"
+            + wrap("job_posting", f"{job.title} at {job.company} ({job.location})\n{job.description}",
+                   max_chars=2800)
         )
         s = await self.llm.complete_json(
-            agent="matcher", model=self.settings.model_fast, system=SYSTEM, user=user,
+            agent="matcher", model=self.settings.model_fast, system=with_data_rule(SYSTEM), user=user,
             schema=MatchScore, max_tokens=1000,  # headroom: truncated JSON costs a retry
         )
         return MatchResult(job_id=job.id, **s.model_dump())

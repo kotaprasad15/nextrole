@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from nextrole.agents.factsheet import render
 from nextrole.config import Settings
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.memory import StyleMemory, render_memory
 from nextrole.models.job import Job
 from nextrole.models.outreach import Channel, Claim, CriticReport, OutreachDraft
@@ -62,20 +63,24 @@ class WriterAgent:
             subject_rule=("7. Include a specific subject line under 70 characters.\n"
                           if channel == "email" else "7. Leave `subject` empty.\n"),
         )
-        user = f"ROLE: {job.title} at {job.company}\n\nFACT SHEET:\n{render(facts)}"
+        # Everything derived from a resume, posting, web page or old draft is untrusted data.
+        user = ("Write the message using only the facts below.\n\n"
+                + wrap("role", f"{job.title} at {job.company}") + "\n\n"
+                + wrap("fact_sheet", render(facts)))
         if memory:
-            user += render_memory(memory)
+            user += "\n\n" + wrap("style_memory", render_memory(memory))
         if previous:
             draft, report = previous
-            user += (
-                f"\n\nYOUR PREVIOUS DRAFT:\nSubject: {draft.subject}\n{draft.body}\n\n"
-                f"A reviewer rejected it. Fix these problems and keep what worked:\n"
+            feedback = (
                 f"{report.rewrite_instructions}\n"
                 + "".join(f"- Unsupported: {c}\n" for c in report.unsupported_claims)
                 + "".join(f"- Rule violation: {v}\n" for v in report.violations)
             )
+            user += ("\n\nA reviewer rejected your previous draft. Fix these problems and keep what worked.\n"
+                     + wrap("previous_draft", f"Subject: {draft.subject}\n{draft.body}") + "\n"
+                     + wrap("reviewer_feedback", feedback))
         out = await self.llm.complete_json(
-            agent="writer", model=self.settings.model_strong, system=system, user=user,
+            agent="writer", model=self.settings.model_strong, system=with_data_rule(system), user=user,
             schema=_WriterOut, max_tokens=3000,
         )
         return OutreachDraft(

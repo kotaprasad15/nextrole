@@ -13,9 +13,11 @@ import re
 from pydantic import BaseModel, Field
 
 from nextrole.agents.factsheet import render
+from nextrole.agents.output_guard import check_text
 from nextrole.agents.writer import WORD_RANGE
 from nextrole.config import Settings
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.outreach import CriticReport, OutreachDraft
 from nextrole.models.research import Fact
 
@@ -72,6 +74,8 @@ def rule_violations(draft: OutreachDraft, facts: list[Fact]) -> list[str]:
         out.append(f"cites fact ids that do not exist: {', '.join(bad)}")
     if draft.channel == "email" and not draft.subject.strip():
         out.append("email has no subject")
+    # Independent output guard: secrets, prompt leaks, unvetted contact details, instruction echoes.
+    out.extend(check_text(text).problems)
     return out
 
 
@@ -81,10 +85,11 @@ class CriticAgent:
 
     async def review(self, draft: OutreachDraft, facts: list[Fact]) -> CriticReport:
         claims = "\n".join(f"- {c.text}  (cites {', '.join(c.fact_ids)})" for c in draft.claims)
-        user = (f"FACT SHEET:\n{render(facts)}\n\nDRAFT ({draft.channel})\nSubject: "
-                f"{draft.subject}\n{draft.body}\n\nCLAIMS CITED BY AUTHOR:\n{claims or '(none)'}")
+        user = ("Review this draft against the fact sheet.\n\n" + wrap("fact_sheet", render(facts)) + "\n\n"
+                + wrap("draft", f"({draft.channel})\nSubject: {draft.subject}\n{draft.body}") + "\n\n"
+                + wrap("claims_cited_by_author", claims or "(none)"))
         out = await self.llm.complete_json(
-            agent="critic", model=self.settings.model_strong, system=SYSTEM, user=user,
+            agent="critic", model=self.settings.model_strong, system=with_data_rule(SYSTEM), user=user,
             schema=_CriticOut, max_tokens=2000,
         )
         lo, hi = WORD_RANGE[draft.channel]

@@ -31,7 +31,7 @@ function media({ fine = true, reduce = false } = {}) {
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.clear();
-  setDisplayPrefs({ cursor: true, motion: "system" });
+  setDisplayPrefs({ motion: "system" });
   media();
   setActiveSection(HOME_SECTIONS.intro);
 });

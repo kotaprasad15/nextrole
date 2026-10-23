@@ -63,7 +63,6 @@ export function ScrollRing() {
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Back to top (0% scrolled)"
-        data-cursor="link"
         className="group pointer-events-auto relative size-12 rounded-full sm:size-14"
       >
         <div ref={ring} style={{ "--p": 0 } as React.CSSProperties} className="absolute inset-0">

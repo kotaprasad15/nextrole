@@ -12,7 +12,7 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from nextrole.api.deps import current_user_id, get_conn, get_llm, get_settings_dep
+from nextrole.api.deps import current_user_id, get_conn, get_llm, get_settings_dep, rate_limit_user
 from nextrole.config import Settings
 from nextrole.db import repos
 from nextrole.llm.budget import BudgetExceeded
@@ -83,7 +83,7 @@ def _get_or_404(conn: sqlite3.Connection, user_id: int, outreach_id: int) -> sql
     return row
 
 
-@router.post("/outreach", response_model=OutreachOut)
+@router.post("/outreach", response_model=OutreachOut, dependencies=[rate_limit_user("outreach", 30, 3600)])
 async def generate(
     body: GenerateRequest, request: Request,
     user_id: int = Depends(current_user_id),

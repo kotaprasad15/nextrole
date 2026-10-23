@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* `dark:` follows the .dark class that next-themes puts on <html> (not just the OS media query). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * "Paper & Ink" design tokens: the single source of truth for the whole UI.
  * Tailwind v4 turns every `--color-*`, `--radius-*`, `--shadow-*`, `--text-*` and `--font-*`
@@ -25,6 +28,11 @@
   --color-primary-hover: #4338ca;
   --color-primary-tint: #ededfc;
   --color-on-primary: #ffffff;
+  /* Text on solid fills whose colour does not change between themes (or flips with ink). */
+  --color-on-ink: #ffffff;
+  --color-on-startup: #14161a;
+  --color-on-mid: #14161a;
+  --color-on-danger: #ffffff;
 
   /* Tier colours: startup = coral, mid = teal, mnc = blue. Used consistently everywhere. */
   --color-startup: #ff6b4a;
@@ -84,6 +92,54 @@
 
   /* Layout: 12-column grid, 1200px max */
   --container-page: 75rem;
+}
+
+/*
+ * Dark palette. Same token names, so every utility (bg-surface, text-muted, ...) re-themes with no
+ * component changes. Tier FILLS keep their brand colours (they read on both themes); only the
+ * text-safe `-ink` shades and the `-tint` backgrounds flip. Keep this block flat (no nested rules):
+ * tokens.contrast.test.ts parses it and enforces WCAG AA for the dark pairs too.
+ */
+:root.dark {
+  color-scheme: dark;
+  --color-bg: #0f1115;
+  --color-surface: #171a20;
+  --color-ink: #eceae5;
+  --color-muted: #a0a7b4;
+  --color-border: #2b2f38;
+  --color-border-strong: #3d424d;
+
+  --color-primary: #8c94f8;
+  --color-primary-hover: #a8aefb;
+  --color-primary-tint: #22244d;
+  --color-on-primary: #0f1115;
+  --color-on-ink: #0f1115;
+
+  --color-startup-ink: #ff9078;
+  --color-startup-tint: #2e1a15;
+  --color-mid-ink: #4fd1c2;
+  --color-mid-tint: #11302d;
+  --color-mnc-ink: #8db0ff;
+  --color-mnc-tint: #16254a;
+
+  --color-success-ink: #4ade80;
+  --color-success-tint: #12301d;
+  --color-warning-ink: #fbbf24;
+  --color-warning-tint: #3a2a0d;
+  --color-danger: #f87171;
+  --color-danger-ink: #fca5a5;
+  --color-danger-tint: #3b1717;
+  --color-on-danger: #0f1115;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 1px rgb(0 0 0 / 0.3);
+  --shadow-2: 0 2px 4px rgb(0 0 0 / 0.35), 0 8px 20px -6px rgb(0 0 0 / 0.55);
+  --shadow-3: 0 4px 8px rgb(0 0 0 / 0.4), 0 20px 40px -12px rgb(0 0 0 / 0.7);
+
+  --glass-bg: rgb(23 26 32 / 0.66);
+  --glass-border: rgb(255 255 255 / 0.1);
+  --glass-highlight: rgb(255 255 255 / 0.08);
+  --glass-ring: rgb(0 0 0 / 0.4);
+  --glass-solid: rgb(23 26 32 / 0.94);
 }
 
 @layer base {
@@ -189,31 +245,29 @@ html[data-motion="reduced"] *::after {
   scroll-behavior: auto !important;
 }
 
-/* Custom cursor: hide the native one everywhere EXCEPT where people type, select or drag. */
-html.cursor-custom,
-html.cursor-custom * {
-  cursor: none;
-}
-html.cursor-custom input:not([type="range"], [type="checkbox"], [type="radio"], [type="file"], [type="button"], [type="submit"]),
-html.cursor-custom textarea,
-html.cursor-custom select,
-html.cursor-custom [contenteditable="true"],
-html.cursor-custom [data-cursor="none"],
-html.cursor-custom [data-cursor="none"] * {
-  cursor: auto;
-}
-html.cursor-custom input[type="range"] {
-  cursor: grab;
-}
-
 /* ---- Homepage layout rhythm: ONE vertical padding scale, so no gap can exceed it ---- */
 :root {
   --nav-h: 4rem; /* header height INCLUDING its 1px border (border-box) */
   --marquee-h: 3.5rem;
   /* 40px on phones, ~5vw on laptops, capped at 96px: at 1440 wide it is 72px, at 1920 it is 96px */
   --section-y: clamp(2.5rem, 5vw, 6rem);
+  /* Gap between story chapters: 24px on phones (never above ~32px below 800px wide), growing to 56px on wide screens. */
+  --scene-gap: clamp(1.5rem, 0.7rem + 2.2vw, 3.5rem);
   --glass-bg: rgb(255 255 255 / 0.66);
   --glass-border: rgb(255 255 255 / 0.55);
+  --glass-highlight: rgb(255 255 255 / 0.65);
+  --glass-ring: rgb(20 22 26 / 0.04);
+  --glass-solid: rgb(255 255 255 / 0.94);
+}
+
+/* Read-only forms (profile view mode): a disabled <fieldset data-readonly> keeps its values at full
+   strength (disabled controls are normally dimmed) and hides controls that only make sense when editing. */
+[data-readonly="true"] :disabled {
+  opacity: 1;
+  cursor: default;
+}
+[data-readonly="true"] [data-edit-only] {
+  display: none;
 }
 
 /* ---- No native scrollbar (site-wide). Wheel, touch and keyboard scrolling are unaffected. ---- */
@@ -230,13 +284,13 @@ html::-webkit-scrollbar {
   .glass {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.65), 0 0 0 1px rgb(20 22 26 / 0.04), var(--shadow-2);
+    box-shadow: inset 0 1px 0 var(--glass-highlight), 0 0 0 1px var(--glass-ring), var(--shadow-2);
     -webkit-backdrop-filter: blur(20px) saturate(1.4);
     backdrop-filter: blur(20px) saturate(1.4);
   }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .glass {
-      background: rgb(255 255 255 / 0.94);
+      background: var(--glass-solid);
     }
   }
 }
@@ -356,14 +410,14 @@ html::-webkit-scrollbar {
   }
 }
 
-/* Story scenes: compact by default; a viewport-tall pinned stage only where the pin runs. */
+/* Story scenes: separated by exactly one --scene-gap (padding on ONE side, so gaps never double up);
+   a viewport-tall pinned stage only where the pin runs. */
 .scene {
-  padding-bottom: var(--section-y);
+  padding-bottom: var(--scene-gap);
 }
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
   html:not([data-motion="reduced"]) .scene {
     min-height: 100svh;
     padding-top: var(--nav-h);
-    padding-bottom: 0;
   }
 }

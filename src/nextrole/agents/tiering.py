@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from nextrole.config import Settings
 from nextrole.db import repos
 from nextrole.llm.client import LLMClient
+from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.company import CompanyTier, Tier, normalize_company
 
 SEED_FILE = Path(__file__).parent.parent / "data" / "mnc_seed.json"
@@ -98,8 +99,8 @@ class TieringAgent:
         batch = await self.llm.complete_json(
             agent="tiering",
             model=self.settings.model_fast,
-            system=SYSTEM,
-            user="Companies:\n" + "\n".join(f"- {n}" for n in unknown.values()),
+            system=with_data_rule(SYSTEM),
+            user="Classify these companies.\n\n" + wrap("company_names", "\n".join(f"- {n}" for n in unknown.values())),
             schema=_Batch,
             max_tokens=400 + 80 * len(unknown),  # headroom: reasoning models may spend tokens first
         )

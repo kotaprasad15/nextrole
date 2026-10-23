@@ -6,10 +6,16 @@ import type { JobCard, Recommendations } from "@/lib/api/schemas";
 
 const recommendations = vi.fn();
 const outreachList = vi.fn();
-const runs = vi.fn();
+const activeRun = vi.fn();
 const startRun = vi.fn();
+const savedJobs = vi.fn();
+const saveJob = vi.fn();
+const unsaveJob = vi.fn();
 vi.mock("@/lib/api/endpoints", () => ({
-  api: { recommendations: () => recommendations(), outreachList: () => outreachList(), runs: () => runs(), startRun: (b: unknown) => startRun(b) },
+  api: {
+    recommendations: () => recommendations(), outreachList: () => outreachList(), activeRun: () => activeRun(), startRun: (b: unknown) => startRun(b),
+    savedJobs: () => savedJobs(), saveJob: (id: string, status?: string) => saveJob(id, status), unsaveJob: (id: number) => unsaveJob(id),
+  },
 }));
 // The live feed is covered by run-steps tests; here it is a controllable stub.
 vi.mock("@/lib/api/sse", () => ({ useRunEvents: () => ({ events: [], status: "idle", finished: null }) }));
@@ -37,7 +43,8 @@ beforeEach(() => {
   localStorage.clear();
   recommendations.mockResolvedValue(RECS);
   outreachList.mockResolvedValue([{ id: 1, job_id: "s1", status: "critic_passed" }]);
-  runs.mockResolvedValue([]);
+  activeRun.mockResolvedValue({ run_id: null, mode: null });
+  savedJobs.mockResolvedValue([]);
 });
 
 describe("Dashboard", () => {
@@ -74,15 +81,32 @@ describe("Dashboard", () => {
     expect(await screen.findByText("Data Engineer")).toBeInTheDocument();
   });
 
-  it("saves a job locally and can filter to saved", async () => {
+  it("saves a job to the account, shows it as saved, and can filter to saved", async () => {
+    const entry = { id: 5, job_id: "s2", tier: "startup", status: "saved", notes: "", saved_at: "2026-10-01T00:00:00Z", status_updated_at: "2026-10-01T00:00:00Z",
+      listed: true, delisted_at: null, title: "Data Engineer", company: "Pixel", location: "Berlin", remote: false, apply_url: null, summary: "", source: "greenhouse" };
+    saveJob.mockImplementation(async () => {
+      savedJobs.mockResolvedValue([entry]);
+      return entry;
+    });
     const user = userEvent.setup();
     renderDash();
     await screen.findByText("Platform Engineer");
     await user.click(screen.getByRole("button", { name: "Save Data Engineer" }));
-    expect(screen.getByRole("button", { name: "Remove Data Engineer from saved jobs" })).toHaveAttribute("aria-pressed", "true");
+    expect(saveJob).toHaveBeenCalledWith("s2", undefined);
+    expect(await screen.findByRole("button", { name: "Remove Data Engineer from saved jobs" })).toHaveAttribute("aria-pressed", "true");
     await user.click(screen.getByRole("button", { name: "Saved" }));
     expect(screen.queryByText("Platform Engineer")).not.toBeInTheDocument();
     expect(screen.getByText("Data Engineer")).toBeInTheDocument();
+    unsaveJob.mockResolvedValue(undefined);
+    await user.click(screen.getByRole("button", { name: "Remove Data Engineer from saved jobs" }));
+    await waitFor(() => expect(unsaveJob).toHaveBeenCalledWith(5));
+  });
+
+  it("re-attaches to a run the server says is still going after a reload", async () => {
+    activeRun.mockResolvedValue({ run_id: "live1", mode: "recommend" });
+    renderDash();
+    expect(await screen.findByText("Finding your matches")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /activity|history/i })).not.toBeInTheDocument(); // no run history for users
   });
 
   it("starts a search run", async () => {

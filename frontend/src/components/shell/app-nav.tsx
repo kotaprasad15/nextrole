@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, FileCheck2, LayoutGrid, LogOut, Mail, Menu, Settings, UserRound } from "lucide-react";
+import { Bookmark, FileCheck2, LayoutGrid, LogOut, Mail, Menu, MessagesSquare, Settings, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,13 +13,16 @@ import { useLogout } from "@/lib/api/queries";
 import { cn } from "@/lib/cn";
 import { useReducedMotion } from "@/lib/motion/hooks";
 import { spring } from "@/lib/motion/tokens";
+import { AlertsBell } from "./alerts-bell";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 
 export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+  { href: "/saved", label: "Saved", icon: Bookmark },
   { href: "/outreach", label: "Outreach", icon: Mail },
+  { href: "/interviews", label: "Interviews", icon: MessagesSquare },
   { href: "/ats", label: "ATS check", icon: FileCheck2 },
-  { href: "/activity", label: "Activity", icon: Activity },
   { href: "/profile", label: "Profile", icon: UserRound },
 ] as const;
 
@@ -45,7 +48,7 @@ export function NavFallback() {
   );
 }
 
-export function AppNav({ email }: { email?: string }) {
+export function AppNav({ email, role }: { email?: string; role?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const reduced = useReducedMotion();
@@ -74,7 +77,6 @@ export function AppNav({ email }: { email?: string }) {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  data-cursor="link"
                   className={cn(
                     "relative rounded-control px-3.5 py-2 text-small font-medium transition-colors",
                     active ? "text-ink" : "text-muted hover:text-ink",
@@ -96,10 +98,11 @@ export function AppNav({ email }: { email?: string }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <AlertsBell />
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Account menu"
-              data-cursor="link"
               className="grid size-10 place-items-center rounded-full border border-border bg-surface text-small font-semibold text-primary shadow-1 transition-shadow hover:shadow-2"
             >
               {email ? initials(email) : <Skeleton className="size-5 rounded-full" />}
@@ -116,6 +119,11 @@ export function AppNav({ email }: { email?: string }) {
               <DropdownMenuItem onSelect={() => router.push("/settings")}>
                 <Settings aria-hidden /> Settings
               </DropdownMenuItem>
+              {role === "admin" && (
+                <DropdownMenuItem onSelect={() => router.push("/admin")}>
+                  <ShieldCheck aria-hidden /> Admin
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={signOut}>
                 <LogOut aria-hidden /> Sign out

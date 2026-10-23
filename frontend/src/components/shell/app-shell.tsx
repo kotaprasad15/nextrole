@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* usePathname (active link) needs a Suspense boundary under Cache Components; the fallback
           has the same height so nothing shifts when the real nav streams in. */}
       <Suspense fallback={<NavFallback />}>
-        <AppNav email={me.data?.email} />
+        <AppNav email={me.data?.email} role={me.data?.role} />
       </Suspense>
       <main id="main" tabIndex={-1} className="page-container py-8 outline-none md:py-12">
         {children}

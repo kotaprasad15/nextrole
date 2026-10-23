@@ -40,7 +40,7 @@ export function SceneShell({
       data-scene={id}
       data-section={HOME_SECTIONS[id as keyof typeof HOME_SECTIONS]}
       aria-labelledby={`${id}-title`}
-      // `.scene` (globals.css): padding on ONE side only, so stacked scenes are separated by exactly one --section-y.
+      // `.scene` (globals.css): padding on ONE side only, so stacked scenes are separated by exactly one --scene-gap.
       // It becomes a viewport-tall pinned stage ONLY where the story actually pins (desktop, motion allowed);
       // with reduced motion or on small screens the scenes stay compact, with no blank bands between them.
       className="scene relative isolate flex items-center overflow-hidden"

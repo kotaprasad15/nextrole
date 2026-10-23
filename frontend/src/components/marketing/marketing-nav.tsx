@@ -24,7 +24,6 @@ export function MarketingNav() {
           <a
             key={l.href}
             href={l.href}
-            data-cursor="link"
             aria-current={active ? "location" : undefined}
             className={cn("relative rounded-full px-4 py-2 text-small font-medium transition-colors", active ? "text-ink" : "text-muted hover:text-ink")}
           >

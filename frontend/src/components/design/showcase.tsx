@@ -244,7 +244,7 @@ export function DesignShowcase() {
       <Section id="cards" title="Cards">
         <div className="grid gap-5 lg:grid-cols-3">
           {SAMPLE_JOBS.map((j) => (
-            <Card key={j.title} tier={j.tier} interactive data-cursor="view">
+            <Card key={j.title} tier={j.tier} interactive>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <TierBadge tier={j.tier} short className="mb-2" />

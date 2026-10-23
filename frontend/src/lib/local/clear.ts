@@ -1,12 +1,11 @@
 "use client";
 
 import { clearAllVersions } from "./draft-versions";
-import { clearSavedJobs } from "./saved-jobs";
-import { clearTracker } from "./tracker";
+import { clearLegacySaves } from "./legacy-saves";
 
-/** Everything NextRole keeps only in this browser (not display preferences). Used by Settings. */
+/** Everything NextRole keeps only in this browser (not display preferences). Used by Settings.
+ * Saved jobs live in the account now; this also removes any older browser-only copy. */
 export function clearLocalData() {
-  clearSavedJobs();
-  clearTracker();
+  clearLegacySaves();
   clearAllVersions();
 }

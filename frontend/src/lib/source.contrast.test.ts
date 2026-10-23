@@ -55,6 +55,7 @@ describe("translucent text in components keeps AA contrast", () => {
         const allowed =
           level === 0 || level === 100 || /disabled:|data-\[|group-hover:|hover:|focus/.test(prefix) ||
           /glow/.test(before) || // decorative halo behind a card
+          /hero-backdrop/.test(file) || // aria-hidden decorative wash (its contrast is tested in tokens.contrast.test.ts)
           /disabled\s*&&\s*"[^"]*$/.test(before); // `disabled && "... opacity-50"`
         if (!allowed) offenders.push(`${file}: ${prefix}opacity-${level}`);
       }

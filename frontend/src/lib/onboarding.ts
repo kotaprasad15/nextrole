@@ -13,7 +13,7 @@ export const EXPERIENCE_LEVELS = [
   { value: "Senior", label: "Senior", hint: "7 or more years, or leading others" },
 ] as const;
 
-export const ROLE_SUGGESTIONS = ["Software Engineer", "Backend Engineer", "Frontend Engineer", "Data Analyst", "Product Manager", "Machine Learning Engineer"];
+export const ROLE_SUGGESTIONS = ["SDE", "Backend Engineer", "Frontend Engineer", "Full-Stack Engineer", "Forward Deployed Engineer", "Data Engineer", "Machine Learning Engineer", "Product Manager"];
 export const LOCATION_SUGGESTIONS = ["Bengaluru", "Remote", "London", "Berlin", "New York", "Singapore"];
 
 export interface Wizard {

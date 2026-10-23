@@ -1,16 +1,24 @@
 """Onboarding (preferences + resume upload -> Intake agent) and profile review/edit."""
 import sqlite3
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 
 from nextrole.agents.intake import run_intake
-from nextrole.api.deps import current_user_id, get_conn, get_llm, get_settings_dep, get_store
+from nextrole.api.deps import (
+    current_user_id,
+    get_conn,
+    get_llm,
+    get_settings_dep,
+    get_store,
+    rate_limit_user,
+)
 from nextrole.config import Settings
 from nextrole.db import repos
 from nextrole.llm.budget import BudgetExceeded
 from nextrole.llm.client import LLMClient
 from nextrole.models.profile import Preferences, Profile
-from nextrole.resume.extract import ResumeError, extract_text
+from nextrole.resume.inspect import ResumeError
+from nextrole.resume.sandbox import analyze_resume
 from nextrole.resume.storage import ResumeStore
 
 router = APIRouter()
@@ -20,7 +28,7 @@ def _split(csv: str) -> list[str]:
     return [p.strip() for p in csv.split(",") if p.strip()]
 
 
-@router.post("/onboarding", response_model=Profile)
+@router.post("/onboarding", response_model=Profile, dependencies=[rate_limit_user("onboarding", 10, 3600)])
 async def onboarding(
     roles: str = Form(...),
     locations: str = Form(""),
@@ -28,6 +36,7 @@ async def onboarding(
     experience_level: str = Form(""),
     extras: str = Form(""),
     resume: UploadFile = File(...),
+    response: Response = None,
     user_id: int = Depends(current_user_id),
     conn: sqlite3.Connection = Depends(get_conn),
     settings: Settings = Depends(get_settings_dep),
@@ -43,9 +52,12 @@ async def onboarding(
     max_bytes = settings.max_upload_mb * 1024 * 1024
     data = await resume.read(max_bytes + 1)  # bounded read: never buffer an unbounded upload
     try:
-        text = extract_text(data, max_bytes)
+        inspection = await analyze_resume(data, settings)  # isolated parse; never raises for hostile input
     except ResumeError as exc:
         raise HTTPException(422, str(exc)) from exc
+    text = inspection.text  # visible text only: hidden text never reaches the model
+    if inspection.flags:  # e.g. hidden_text, injection_phrase: the UI may tell the user
+        response.headers["X-Resume-Flags"] = ",".join(inspection.flags)
     try:
         profile = await run_intake(llm, settings.model_fast, text, prefs)
     except BudgetExceeded as exc:
@@ -53,7 +65,7 @@ async def onboarding(
     except ValueError as exc:  # schema validation failed after the repair retry
         raise HTTPException(502, "could not parse resume into a profile; try again") from exc
     old = repos.get_resume_path(conn, user_id)
-    repos.save_profile(conn, user_id, profile, store.save(data))
+    repos.save_profile(conn, user_id, profile, store.save(inspection.sanitized))
     store.delete(old)
     return profile
 

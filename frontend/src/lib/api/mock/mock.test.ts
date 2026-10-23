@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { SESSION_COOKIE } from "../config";
 import {
-  MeSchema, OutreachSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
-  RunDetailSchema, RunEventSchema, RunSummarySchema, StartRunResponseSchema, type RunEvent,
+  AdminInterviewSchema, AlertCheckSchema, MetricsSchema, TraceEntriesSchema, TraceListSchema, AlertSchema, AlertSettingsSchema, InterviewPageSchema, InterviewSchema, ReportRowSchema, SubmitResultSchema, CompanySchema, ImportResultSchema, MeSchema, OutreachSchema, ResolvedRoleSchema, SavedJobSchema, OutreachStatusRowSchema, ProfileSchema, RecommendationsSchema,
+  ActiveRunSchema, RunEventSchema, StartRunResponseSchema, type RunEvent,
 } from "../schemas";
-import { ALL_JOBS, PAST_RUNS, PROFILE, RECOMMENDATIONS, draftFor } from "./data";
+import { ALL_JOBS, PROFILE, RECOMMENDATIONS, SAVED_JOBS, draftFor } from "./data";
 import { MockEventSource } from "./events";
 import { mockFetch } from "./index";
 
@@ -39,13 +39,12 @@ beforeEach(() => {
 });
 
 describe("fixtures match the real API contract", () => {
-  it("profile, recommendations, drafts and past runs all satisfy the schemas", () => {
+  it("profile, recommendations and drafts all satisfy the schemas", () => {
     expect(ProfileSchema.safeParse(PROFILE).success).toBe(true);
     expect(RecommendationsSchema.safeParse(RECOMMENDATIONS).success).toBe(true);
     for (const status of ["draft", "critic_passed", "user_approved"] as const) {
       expect(OutreachSchema.safeParse(draftFor("s1", status, 1)).success).toBe(true);
     }
-    for (const run of PAST_RUNS) expect(RunDetailSchema.safeParse(run).success).toBe(true);
   });
 
   it("every job has a unique id and an https apply link (the app refuses anything else)", () => {
@@ -77,12 +76,13 @@ describe("auth", () => {
 
   it("returns the real error messages for bad credentials, duplicates and weak passwords", async () => {
     expect(await (await post("/auth/login", { email: "a@b.co", password: "wrong-password" })).json()).toEqual({ detail: "invalid email or password" });
-    expect((await post("/auth/signup", { email: "taken@example.com", password: "password123" })).status).toBe(409);
-    expect((await post("/auth/login", { email: "a@b.co", password: "short" })).status).toBe(422);
+    expect((await post("/auth/signup", { email: "taken@example.com", password: "Password123!" })).status).toBe(409);
+    expect((await post("/auth/signup", { email: "a@b.co", password: "short" })).status).toBe(422);
+    expect((await post("/auth/signup", { email: "a@b.co", password: "alllowercase1" })).status).toBe(422);
   });
 
   it("signup starts a new account with no profile (so onboarding runs); login keeps the seeded one", async () => {
-    await post("/auth/signup", { email: "new@example.com", password: "password123" });
+    await post("/auth/signup", { email: "new@example.com", password: "Password123!" });
     expect((await call("/profile")).status).toBe(404);
     await signIn();
     // Logging in again must not conjure a profile: the account stays un-onboarded until a
@@ -197,8 +197,7 @@ describe("runs", () => {
     const first = await runToCompletion(run_id);
     const late = await runToCompletion(run_id);
     expect(late).toEqual(first);
-    const detail = RunDetailSchema.parse(await (await call(`/runs/${run_id}`)).json());
-    expect(detail.status).toBe("completed");
+    expect(ActiveRunSchema.parse(await (await call("/runs/active")).json())).toEqual({ run_id: null, mode: null }); // it finished
   });
 
   it("an outreach run creates a draft for the job; a pasted job lands on the dashboard", async () => {
@@ -218,9 +217,125 @@ describe("runs", () => {
     expect(events.at(-1)!.data.status).toBe("failed");
   });
 
-  it("validates a pasted-job request and lists runs", async () => {
+  it("validates a pasted-job request; there is no run history, only 'is one active'", async () => {
     expect((await post("/runs", { mode: "single_job" })).status).toBe(422);
-    const rows = z.array(RunSummarySchema).parse(await (await call("/runs")).json());
-    expect(rows.length).toBeGreaterThanOrEqual(PAST_RUNS.length);
+    expect((await call("/runs")).status).not.toBe(200);
+    const { run_id } = StartRunResponseSchema.parse(await (await post("/runs", { mode: "recommend" })).json());
+    expect(ActiveRunSchema.parse(await (await call("/runs/active")).json())).toEqual({ run_id, mode: "recommend" });
+  });
+});
+
+describe("saved jobs, companies and roles (mock server)", () => {
+  const send = (method: string, path: string, body?: unknown) => call(path, { method, body: body === undefined ? undefined : JSON.stringify(body) });
+
+  it("saves from the stored record, updates, filters and removes, with schema-valid responses", async () => {
+    await signIn();
+    for (const s of SAVED_JOBS) SavedJobSchema.parse(s);
+    const job = RECOMMENDATIONS.startup[0];
+    expect((await send("POST", "/saved-jobs", { job_id: "nope" })).status).toBe(404);
+    const created = SavedJobSchema.parse(await (await send("POST", "/saved-jobs", { job_id: job.job_id, apply_url: "https://evil.example" })).json());
+    expect(created.apply_url).toBe(job.apply_url); // from our record, not the request
+    const patched = SavedJobSchema.parse(await (await send("PATCH", `/saved-jobs/${created.id}`, { status: "offer", notes: "<b>hi</b>" })).json());
+    expect(patched.status).toBe("offer");
+    expect(patched.notes).toBe("hi");
+    expect((await (await send("GET", "/saved-jobs?status=offer")).json())).toHaveLength(1);
+    expect((await (await send("GET", "/saved-jobs?status=applied")).json())).toHaveLength(0);
+    expect((await send("DELETE", `/saved-jobs/${created.id}`)).status).toBe(204);
+    expect((await send("DELETE", `/saved-jobs/${created.id}`)).status).toBe(404);
+  });
+
+  it("imports only known jobs, and manages companies and roles", async () => {
+    await signIn();
+    const job = RECOMMENDATIONS.mid[0];
+    const res = ImportResultSchema.parse(await (await send("POST", "/saved-jobs/import", { items: [{ job_id: job.job_id, status: "applied", notes: "" }, { job_id: "zzz", status: "saved", notes: "" }] })).json());
+    expect(res).toEqual({ imported: 1, skipped: ["zzz"] });
+    const stripe = CompanySchema.parse(await (await send("POST", "/companies", { name: "Stripe" })).json());
+    expect(stripe.monitored).toBe(true);
+    expect(CompanySchema.parse(await (await send("POST", "/companies", { name: "Tiny Co" })).json()).monitored).toBe(false);
+    expect(await (await send("GET", "/companies/suggestions?q=str")).json()).toEqual([]); // already added
+    expect((await send("DELETE", `/companies/${stripe.id}`)).status).toBe(204);
+    const roles = z.array(ResolvedRoleSchema).parse(await (await send("POST", "/roles/resolve", { roles: ["SDE", "growth marketer"] })).json());
+    expect(roles.map((r) => r.canonical)).toEqual(["software_engineer", null]);
+  });
+});
+
+describe("alerts (mock server)", () => {
+  const send = (method: string, path: string, body?: unknown) => call(path, { method, body: body === undefined ? undefined : JSON.stringify(body) });
+
+  it("serves schema-valid alerts, unread counts, read/dismiss and settings", async () => {
+    await signIn();
+    const list = z.array(AlertSchema).parse(await (await send("GET", "/alerts")).json());
+    expect(list.length).toBeGreaterThanOrEqual(2);
+    const unread = (await (await send("GET", "/alerts/summary")).json()).unread;
+    expect(unread).toBe(list.filter((a) => !a.read).length);
+    const first = list.find((a) => !a.read)!;
+    expect(AlertSchema.parse(await (await send("POST", `/alerts/${first.id}/read`)).json()).read).toBe(true);
+    expect((await (await send("GET", "/alerts/summary")).json()).unread).toBe(unread - 1);
+    expect((await send("DELETE", `/alerts/${first.id}`)).status).toBe(204);
+    expect((await send("DELETE", `/alerts/${first.id}`)).status).toBe(404);
+    const s = AlertSettingsSchema.parse(await (await send("PUT", "/alerts/settings", { in_app: true, email: true, frequency: "weekly" })).json());
+    expect(s.frequency).toBe("weekly");
+    AlertCheckSchema.parse(await (await send("POST", "/alerts/check")).json());
+  });
+
+  it("unsubscribe needs no session; a bad token is a 404", async () => {
+    expect((await send("POST", "/alerts/unsubscribe?token=1.abc")).status).toBe(204);
+    expect((await send("POST", "/alerts/unsubscribe?token=bad")).status).toBe(404);
+  });
+});
+
+describe("interview experiences (mock server)", () => {
+  const send = (method: string, path: string, body?: unknown) => call(path, { method, body: body === undefined ? undefined : JSON.stringify(body) });
+  const GOOD = {
+    company: "Acme", role: "SDE", level: "mid", interviewed_on: "2026-08", difficulty: 3, outcome: "offer", anonymous: true, tips: "Practise graphs.",
+    rounds: [{ type: "coding", difficulty: 3, notes: "Two graph problems." }],
+  };
+
+  it("browses only approved posts, filters, votes and reports with schema-valid responses", async () => {
+    await signIn();
+    const page = InterviewPageSchema.parse(await (await send("GET", "/interviews")).json());
+    expect(page.items.length).toBeGreaterThanOrEqual(3);
+    expect(page.items.every((i) => i.status === undefined || i.mine)).toBe(true); // pending posts of others never appear
+    expect(InterviewPageSchema.parse(await (await send("GET", "/interviews?company=lumen")).json()).items).toHaveLength(1);
+    expect(InterviewPageSchema.parse(await (await send("GET", "/interviews?difficulty=5")).json()).items.every((i) => i.difficulty === 5)).toBe(true);
+    const other = page.items.find((i) => !i.mine)!;
+    const voted = InterviewSchema.parse(await (await send("POST", `/interviews/${other.id}/upvote`)).json());
+    expect(voted.upvoted).toBe(true);
+    expect(InterviewSchema.parse(await (await send("DELETE", `/interviews/${other.id}/upvote`)).json()).upvoted).toBe(false);
+    expect((await send("POST", `/interviews/${other.id}/report`, { reason: "spam", detail: "" })).status).toBe(201);
+    expect((await send("POST", `/interviews/${other.id}/report`, { reason: "spam", detail: "" })).status).toBe(409);
+  });
+
+  it("submits for review, refuses personal data, and keeps the member's own post private until approved", async () => {
+    await signIn();
+    expect((await send("POST", "/interviews", { ...GOOD, tips: "mail jane@example.com" })).status).toBe(422);
+    const made = SubmitResultSchema.parse(await (await send("POST", "/interviews", GOOD)).json());
+    expect(made.status).toBe("pending");
+    const mine = z.array(InterviewSchema).parse(await (await send("GET", "/interviews/mine")).json());
+    expect(mine.find((i) => i.id === made.id)?.status).toBe("pending");
+    expect((await send("DELETE", `/interviews/${made.id}`)).status).toBe(204);
+  });
+
+  it("admin routes are 404 for members and work with the admin switch", async () => {
+    await signIn();
+    expect((await send("GET", "/admin/interviews")).status).toBe(404);
+    localStorage.setItem("nextrole_mock", JSON.stringify({ delay: 0, speed: 0.001, admin: true }));
+    expect(MeSchema.parse(await (await send("GET", "/me")).json()).role).toBe("admin");
+    const queue = z.array(AdminInterviewSchema).parse(await (await send("GET", "/admin/interviews")).json());
+    expect(queue.length).toBeGreaterThanOrEqual(1);
+    const approved = AdminInterviewSchema.parse(await (await send("POST", `/admin/interviews/${queue[0].id}/approve`, { note: "" })).json());
+    expect(approved.status).toBe("approved");
+    z.array(ReportRowSchema).parse(await (await send("GET", "/admin/reports")).json());
+  });
+
+  it("serves schema-valid aggregate metrics and traces to admins only", async () => {
+    await signIn();
+    expect((await send("GET", "/admin/metrics")).status).toBe(404);
+    localStorage.setItem("nextrole_mock", JSON.stringify({ delay: 0, speed: 0.001, admin: true }));
+    const m = MetricsSchema.parse(await (await send("GET", "/admin/metrics?days=7")).json());
+    expect(m.series).toHaveLength(7);
+    expect(JSON.stringify(m)).not.toMatch(/user_id|author|"email"/);
+    const traces = TraceListSchema.parse(await (await send("GET", "/admin/traces")).json());
+    expect(TraceEntriesSchema.parse(await (await send("GET", `/admin/traces/${traces[0].run_id}`)).json()).length).toBeGreaterThan(0);
   });
 });

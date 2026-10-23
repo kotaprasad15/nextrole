@@ -1,7 +1,7 @@
 """Repository functions for users, sessions and profiles."""
 import json
 import sqlite3
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from nextrole.models.company import CompanyTier, normalize_company
 from nextrole.models.job import Job
@@ -9,6 +9,7 @@ from nextrole.models.match import MatchResult
 from nextrole.models.outreach import CriticReport, OutreachDraft
 from nextrole.models.profile import Profile
 from nextrole.models.research import Fact
+from nextrole.security.crypto import protect, reveal
 
 
 def _now() -> str:
@@ -61,7 +62,8 @@ def save_profile(
              profile_json = excluded.profile_json,
              resume_path = COALESCE(excluded.resume_path, profiles.resume_path),
              updated_at = excluded.updated_at""",
-        (user_id, profile.model_dump_json(), resume_path, _now()),
+        (user_id, protect(profile.model_dump_json(), "profiles", "profile_json", user_id),
+         resume_path, _now()),
     )
     conn.commit()
 
@@ -70,7 +72,9 @@ def get_profile(conn: sqlite3.Connection, user_id: int) -> Profile | None:
     row = conn.execute(
         "SELECT profile_json FROM profiles WHERE user_id = ?", (user_id,)
     ).fetchone()
-    return Profile.model_validate_json(row["profile_json"]) if row else None
+    if not row:
+        return None
+    return Profile.model_validate_json(reveal(row["profile_json"], "profiles", "profile_json", user_id))
 
 
 def get_resume_path(conn: sqlite3.Connection, user_id: int) -> str | None:
@@ -81,6 +85,47 @@ def get_resume_path(conn: sqlite3.Connection, user_id: int) -> str | None:
 def delete_user(conn: sqlite3.Connection, user_id: int) -> None:
     """Cascades to sessions and profiles. The caller must delete the resume file itself."""
     conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+
+
+def get_role(conn: sqlite3.Connection, user_id: int) -> str:
+    row = conn.execute("SELECT role FROM users WHERE id = ?", (user_id,)).fetchone()
+    return row["role"] if row else "user"
+
+
+def sync_admins(conn: sqlite3.Connection, emails: list[str]) -> None:
+    """The ADMIN_EMAILS setting is the single source of truth for who is an admin: listed accounts
+    that exist become admins, every other account is a plain user. There is no API for this."""
+    wanted = [e.strip().lower() for e in emails if e.strip()]
+    marks = ",".join("?" * len(wanted))
+    if wanted:
+        conn.execute(f"UPDATE users SET role = 'user' WHERE role != 'user' AND email NOT IN ({marks})", wanted)
+        conn.execute(f"UPDATE users SET role = 'admin' WHERE email IN ({marks})", wanted)
+    else:
+        conn.execute("UPDATE users SET role = 'user' WHERE role != 'user'")
+    conn.commit()
+
+
+def record_failed_login(conn: sqlite3.Connection, user_id: int, max_failures: int, lock_minutes: int) -> bool:
+    """Count a failed password. Returns True when this failure locked the account."""
+    fails = conn.execute("SELECT failed_logins FROM users WHERE id = ?", (user_id,)).fetchone()[0] + 1
+    if fails >= max_failures:
+        until = (datetime.now(UTC) + timedelta(minutes=lock_minutes)).isoformat()
+        conn.execute("UPDATE users SET failed_logins = 0, locked_until = ? WHERE id = ?", (until, user_id))
+        conn.commit()
+        return True
+    conn.execute("UPDATE users SET failed_logins = ? WHERE id = ?", (fails, user_id))
+    conn.commit()
+    return False
+
+
+def is_locked(user: sqlite3.Row) -> bool:
+    return bool(user["locked_until"]) and user["locked_until"] > _now()
+
+
+def record_login_success(conn: sqlite3.Connection, user_id: int) -> None:
+    conn.execute("UPDATE users SET failed_logins = 0, locked_until = NULL, last_login_at = ? WHERE id = ?",
+                 (_now(), user_id))
     conn.commit()
 
 
@@ -215,22 +260,39 @@ def upsert_outreach(
              critic_json = excluded.critic_json, facts_json = excluded.facts_json,
              warnings_json = excluded.warnings_json, attempts = excluded.attempts,
              approved_at = NULL, updated_at = datetime('now')""",
-        (user_id, job_id, draft.status, draft.model_dump_json(), critic.model_dump_json(),
-         json.dumps([f.model_dump() for f in facts]), json.dumps(warnings), attempts),
+        (user_id, job_id, draft.status,
+         protect(draft.model_dump_json(), "outreach", "draft_json", user_id),
+         protect(critic.model_dump_json(), "outreach", "critic_json", user_id),
+         protect(json.dumps([f.model_dump() for f in facts]), "outreach", "facts_json", user_id),
+         json.dumps(warnings), attempts),
     )
     conn.commit()
     return int(conn.execute("SELECT id FROM outreach WHERE user_id = ? AND job_id = ?",
                             (user_id, job_id)).fetchone()["id"])
 
 
-def get_outreach(conn: sqlite3.Connection, user_id: int, outreach_id: int) -> sqlite3.Row | None:
-    return conn.execute("SELECT * FROM outreach WHERE id = ? AND user_id = ?",
-                        (outreach_id, user_id)).fetchone()
+_OUTREACH_SECRET = ("draft_json", "facts_json", "critic_json", "recipient_email")
 
 
-def get_outreach_by_job(conn: sqlite3.Connection, user_id: int, job_id: str) -> sqlite3.Row | None:
-    return conn.execute("SELECT * FROM outreach WHERE job_id = ? AND user_id = ?",
-                        (job_id, user_id)).fetchone()
+def _open_outreach(row: sqlite3.Row | None) -> dict | None:
+    """Decrypt the protected columns; callers index the result like a row."""
+    if row is None:
+        return None
+    out = dict(row)
+    for col in _OUTREACH_SECRET:
+        if out.get(col) is not None:
+            out[col] = reveal(out[col], "outreach", col, out["user_id"])
+    return out
+
+
+def get_outreach(conn: sqlite3.Connection, user_id: int, outreach_id: int) -> dict | None:
+    return _open_outreach(conn.execute("SELECT * FROM outreach WHERE id = ? AND user_id = ?",
+                                       (outreach_id, user_id)).fetchone())
+
+
+def get_outreach_by_job(conn: sqlite3.Connection, user_id: int, job_id: str) -> dict | None:
+    return _open_outreach(conn.execute("SELECT * FROM outreach WHERE job_id = ? AND user_id = ?",
+                                       (job_id, user_id)).fetchone())
 
 
 def list_outreach_status(conn: sqlite3.Connection, user_id: int) -> list[sqlite3.Row]:
@@ -253,7 +315,8 @@ def edit_outreach(
         """UPDATE outreach SET draft_json = ?, status = 'draft', critic_json = NULL,
            recipient_email = ?, approved_at = NULL, updated_at = datetime('now')
            WHERE id = ? AND user_id = ?""",
-        (draft.model_dump_json(), recipient_email, outreach_id, user_id))
+        (protect(draft.model_dump_json(), "outreach", "draft_json", user_id),
+         protect(recipient_email, "outreach", "recipient_email", user_id), outreach_id, user_id))
     conn.commit()
     return True
 
@@ -268,7 +331,8 @@ def approve_outreach(conn: sqlite3.Connection, user_id: int, outreach_id: int) -
     conn.execute(
         """UPDATE outreach SET status = 'user_approved', draft_json = ?, approved_at = ?
            WHERE id = ? AND user_id = ?""",
-        (draft.model_dump_json(), _now(), outreach_id, user_id))
+        (protect(draft.model_dump_json(), "outreach", "draft_json", user_id), _now(),
+         outreach_id, user_id))
     conn.commit()
     return True
 
@@ -311,6 +375,24 @@ def list_runs(conn: sqlite3.Connection, user_id: int, limit: int = 20) -> list[s
         (user_id, limit)).fetchall()
 
 
+def active_run(conn: sqlite3.Connection, user_id: int) -> sqlite3.Row | None:
+    return conn.execute("SELECT id, mode FROM runs WHERE user_id = ? AND status = 'running' ORDER BY started_at DESC, rowid DESC LIMIT 1",
+                        (user_id,)).fetchone()
+
+
+def list_run_ids(conn: sqlite3.Connection, user_id: int) -> list[str]:
+    return [r["id"] for r in conn.execute("SELECT id FROM runs WHERE user_id = ?", (user_id,))]
+
+
+def delete_orphan_pasted_jobs(conn: sqlite3.Connection) -> None:
+    """Pasted postings are the user's own text. Once no match points at one, nobody else can see it
+    and it must not outlive the account that pasted it."""
+    conn.execute(
+        """DELETE FROM jobs WHERE json_extract(job_json, '$.source') = 'pasted'
+           AND id NOT IN (SELECT job_id FROM matches)""")
+    conn.commit()
+
+
 def fail_stale_runs(conn: sqlite3.Connection) -> None:
     """A server restart orphans 'running' rows (their task died); mark them failed on startup."""
     conn.execute("UPDATE runs SET status = 'failed', error = 'server restarted', finished_at = ? "
@@ -327,20 +409,24 @@ def save_feedback(
         """INSERT INTO feedback (user_id, outreach_id, rating, note) VALUES (?, ?, ?, ?)
            ON CONFLICT(outreach_id) DO UPDATE SET rating = excluded.rating, note = excluded.note,
              created_at = datetime('now')""",
-        (user_id, outreach_id, rating, note))
+        (user_id, outreach_id, rating, protect(note, "feedback", "note", user_id)))
     conn.commit()
 
 
-def get_feedback(conn: sqlite3.Connection, user_id: int, outreach_id: int) -> sqlite3.Row | None:
-    return conn.execute("SELECT rating, note FROM feedback WHERE outreach_id = ? AND user_id = ?",
-                        (outreach_id, user_id)).fetchone()
+def get_feedback(conn: sqlite3.Connection, user_id: int, outreach_id: int) -> dict | None:
+    row = conn.execute("SELECT rating, note FROM feedback WHERE outreach_id = ? AND user_id = ?",
+                       (outreach_id, user_id)).fetchone()
+    return {"rating": row["rating"], "note": reveal(row["note"], "feedback", "note", user_id)} if row else None
 
 
-def recent_feedback(conn: sqlite3.Connection, user_id: int, limit: int) -> list[sqlite3.Row]:
-    """Latest feedback that carries a note (ratings alone give the Writer nothing to act on)."""
-    return conn.execute(
-        """SELECT rating, note FROM feedback WHERE user_id = ? AND note != ''
-           ORDER BY created_at DESC, id DESC LIMIT ?""", (user_id, limit)).fetchall()
+def recent_feedback(conn: sqlite3.Connection, user_id: int, limit: int) -> list[dict]:
+    """Latest feedback that carries a note (ratings alone give the Writer nothing to act on).
+    Notes are encrypted, so emptiness is judged after decryption."""
+    rows = conn.execute(
+        """SELECT rating, note FROM feedback WHERE user_id = ?
+           ORDER BY created_at DESC, id DESC""", (user_id,)).fetchall()
+    notes = [{"rating": r["rating"], "note": reveal(r["note"], "feedback", "note", user_id)} for r in rows]
+    return [n for n in notes if n["note"]][:limit]
 
 
 def approved_drafts(
@@ -351,4 +437,5 @@ def approved_drafts(
         """SELECT draft_json FROM outreach WHERE user_id = ? AND status = 'user_approved'
            AND job_id != ? ORDER BY approved_at DESC, id DESC LIMIT ?""",
         (user_id, exclude_job_id or "", limit)).fetchall()
-    return [OutreachDraft.model_validate_json(r["draft_json"]) for r in rows]
+    return [OutreachDraft.model_validate_json(reveal(r["draft_json"], "outreach", "draft_json", user_id))
+            for r in rows]

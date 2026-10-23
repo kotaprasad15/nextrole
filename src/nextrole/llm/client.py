@@ -10,6 +10,7 @@ Design decisions:
 import json
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, TypeVar
 
@@ -68,9 +69,11 @@ class LLMClient:
         tracer: Tracer | None = None,
         client: Any | None = None,
         retry_wait: Any = None,
+        usage_sink: Callable[[dict], None] | None = None,
     ) -> None:
         self.settings = settings
         self.budget = budget
+        self.usage_sink = usage_sink  # records each call for the admin totals (no user identity)
         self.tracer = tracer
         self._retry_wait = retry_wait or wait_exponential(multiplier=1, max=10)
         self._client = client or AsyncAnthropic(
@@ -133,6 +136,10 @@ class LLMClient:
             raise
         finally:
             cost = self.budget.charge(result.input_tokens, result.output_tokens)
+            if self.usage_sink:
+                self.usage_sink({"model": model, "agent": agent, "input_tokens": result.input_tokens,
+                                 "output_tokens": result.output_tokens, "cost_usd": cost,
+                                 "status": "error" if error else "ok", "latency_ms": round((time.perf_counter() - start) * 1000, 1)})
             if self.tracer:
                 self.tracer.record(
                     agent,
