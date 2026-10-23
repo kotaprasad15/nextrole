@@ -127,6 +127,23 @@ Tests: `tests/unit/test_admin_metrics.py`.
 and, by cascade, profile, matches, drafts, feedback, runs and sessions, plus the resume file, the user's
 orphaned pasted postings and trace files. Test: `tests/security/test_privacy.py`.
 
+## Adversarial tests
+
+`tests/security` (and the security-relevant unit tests) are summarised in the README, regenerated with
+`uv run python scripts/security_report.py --readme`. The models are mocked, and in the injection tests deliberately
+HIJACKED (they obey the injected text), so a pass shows the system around the model contains the damage; it is not a
+measurement of how often a real model is fooled. Catch-all tests walk EVERY route, so a route added later cannot skip
+authentication (401), the CSRF token (403) or the admin role (404) without a test failing.
+
+Real defects the suite found while it was being built, all fixed:
+- `https://127.1/` and other legacy numeric host spellings were treated as ordinary names by the SSRF guard;
+- the page-size cap could be overshot by one network chunk;
+- a hijacked model could plant links in the profile it "extracted" from a resume (now only links that literally
+  appear in the resume survive);
+- a news headline containing a link became part of a research fact;
+- the interview search box matched internal field names (e.g. "_" matched every post);
+- unhandled server errors were not counted in the admin error rate.
+
 ## Operating it
 - Required: `ENCRYPTION_KEYS`. In production also `ENV=production`, HTTPS in front, `ALLOWED_ORIGINS`
   set to the real site origin, `TRUSTED_PROXY_HOPS` set to the number of proxies, `NEXT_PUBLIC_SITE_URL`.

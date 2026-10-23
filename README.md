@@ -2,12 +2,22 @@
 
 Agentic job search and outreach: parse a resume, find real openings from legitimate sources (Greenhouse, Lever, Ashby, Adzuna), tier companies (Startup / Mid-size / MNC), explain fit, link to the real application page, and draft a grounded, human-approved outreach message. Built with prompting, tool use and LangGraph orchestration only.
 
-> Status: milestone g (evaluation suite and results) plus the redesigned Next.js frontend. All seven backend milestones are built; see Evaluation for what is and isn't established. See the roadmap below.
+> Status: the agent pipeline and its evaluation (milestones a to g), the Next.js frontend, and a second round of work: security hardening, server-side saved jobs, role synonyms, company alerts, interview experiences with moderation, and an admin usage dashboard. See [What the app does](#what-the-app-does), [Security](#security) and the roadmap below.
+
+## What the app does
+- **Find and rank real jobs** from public ATS boards, tiered by company size, explained and linked to the source apply page. Wanted roles go through a **synonym layer** (SDE = Software Engineer = Software Development Engineer, FDE = Forward Deployed Engineer ...), so titles do not have to match exactly.
+- **Outreach drafts** written only from a closed set of facts, reviewed by a Critic, and never sent for you: a human approves.
+- **Saved jobs** (account-level): a snapshot of the posting taken when you save it (so it survives expiry), a status (Saved, Applied, Interview, Offer, Rejected), notes, filters, and a "no longer listed" flag when the employer removes the posting.
+- **Companies to watch and alerts**: pick companies; when one posts a role that fits what you want, even under a different title, you get an in-app alert and, if you opt in, an email to yourself. Matching = role synonyms, then embedding similarity, then an LLM check for the borderline cases, with a "why this matched" line, a confidence threshold, de-duplication, a daily cap and one-click unsubscribe.
+- **Interview experiences**: members share structured accounts (rounds, kinds of questions, difficulty, outcome, tips, optional anonymity); others browse, search, filter and upvote. Every post is checked automatically (rules plus an LLM) and **approved by an admin before it is visible**; there are report buttons and rate limits, and a clear "do not share confidential information" notice.
+- **Admin dashboard**: total tokens, cost (by model and stage), request counts, error rates and trends, plus a moderation queue. Totals only: nothing is broken down by person.
+- Light and dark themes, an ATS keyword checker that runs entirely in your browser, and a data export / delete-my-account flow.
 
 ## Setup
 ```bash
 uv sync
 cp .env.example .env   # add ANTHROPIC_API_KEY
+uv run python -m nextrole.security genkey   # prints ENCRYPTION_KEYS=...; paste it into .env (required for personal data)
 uv run pytest -q
 uv run python -m nextrole.baseline_demo
 ```
@@ -28,8 +38,43 @@ npm run dev -- -p 3100                                 # open http://127.0.0.1:3
 
 The browser only talks to the Next app, which proxies `/api/*` to the backend, so the session cookie is same-origin and the backend needs no CORS setup. For a production UI use `npm run build && npm start`. To explore the UI with sample data and no backend or model calls, set `NEXT_PUBLIC_API_MODE=mock` in `frontend/.env.local`. Frontend details: [`frontend/README.md`](frontend/README.md).
 
+## Security
+Full threat model, controls, operating notes and honest limits: [`docs/SECURITY.md`](docs/SECURITY.md). In short:
+- **Prompt injection**: resumes, postings, fetched pages and interview posts are untrusted DATA. They reach a model only inside delimited blocks with a random per-call id, under a system rule that block contents are never instructions; the agents that read them have no tools; outputs are schema-validated; links come only from source records (model output is link-stripped, and links a model adds to a restated resume are removed); drafts pass the Critic plus an independent output guard (secrets, prompt leaks, invented contacts).
+- **Files**: magic-byte type check, size and page limits, scripts / macros / embedded objects / zip bombs rejected, hidden text (white, tiny, off-page) removed and, if it addresses an AI, the file rejected; a sanitized copy is what is stored; parsing runs in a child process with a timeout.
+- **SSRF**: public addresses only (IPv6 tricks included), redirects re-checked, size and time capped, the connection pinned to the validated address.
+- **Data**: AES-256-GCM field encryption with a key ring and a rotation command, TLS in transit (at your proxy), PII-scrubbed traces, data export, full account deletion.
+- **Web**: Argon2id, password rules enforced on the server, login throttling and lockout, HttpOnly SameSite cookies, CSRF token plus Origin check, CSP and other security headers, rate limits, role-based access enforced on the server, dependency and secret scanning (`bash scripts/audit.sh`).
+
+### Adversarial test results
+Run `uv run pytest -q tests/security` (and `uv run python scripts/security_report.py --readme` to refresh this table).
+
+<!-- security-report:start -->
+| Area | Tests | Passed | Failed | Pass rate |
+|---|---:|---:|---:|---:|
+| Prompt injection through resumes, postings, tool results and interview posts (hijacked models) | 129 | 129 | 0 | 100.0% |
+| Prompt-injection defences: data blocks, scanner, output guard, link stripping | 71 | 71 | 0 | 100.0% |
+| Malicious PDF / DOCX uploads (scripts, hidden text, bombs, spoofed types, isolation) | 32 | 32 | 0 | 100.0% |
+| SSRF (private ranges, IPv6 tricks, redirects, DNS rebinding, size caps) | 37 | 37 | 0 | 100.0% |
+| Access control on every route, CSRF, admin role, information leaks, cookie flags | 12 | 12 | 0 | 100.0% |
+| Encryption at rest, data export, account deletion, trace redaction | 5 | 5 | 0 | 100.0% |
+| Secrets committed to the repository | 2 | 2 | 0 | 100.0% |
+| Login lockout, rate limits, CSRF, security headers, admin role | 15 | 15 | 0 | 100.0% |
+| Field encryption (AES-256-GCM), key rotation, migrations | 11 | 11 | 0 | 100.0% |
+| Interview posts: XSS sanitising, personal data, moderation, reports | 59 | 59 | 0 | 100.0% |
+| Admin dashboard: totals only (no per-user data), traces, budgets | 13 | 13 | 0 | 100.0% |
+| Alerts: dedup, caps, email opt-in, unsubscribe tokens | 22 | 22 | 0 | 100.0% |
+| **All** | **408** | **408** | **0** | **100.0%** |
+
+The injection corpus has 28 payloads (direct overrides, role changes, chat-template tokens, delimiter forgery, prompt extraction, link and score manipulation, tool requests), each delivered through up to four channels, plus 10 harmless look-alikes that must NOT be flagged.
+
+How to read this: the models in these tests are mocked, and for the injection tests they are *hijacked* on purpose (they obey whatever the injected text says). A pass means the system around the model contained the damage: untrusted text stays inside data blocks, outputs are schema-validated and link-stripped, rules and an output guard run independently of the model, and a human approves anything public. It does **not** measure how often a real model is fooled; that needs live calls. Regenerate with `uv run python scripts/security_report.py --readme`.
+<!-- security-report:end -->
+
 ## Roadmap
 a. Foundations + baseline (done) · b. Job connectors (done) · c. Auth + resume parsing (done) · d. Tiering, ranking, dashboard (done) · e. Researcher/Writer/Critic (done) · f. Orchestrator, budgets, memory (done) · g. Evaluation (done; three human steps remain, listed under Evaluation)
+
+Second round (this branch): A quick wins (theme, signup rules, read-only profile, robots) · B security foundation · C saved jobs, role synonyms, watched companies · D alerts · E interview experiences and moderation · F admin dashboard · G adversarial tests and docs.
 
 ## Agent flow
 Every run is a LangGraph graph: each worker step returns to the **Orchestrator**, the one place that routes, enforces the budget, the step cap and the rewrite cap, and applies each step's failure policy. Steps stream to the UI over SSE.

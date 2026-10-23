@@ -30,3 +30,30 @@ def plain_text(text: str, max_len: int = 5000) -> str:
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()[:max_len]
+
+
+def strip_unverified_links(text: str, source: str) -> str:
+    """Remove URLs and email addresses that do NOT appear verbatim in `source`.
+
+    Used on model output that restates untrusted input (e.g. the profile extracted from a resume): a link
+    the user really wrote survives, a link a hijacked model invented does not. The model never gets to
+    introduce a link; links come only from source data.
+    """
+    haystack = source.lower()
+
+    def keep(m: re.Match[str]) -> str:
+        found = m.group(0).rstrip(".,;:!?)")
+        return m.group(0) if found.lower() in haystack else ""
+
+    return _EMAIL.sub(keep, _URL.sub(keep, text)).strip()
+
+
+def scrub_unverified_links(value, source: str):
+    """`strip_unverified_links` over every string inside nested dicts and lists."""
+    if isinstance(value, str):
+        return strip_unverified_links(value, source)
+    if isinstance(value, list):
+        return [scrub_unverified_links(v, source) for v in value]
+    if isinstance(value, dict):
+        return {k: scrub_unverified_links(v, source) for k, v in value.items()}
+    return value

@@ -19,6 +19,7 @@ from nextrole.llm.untrusted import with_data_rule, wrap
 from nextrole.models.company import normalize_company
 from nextrole.models.job import Job
 from nextrole.models.research import CompanyResearch, Fact, NewsItem
+from nextrole.security.text import strip_links
 from nextrole.tools.research_tools import TOOL_DEFS, ResearchTools
 
 MAX_CALLS_PER_STEP = 3
@@ -118,11 +119,12 @@ class ResearcherAgent:
             src = tools.sources.get(sid)
             if src is None or src.kind != "news":
                 continue
-            research.news.append(NewsItem(headline=src.title, url=src.url, date=src.date))
+            headline = strip_links(src.title)  # the link shown comes from the source record, never from title text
+            research.news.append(NewsItem(headline=headline, url=src.url, date=src.date))
             if any(f.source_ref == src.url for f in research.facts):
                 continue  # already covered by a fact from this same article
             n += 1
             research.facts.append(Fact(
                 id=f"F-R{n}", source="research", source_ref=src.url,
-                text=f"Recent news{f' ({src.date})' if src.date else ''}: {src.title}"))
+                text=f"Recent news{f' ({src.date})' if src.date else ''}: {headline}"))
         return research

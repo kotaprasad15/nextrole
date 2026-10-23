@@ -10,7 +10,7 @@ Full design: see the approved proposal (agents, schemas, data model, milestones 
 - Live baseline demo: `uv run python -m nextrole.baseline_demo` (needs `.env` with `ANTHROPIC_API_KEY`)
 
 - Evaluation (spends real tokens; see `eval/README.md`): `uv run python -m eval.run_eval {tiering|outreach|p10-sheet|p10-score|report}`
-- Security: `uv run python -m nextrole.security genkey|rotate|encrypt-existing` (key management), `bash scripts/audit.sh` (pip-audit, npm audit, gitleaks, secret scan; needs network), `uv run pytest -q tests/security` (adversarial suite). Details and threat model: `docs/SECURITY.md`.
+- Security: `uv run python -m nextrole.security genkey|rotate|encrypt-existing` (key management), `bash scripts/audit.sh` (pip-audit, npm audit, gitleaks, secret scan; needs network), `uv run pytest -q tests/security` (adversarial suite), `uv run python scripts/security_report.py --readme` (refresh the pass-rate table in README). Details and threat model: `docs/SECURITY.md`.
 - Alerts once by hand (cron-friendly): `uv run python -m nextrole.alerts_job`.
 - Live job discovery (no key needed): `uv run python -m nextrole.jobs_demo "software engineer" "remote"`
 
@@ -46,7 +46,7 @@ Next.js 16 (App Router, React 19, TypeScript strict) + Tailwind v4 + Radix, "Pap
 
 - **SEO**: `app/robots.ts` + `app/sitemap.ts` (not security: private routes are protected by `proxy.ts` and the server; the disallow list reuses `PROTECTED_PREFIXES` from `lib/route-guard.ts`, which includes `/admin`). Set `NEXT_PUBLIC_SITE_URL` in production.
 
-## Architecture (current: milestone g)
+## Architecture (original milestone a-g design, still accurate; later additions are in the sections below)
 - `config.py`: all tunables from `.env` (model names, budgets, prices). Never hardcode a model.
 - `llm/client.py`: the only gateway to Anthropic. Retries (transient only), timeout, budget check, tracing, JSON output validated by Pydantic with one repair retry.
 - Provider: `LLM_BASE_URL` (empty = Anthropic) points the same SDK at any Anthropic-compatible endpoint, e.g. DeepSeek `https://api.deepseek.com/anthropic` with `MODEL_FAST=deepseek-flash`, `MODEL_STRONG=deepseek-v4-pro`. Set `PRICE_*` to that provider's rates. PII caveat: DeepSeek hosted API is for sample resumes only.
@@ -100,6 +100,11 @@ Next.js 16 (App Router, React 19, TypeScript strict) + Tailwind v4 + Radix, "Pap
 - `GET /admin/metrics?days=` (`metrics.build_metrics`): TOTALS only. Tokens in/out, cost, cost by model, by pipeline stage, requests, error rates, daily series (zero-filled), the previous period for trends, agent runs by mode, web requests/errors, alert passes, interview queue counts, total accounts. `usage_events` (migration 6) has NO user id and no content: one row per model call, written by `LLMClient(usage_sink=...)` (the default app factory and `alerts_job` pass `metrics.make_usage_sink(conn)`; a failing sink never breaks a call). Old `runs` were backfilled as coarse "historical" events. Web counts come from `MetricsMiddleware` (per day and status class, flushed on read and at shutdown; unhandled exceptions count as 500). A test asserts no user field can appear in the payload; do not add a per-user breakdown.
 - `GET /admin/traces`, `GET /admin/traces/{id}` (`tracing/viewer.py`): debugging traces, scrubbed again on read, run id validated (no path escape), no user attached. Per-run budget enforcement (`llm/budget.py`) is unchanged and independent.
 - All `/admin/*` routes live in `api/routers/admin.py` under router-level `require_admin` (404 for non-admins, 401 anonymous). Frontend: `/admin` (usage and cost, SVG charts with data tables, traces) and `/admin/moderation`; the Admin link in the account menu is cosmetic (`role === "admin"`), the server is the protection. Mock mode: `{"admin": true}` in `nextrole_mock`.
+
+## Adversarial test suite (milestone G)
+- `tests/security/`: `payloads.py` (28 injection payloads + 10 benign look-alikes + forbidden outputs; add new attacks THERE and every channel test picks them up), `pdfs.py` (hand-built hostile PDF/DOCX files), `test_adversarial_corpus.py` (each payload through resume visible/hidden text, job postings, tool results, interview posts, with a HIJACKED model that obeys the payload), `test_prompt_injection.py`, `test_uploads.py`, `test_ssrf.py`, `test_access_and_leaks.py` (walks EVERY route: visitors get 401, writes need the CSRF token, `/admin/*` is 404 for members, costly routes carry a rate limit, no response leaks keys, prompts, paths or traces; a new PUBLIC route must be added to the allow-list on purpose), `test_privacy.py`, `test_repo_secrets.py`. FastAPI keeps included routers inside `_IncludedRouter`, so enumerate routes with the `api_routes()` helper there, not `app.routes`.
+- A model restating untrusted text must not introduce links: `agents/intake.py` removes any URL/email from the extracted profile that is not literally in the resume (`security/text.scrub_unverified_links`); `models/match.py` strips links from match text; research news headlines are link-stripped.
+- Pass rates are reported in README (`scripts/security_report.py`). They measure containment with mocked/hijacked models, not real-model robustness; say so whenever you quote them.
 
 ## Security architecture (milestone B; see `docs/SECURITY.md`)
 - **Field encryption** (`security/crypto.py`, `security/protect.py`): AES-256-GCM, keyring from `ENCRYPTION_KEYS` (first = active), ciphertext bound to `table.column:user_id`. `db/repos.py` seals/opens profile JSON, outreach draft/facts/critic/recipient and feedback notes; add a new PII column there AND to `ENCRYPTED_COLUMNS`. No plaintext fallback: without a key, saving personal data raises `CryptoNotConfigured`. The keyring is process-wide (`crypto.configure`, set in `create_app`); `tests/conftest.py` sets a test key. `RESUME_ENCRYPTION_KEY` (legacy Fernet) still works (a key is derived from it) and is upgraded at startup by `db/migrate.run_data_migrations`.
